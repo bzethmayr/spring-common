@@ -1,0 +1,7 @@
+dump
+/*.db
+.idea/
+*.iml
+*.csv
+/target/
+/out/
