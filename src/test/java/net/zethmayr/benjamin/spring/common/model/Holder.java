@@ -1,9 +1,9 @@
-package net.zethmayr.benjamin.spring.common.mapper.base;
+package net.zethmayr.benjamin.spring.common.model;
 
-class Holder<T> {
+public class Holder<T> {
     private T held;
 
-    Holder(final T initial) {
+    public Holder(final T initial) {
         this.held = initial;
     }
 

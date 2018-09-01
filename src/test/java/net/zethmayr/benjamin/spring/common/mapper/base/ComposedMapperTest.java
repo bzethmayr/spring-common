@@ -1,5 +1,6 @@
 package net.zethmayr.benjamin.spring.common.mapper.base;
 
+import net.zethmayr.benjamin.spring.common.model.Holder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
