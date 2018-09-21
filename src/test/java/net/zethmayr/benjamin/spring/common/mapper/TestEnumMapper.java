@@ -1,5 +1,10 @@
-package net.zethmayr.benjamin.spring.common.mapper.base;
+package net.zethmayr.benjamin.spring.common.mapper;
 
+import net.zethmayr.benjamin.spring.common.mapper.base.ClassFieldMapper;
+import net.zethmayr.benjamin.spring.common.mapper.base.ColumnType;
+import net.zethmayr.benjamin.spring.common.mapper.base.ComposedMapper;
+import net.zethmayr.benjamin.spring.common.mapper.base.EnumRowMapper;
+import net.zethmayr.benjamin.spring.common.mapper.base.Mapper;
 import net.zethmayr.benjamin.spring.common.model.TestEnum;
 
 import java.util.Arrays;
@@ -12,27 +17,30 @@ public class TestEnumMapper extends EnumRowMapper<TestEnum> {
                     TestEnum::ordinal,
                     TestEnum::fromOrdinal
             );
-
-    public static final String TABLE = "responses";
-    public static final List<ClassFieldMapper<TestEnum>> FIELDS = Collections.unmodifiableList(Arrays.asList(
-            ID,
+    public static final Mapper<TestEnum, String, String> N =
             ComposedMapper.enumDirect(
                     "n",
                     TestEnum::n,
                     ColumnType.SHORT_STRING
-            ),
+            );
+    public static final Mapper<TestEnum, Boolean, String> INDICATION =
             ComposedMapper.enumField(
                     "indication",
                     TestEnum::indication,
                     (b) -> Boolean.toString(b),
                     ColumnType.SHORT_STRING,
                     Boolean::valueOf
-            )
+            );
+
+
+    public static final String TABLE = "responses";
+    public static final List<ClassFieldMapper<TestEnum>> FIELDS = Collections.unmodifiableList(Arrays.asList(
+            ID, N, INDICATION
     ));
 
     public TestEnumMapper() {
         super(
-                TestEnum.class,
+                TestEnum.YES,
                 FIELDS,
                 TABLE,
                 genSelectIds(FIELDS, TABLE),

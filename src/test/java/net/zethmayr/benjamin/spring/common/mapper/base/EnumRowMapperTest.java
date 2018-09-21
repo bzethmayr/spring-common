@@ -1,14 +1,13 @@
 package net.zethmayr.benjamin.spring.common.mapper.base;
 
+import net.zethmayr.benjamin.spring.common.mapper.TestEnumMapper;
 import net.zethmayr.benjamin.spring.common.model.TestEnum;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.sql.ResultSet;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import static net.zethmayr.benjamin.spring.common.model.TestEnum.MAYBE;
 import static org.hamcrest.Matchers.arrayContaining;
@@ -33,7 +32,7 @@ public class EnumRowMapperTest {
         class TestMapper extends EnumRowMapper<TestEnum> {
 
             private TestMapper() {
-                super(TestEnum.class, Collections.emptyList(), null, null, null);
+                super(TestEnum.YOU_HAVE_OFFENDED_ME, Collections.emptyList(), null, null, null);
             }
         }
         new TestMapper();
@@ -52,7 +51,7 @@ public class EnumRowMapperTest {
         assertThat(underTest, isA(EnumRowMapper.class));
         final Object[] toInsert = underTest.getInsertValues(MAYBE);
         assertThat(toInsert, arrayWithSize(3));
-        assertThat(toInsert, arrayContaining(is(2),is("maybe"),is("true")));
+        assertThat(toInsert, arrayContaining(2,"maybe","true"));
     }
 
     @Test

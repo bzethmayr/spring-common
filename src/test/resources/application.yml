@@ -1,0 +1,15 @@
+ds:
+  username: sa
+  password: sa
+  jdbcUrl: jdbc:h2:mem:test;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1
+
+logging:
+  level:
+    net.zethmayr.benjamin.spring.common: TRACE
+
+---
+
+spring:
+  profiles: ezmode
+
+net.zethmayr.benjamin.repository.defaultSchemaService: true

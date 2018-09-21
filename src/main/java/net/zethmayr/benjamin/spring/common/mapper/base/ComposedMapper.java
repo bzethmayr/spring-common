@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 /**
  * This is the primary concrete field mapper implementation.
- * @param <C> The class whose field this maps
+ * {@inheritDoc}
  */
 /*
  * This implementation composes arbitrary implementations of field mapping components.
@@ -48,7 +48,7 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
         sqlType = columnType.sqlType();
         externalClass = columnType.getExternalClass();
         this.columnType = columnType;
-        LOG.info("Created column mapper {}", this);
+        LOG.trace("Created column mapper {}", this);
     }
 
     @Override

@@ -18,7 +18,7 @@ public abstract class ClassFieldMapper<C> {
     public abstract ColumnType getColumnType();
 
     /**
-     * Returns the SQL serialization for the field.
+     * Returns the JDBC serialization for the field.
      * @param container
      * @return
      */

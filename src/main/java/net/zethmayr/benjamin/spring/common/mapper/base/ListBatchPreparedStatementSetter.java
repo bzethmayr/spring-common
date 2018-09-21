@@ -22,6 +22,7 @@ public class ListBatchPreparedStatementSetter<T> implements BatchPreparedStateme
     public void setValues(@Nullable PreparedStatement ps, int i) throws SQLException {
         final T value = valueObjects.get(i);
         rowMapper.fields().stream()
+                .filter(Mapper.NOT_INDEX)
                 .map(Mapper.class::cast)
                 .forEach((m)->m.apply(ps, m.serFrom(value)));
     }

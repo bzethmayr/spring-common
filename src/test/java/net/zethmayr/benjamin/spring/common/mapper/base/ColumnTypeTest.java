@@ -3,7 +3,6 @@ package net.zethmayr.benjamin.spring.common.mapper.base;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.springframework.boot.test.context.TestComponent;
 
 import java.security.SecureRandom;
 

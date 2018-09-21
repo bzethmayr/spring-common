@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import static net.zethmayr.benjamin.spring.common.Constants.MONEY_CONTEXT;
 
 public final class Functions {
-    private static final Functions FORBIDDEN = new Functions();
     private Functions() {}
 
     public static BigDecimal money(BigDecimal number) {

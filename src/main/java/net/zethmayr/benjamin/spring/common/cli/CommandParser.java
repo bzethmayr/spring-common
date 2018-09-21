@@ -2,6 +2,13 @@ package net.zethmayr.benjamin.spring.common.cli;
 
 import java.util.*;
 
+/**
+ * Parses hierarchically nested commands. Hierarchy groups are created
+ * via {@link SubCommandBinding}.
+ *
+ * This class is intended to be used via instance initialization of the
+ * {@link #bindings} and {@link #defaultFirstCommand} fields.
+ */
 public abstract class CommandParser {
     protected final Map<String, CommandBinding> bindings = new HashMap<>();
     protected String defaultFirstCommand;

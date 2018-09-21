@@ -19,6 +19,13 @@ import java.util.List;
 import static org.springframework.transaction.annotation.Isolation.REPEATABLE_READ;
 import static org.springframework.transaction.annotation.Propagation.REQUIRED;
 
+/**
+ * Provides schema creation services.
+ *
+ * This class is intended to be used via extension, to allow subclasses to wire in
+ * application-specific repositories and provide for their lifecycle, and to allow
+ * choice in database binding.
+ */
 @Component
 @EnableTransactionManagement(mode = AdviceMode.ASPECTJ, proxyTargetClass = true)
 public abstract class AbstractSchemaService {
@@ -27,9 +34,9 @@ public abstract class AbstractSchemaService {
     @Autowired
     private Breaker breaker;
 
-    private JdbcTemplate db;
+    private final JdbcTemplate db;
 
-    protected void setJdbcTemplate(final JdbcTemplate db) {
+    protected AbstractSchemaService(final @Autowired JdbcTemplate db) {
         this.db = db;
     }
 
@@ -54,6 +61,14 @@ public abstract class AbstractSchemaService {
         return sb.toString();
     }
 
+    /**
+     * Writes the enum's values to the db,
+     * adding any exception to the list.
+     * @param enumRepository A repository
+     * @param reasons A list
+     * @param values The values to write
+     * @param <T> The enum type
+     */
     @SafeVarargs
     public final <T extends Enum<T>> void maybeFailToWriteDataFor(
             final EnumRepository<T> enumRepository, final List<Exception> reasons, final T... values

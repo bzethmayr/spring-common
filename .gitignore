@@ -5,3 +5,4 @@ dump
 *.csv
 /target/
 /out/
+/doc/

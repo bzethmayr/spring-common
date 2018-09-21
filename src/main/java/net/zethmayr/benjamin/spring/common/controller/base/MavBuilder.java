@@ -1,5 +1,6 @@
 package net.zethmayr.benjamin.spring.common.controller.base;
 
+import net.zethmayr.benjamin.spring.common.util.Builder;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -10,7 +11,7 @@ import java.util.function.Consumer;
 /**
  * Builder-style initialization for {@link ModelAndView} instances.
  */
-public class MavBuilder {
+public class MavBuilder implements Builder<ModelAndView> {
     private final ModelAndView modelAndView = new ModelAndView();
     private final List<Consumer<MavBuilder>> later = new LinkedList<>();
 
@@ -80,6 +81,7 @@ public class MavBuilder {
      * Returns the built instance
      * @return the {@link ModelAndView}
      */
+    @Override
     public ModelAndView build() {
         later.forEach((a) -> a.accept(this));
         return modelAndView;

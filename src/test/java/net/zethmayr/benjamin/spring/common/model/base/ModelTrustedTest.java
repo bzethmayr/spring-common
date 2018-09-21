@@ -1,7 +1,5 @@
 package net.zethmayr.benjamin.spring.common.model.base;
 
-import net.zethmayr.benjamin.spring.common.model.base.ModelTrusted;
-import net.zethmayr.benjamin.spring.common.model.base.Trusting;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
