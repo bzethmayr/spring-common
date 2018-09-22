@@ -14,6 +14,8 @@ import java.util.function.Predicate;
  */
 public abstract class ClassFieldMapper<C> {
     /**
+     * Returns the {@link ColumnType object which defines the field's SQL properties}.
+     *
      * @return the {@link ColumnType object which defines the field's SQL properties}
      */
     public abstract ColumnType getColumnType();
@@ -35,29 +37,39 @@ public abstract class ClassFieldMapper<C> {
     public abstract void desTo(C container, ResultSet rs);
 
     /**
-     * @param ordinal this field's position in a whole-row INSERT query.
+     * Sets this field's position in a whole-row INSERT query.
+     *
+     * @param ordinal This field's position in a whole-row INSERT query.
      */
     abstract void setInsertOrdinal(int ordinal);
 
     /**
-     * @return this field's SQL name
+     * Returns this field's SQL name.
+     *
+     * @return This field's SQL name
      */
     public abstract String fieldName();
 
     /**
-     * @return this field's SQL type and constraints
+     * Returns this field's SQL type and constraints
+     *
+     * @return This field's SQL type and constraints
      */
     public abstract String sqlType();
 
     /**
-     * @return the SQL replacement character for queries, "?".
+     * Returns the SQL replacement character for queries, "?".
+     *
+     * @return The SQL replacement character for queries, "?"
      */
     public final String symbol() {
         return "?";
     }
 
     /**
-     * @return this field's position in a whole-row INSERT query
+     * Returns this field's position in a whole-row INSERT query
+     *
+     * @return This field's position in a whole-row INSERT query
      */
     public abstract int getInsertOrdinal();
 
@@ -74,7 +86,7 @@ public abstract class ClassFieldMapper<C> {
     }
 
     /**
-     * This {@link Predicate} negates {@link #isIndex}.
+     * This {@link Predicate} negates {@link #isIndex isIndex}.
      */
     public static final Predicate<ClassFieldMapper<?>> NOT_INDEX = (m) -> !isIndex(m);
 }

@@ -13,6 +13,11 @@ import java.util.stream.Collectors;
 import static net.zethmayr.benjamin.spring.common.mapper.base.ClassFieldMapper.NOT_INDEX;
 import static net.zethmayr.benjamin.spring.common.mapper.base.ClassFieldMapper.isIndex;
 
+/**
+ * A row mapper.
+ *
+ * @param <T> The instance type corresponding to a row.
+ */
 public abstract class InvertibleRowMapper<T> extends ModelTrusted<InvertibleRowMapper> implements RowMapper<T> {
 
     private final Class<T> rowClass;
@@ -36,28 +41,66 @@ public abstract class InvertibleRowMapper<T> extends ModelTrusted<InvertibleRowM
         this.insert = insert;
     }
 
+    /**
+     * Returns the row class given at creation.
+     *
+     * @return {@link #rowClass}
+     */
     public final Class<T> rowClass() {
         return rowClass;
     }
 
+    /**
+     * Returns the field mappers given at creation.
+     *
+     * @return {@link #fields}
+     */
     public final List<ClassFieldMapper<T>> fields() {
         return fields;
     }
 
+    /**
+     * Returns the table name given at creation.
+     *
+     * @return {@link #table}
+     */
     public final String table() {
         return table;
     }
 
+    /**
+     * Returns the SELECT query given at creation.
+     *
+     * @return {@link #selectMappable}
+     */
     public final String select() {
         return selectMappable;
     }
 
+    /**
+     * Returns the INSERT query given at creation.
+     *
+     * @return {@link #insert}
+     */
     public final String insert() {
         return insert;
     }
 
+    /**
+     * Returns an empty instance of the row class.
+     *
+     * @return A new {@link T}
+     */
     public abstract T empty();
 
+    /**
+     * Generates a SELECT query for all the mapped fields of the row.
+     *
+     * @param fields The field mappers
+     * @param table  The table name
+     * @param <T>    The row type
+     * @return A SELECT query with no WHERE clause
+     */
     protected static <T> String genSelect(final List<ClassFieldMapper<T>> fields, final String table) {
         return "SELECT " +
                 fields.stream()
@@ -66,6 +109,14 @@ public abstract class InvertibleRowMapper<T> extends ModelTrusted<InvertibleRowM
                 " FROM " + table;
     }
 
+    /**
+     * Generates an INSERT query for all non-generated mapped fields of the row.
+     *
+     * @param fields The field mappers
+     * @param table  The table name
+     * @param <T>    The row class
+     * @return A parameterized INSERT query
+     */
     protected static <T> String genInsert(final List<ClassFieldMapper<T>> fields, final String table) {
         return "INSERT INTO " + table + " (" +
                 fields.stream()
@@ -91,10 +142,16 @@ public abstract class InvertibleRowMapper<T> extends ModelTrusted<InvertibleRowM
         return partial;
     }
 
+    /**
+     * Extracts insert field values from an instance of the row type.
+     *
+     * @param insert An instance of the row type
+     * @return An array of JDBC values
+     */
     public final Object[] getInsertValues(final T insert) {
         return fields.stream()
                 .filter(NOT_INDEX)
-                .map((m)-> m.serFrom(insert))
+                .map((m) -> m.serFrom(insert))
                 .toArray();
     }
 }

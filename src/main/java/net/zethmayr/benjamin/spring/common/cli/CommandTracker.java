@@ -7,12 +7,14 @@ package net.zethmayr.benjamin.spring.common.cli;
 public interface CommandTracker {
     /**
      * Called when a command is about to run.
+     *
      * @param command The command name
      */
     void commandStarted(String command);
 
     /**
      * Called when a command has finished running.
+     *
      * @param command The command name
      * @return a metric
      */

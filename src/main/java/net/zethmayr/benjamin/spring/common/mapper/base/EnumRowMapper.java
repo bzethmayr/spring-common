@@ -32,12 +32,19 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
         idMapper = findIdMapper(fields);
     }
 
+    /**
+     * Returns the possible values of the enum type.
+     *
+     * @return The possible values of the enum type
+     */
     public final T[] enumValues() {
         return rowClass().getEnumConstants();
     }
 
     /**
-     * @return the mapper for the id/ordinal field
+     * Returns the mapper for the id/ordinal field.
+     *
+     * @return The mapper for the id/ordinal field
      */
     public Mapper<T, T, Integer> idMapper() {
         return idMapper;
@@ -45,6 +52,7 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
 
     /**
      * Enum instances are immutable, and the result of empty() is intended for mutation.
+     *
      * @return never
      * @throws UnsupportedOperationException when called.
      */
@@ -71,6 +79,8 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
     }
 
     /**
+     * Generates a SELECT query retrieving all ids from the table.
+     *
      * @param fieldsIgnored ignored
      * @param table         The table to generate the query for
      * @return a SELECT retrieving all ids

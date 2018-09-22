@@ -7,6 +7,13 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
 
+/**
+ * A {@link Builder} for {@link Map}s.
+ *
+ * @param <K> The key type
+ * @param <V> The value type
+ * @param <M> The map type
+ */
 public class MapBuilder<K, V, M extends Map<K, V>> implements Builder<M> {
 
     private final M map;

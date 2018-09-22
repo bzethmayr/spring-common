@@ -37,6 +37,7 @@ public class ListBuilder<T, L extends List<T>> implements Builder<L> {
      * Creates a builder populating
      * a new {@link ArrayList}.
      *
+     * @param values Initial values
      * @param <T> The element type
      * @return A builder
      */
@@ -49,6 +50,7 @@ public class ListBuilder<T, L extends List<T>> implements Builder<L> {
      * Creates a builder populating
      * a new {@link LinkedList}.
      *
+     * @param values Initial values
      * @param <T> The element type
      * @return A builder
      */
@@ -73,11 +75,12 @@ public class ListBuilder<T, L extends List<T>> implements Builder<L> {
      * This is provided primarily for compatibility with legacy code.
      *
      * @see java.util.Collections#synchronizedList
+     * @param values Initial values
      * @param <T> Ye element type
      * @return Yon builder
      */
-    public static <T> ListBuilder<T, Vector<T>> vector() {
-        return new ListBuilder<>(new Vector<>());
+    public static <T> ListBuilder<T, Vector<T>> vector(final T... values) {
+        return new ListBuilder<>(new Vector<T>()).add(values);
     }
 
     /**
@@ -106,8 +109,8 @@ public class ListBuilder<T, L extends List<T>> implements Builder<L> {
     /**
      * Adds one or more values to the list
      *
-     * @param value
-     * @return
+     * @param value Value(s) to add
+     * @return The builder
      */
     @SafeVarargs
     public final ListBuilder<T, L> add(final T... value) {

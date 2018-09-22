@@ -7,7 +7,7 @@ package net.zethmayr.benjamin.spring.common.cli;
 public interface CommandBinding {
     /**
      * Runs a parsed command, receiving any arguments.
-     * @param args
+     * @param args The arguments
      */
     void doCommand(String... args);
 }

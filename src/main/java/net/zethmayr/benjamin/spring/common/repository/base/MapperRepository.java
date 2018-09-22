@@ -20,7 +20,7 @@ import static net.zethmayr.benjamin.spring.common.mapper.base.ClassFieldMapper.N
 import static net.zethmayr.benjamin.spring.common.mapper.base.ClassFieldMapper.isIndex;
 
 /**
- * This is the default {@link Repository} implementation
+ * This is the default base {@link Repository} implementation, for pojos.
  *
  * @param <T> The persisted object type
  * @param <X> The index type
@@ -88,10 +88,12 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
         return mapper;
     }
 
+    @Override
     public String insert() {
         return insert;
     }
 
+    @Override
     @SuppressWarnings("unchecked") // from m.apply - which may STILL cce if the mapper setup is wrong
     public X insert(final T toInsert) throws ClassCastException {
         try {
@@ -151,6 +153,7 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
         delete(idMapper.serFrom(toDelete));
     }
 
+    @Override
     public String select() {
         return select;
     }

@@ -187,14 +187,15 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
     /**
      * Creates a mapper
      * for a field which records a field of an enum.
-     * @param fieldName The field name
-     * @param cGetter The instance getter method
-     * @param ser The serializer method
+     *
+     * @param fieldName  The field name
+     * @param cGetter    The instance getter method
+     * @param ser        The serializer method
      * @param columnType The SQL type information
-     * @param des The deserializer method
-     * @param <C> The instance type
-     * @param <I> The instance field type
-     * @param <O> The JDBC field type
+     * @param des        The deserializer method
+     * @param <C>        The instance type
+     * @param <I>        The instance field type
+     * @param <O>        The JDBC field type
      * @return A field mapper
      */
     public static <C extends Enum<C>, I, O> Mapper<C, I, O> enumField(final String fieldName, final Function<C, I> cGetter, final SerMapper<I, O> ser, final ColumnType<O> columnType, DesMapper<I, O> des) {
@@ -212,11 +213,12 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
      * Creates a mapper
      * for a field where the instance and JDBC types are the same
      * which records a field of an enum.
-     * @param fieldName The field name
-     * @param cGetter The instance getter method
+     *
+     * @param fieldName  The field name
+     * @param cGetter    The instance getter method
      * @param columnType The SQL type information
-     * @param <C> The instance type
-     * @param <O> The field type
+     * @param <C>        The instance type
+     * @param <O>        The field type
      * @return A field mapper
      */
     public static <C extends Enum<C>, O> Mapper<C, O, O> enumDirect(final String fieldName, final Function<C, O> cGetter, final ColumnType<O> columnType) {
