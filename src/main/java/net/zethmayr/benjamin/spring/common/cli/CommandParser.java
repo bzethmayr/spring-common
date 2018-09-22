@@ -5,10 +5,10 @@ import java.util.*;
 /**
  * Parses hierarchically nested commands. Hierarchy groups are created
  * via {@link SubCommandBinding}.
- *
+ * <p>
  * Any arguments not recognized as commands are passed as arguments to
  * the most recently recognized command, or the default command if any.
- *
+ * <p>
  * This class is intended to be used via instance initialization of the
  * {@link #bindings} and {@link #defaultFirstCommand} fields:
  * <pre>
@@ -27,11 +27,18 @@ import java.util.*;
  * </pre>
  */
 public abstract class CommandParser {
+    /**
+     * Maps command names to actions.
+     */
     protected final Map<String, CommandBinding> bindings = new HashMap<>();
+    /**
+     * If set, if there are unrecognized initial arguments, this command will run with those arguments.
+     */
     protected String defaultFirstCommand;
 
     /**
      * Parses arguments to commands and their parameters.
+     *
      * @param args An arguments array
      * @return A list of commands
      */
@@ -59,6 +66,7 @@ public abstract class CommandParser {
     /**
      * Runs a list of commands,
      * and parses and runs any sub-commands.
+     *
      * @param parsed A list of commands
      */
     public void runCommands(final List<Command> parsed) {
@@ -69,7 +77,8 @@ public abstract class CommandParser {
      * Runs a list of commands,
      * and parses and runs any sub-commands,
      * calling the specified tracker before and after each command.
-     * @param parsed A list of commands
+     *
+     * @param parsed  A list of commands
      * @param tracker A command tracker
      */
     public void runCommands(final List<Command> parsed, final CommandTracker tracker) {

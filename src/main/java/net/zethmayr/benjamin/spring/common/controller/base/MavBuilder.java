@@ -20,7 +20,8 @@ public class MavBuilder implements Builder<ModelAndView> {
     }
 
     /**
-     * A builder with no values set
+     * A builder with no values set.
+     *
      * @return a new builder
      */
     public static MavBuilder blank() {
@@ -28,7 +29,8 @@ public class MavBuilder implements Builder<ModelAndView> {
     }
 
     /**
-     * A builder set to the given view
+     * A builder set to the given view.
+     *
      * @param viewName the view name
      * @return a new builder for the given view
      */
@@ -37,7 +39,8 @@ public class MavBuilder implements Builder<ModelAndView> {
     }
 
     /**
-     * Sets the view name
+     * Sets the view name.
+     *
      * @param viewName the view name
      * @return the builder
      */
@@ -47,7 +50,8 @@ public class MavBuilder implements Builder<ModelAndView> {
     }
 
     /**
-     * Adds an action to take on the builder during build
+     * Adds an action to take on the builder during build.
+     *
      * @param later the action to take
      * @return the builder
      */
@@ -57,7 +61,8 @@ public class MavBuilder implements Builder<ModelAndView> {
     }
 
     /**
-     * Sets the HTTP status
+     * Sets the HTTP status.
+     *
      * @param status the HTTP status
      * @return the builder
      */
@@ -67,8 +72,9 @@ public class MavBuilder implements Builder<ModelAndView> {
     }
 
     /**
-     * Adds an object to the model
-     * @param name the object name
+     * Adds an object to the model.
+     *
+     * @param name  the object name
      * @param value the object
      * @return the builder
      */
@@ -78,7 +84,8 @@ public class MavBuilder implements Builder<ModelAndView> {
     }
 
     /**
-     * Returns the built instance
+     * Returns the built instance.
+     *
      * @return the {@link ModelAndView}
      */
     @Override

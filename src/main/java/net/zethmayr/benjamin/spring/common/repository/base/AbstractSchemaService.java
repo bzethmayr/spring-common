@@ -21,7 +21,7 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRED;
 
 /**
  * Provides schema creation services.
- *
+ * <p>
  * This class is intended to be used via extension, to allow subclasses to wire in
  * application-specific repositories and provide for their lifecycle, and to allow
  * choice in database binding.
@@ -38,6 +38,7 @@ public abstract class AbstractSchemaService {
 
     /**
      * Requires a reference to a JDBC template
+     *
      * @param db the JDBC template
      */
     protected AbstractSchemaService(final @Autowired JdbcTemplate db) {
@@ -68,10 +69,11 @@ public abstract class AbstractSchemaService {
     /**
      * Writes the enum's values to the db,
      * adding any exception to the list.
+     *
      * @param enumRepository A repository
-     * @param reasons A list
-     * @param values The values to write
-     * @param <T> The enum type
+     * @param reasons        A list
+     * @param values         The values to write
+     * @param <T>            The enum type
      */
     @SafeVarargs
     public final <T extends Enum<T>> void maybeFailToWriteDataFor(
@@ -86,6 +88,7 @@ public abstract class AbstractSchemaService {
 
     /**
      * Generates and applies schemas for the given repositories
+     *
      * @param repositories The repositories to apply schemas for
      */
     @SuppressWarnings("unchecked") // because a repository does have the generic type it does have
@@ -99,6 +102,7 @@ public abstract class AbstractSchemaService {
 
     /**
      * Deletes all contents of the given repositories.
+     *
      * @param toBurn The repositories to delete from
      */
     public void burn(final Repository... toBurn) {
@@ -109,6 +113,7 @@ public abstract class AbstractSchemaService {
 
     /**
      * Completely removes the given repositories.
+     *
      * @param toNuke The repositories to drop
      */
     public void nuke(final Repository... toNuke) {
@@ -119,9 +124,10 @@ public abstract class AbstractSchemaService {
 
     /**
      * Writes the mapped data of an enum, mostly to allow readable ad-hoc queries
+     *
      * @param enumRepository The repository to write data for
-     * @param values The values to write data for
-     * @param <T> The enum type
+     * @param values         The values to write data for
+     * @param <T>            The enum type
      */
     @Transactional(propagation = REQUIRED, isolation = REPEATABLE_READ, rollbackFor = Throwable.class)
     @SafeVarargs
@@ -143,6 +149,13 @@ public abstract class AbstractSchemaService {
         }
     }
 
+    /**
+     * Creates a CREATE TABLE statement for the given repository.
+     *
+     * @param repository A repository
+     * @param <T>        The row type
+     * @return A CREATE TABLE statement
+     */
     /*
      * All DDL is constructed from constant values.
      * so is all other SQL.

@@ -48,19 +48,13 @@ public class ModelTrustedTest {
         final TestTrusting instance = new TestTrusting();
         assertThat(instance, not(sameInstance(underTest)));
 
-        assertThat(underTest.marshaling(), is(true));
-        assertThat(underTest.marshaling(true), is(underTest));
         assertThat(underTest.marshaling(instance), is(false));
         assertThat(underTest.marshaling(instance, true), is(underTest));
         assertThat(underTest.marshaling(instance), is(true));
+        assertThat(instance.marshaling(), is(true));
         assertThat(underTest.marshaling(instance, false), is(underTest));
         assertThat(underTest.marshaling(instance), is(false));
-        assertThat(Trusting.class.cast(underTest), Matchers.<Trusting>allOf(
-                is(sameInstance(underTest)),
-                not(sameInstance(instance))
-        ));
         assertThat(instance.marshaling(), is(false));
-        assertThat(underTest.marshaling(), is(true));
     }
 
     @Test

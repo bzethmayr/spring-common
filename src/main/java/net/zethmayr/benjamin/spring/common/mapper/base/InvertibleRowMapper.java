@@ -26,6 +26,15 @@ public abstract class InvertibleRowMapper<T> extends ModelTrusted<InvertibleRowM
     private final String selectMappable;
     private final String insert;
 
+    /**
+     * Creates a new instance.
+     *
+     * @param rowClass       The row class
+     * @param fields         The field mappers
+     * @param table          The table name
+     * @param selectMappable A SELECT query to retrieve mappable fields
+     * @param insert         An INSERT query to insert specifiable fields
+     */
     protected InvertibleRowMapper(final Class<T> rowClass, final List<ClassFieldMapper<T>> fields, final String table, final String selectMappable, final String insert) {
         this.rowClass = rowClass;
         this.fields = Collections.unmodifiableList(fields);

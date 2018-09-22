@@ -19,11 +19,17 @@ public class Command implements Runnable {
         this.args = args;
     }
 
+    /**
+     * Runs the command - provides the arguments to the {@link CommandBinding}.
+     */
     @Override
     public void run() {
         binding.doCommand(args);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "Command{" +

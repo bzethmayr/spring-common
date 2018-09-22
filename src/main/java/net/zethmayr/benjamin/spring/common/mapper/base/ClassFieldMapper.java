@@ -13,6 +13,12 @@ import java.util.function.Predicate;
  * To avoid the inevitable confusion... this interface exists to loosen generic bounds.
  */
 public abstract class ClassFieldMapper<C> {
+
+    /**
+     * Sub-classes do not have to provide any particular arguments at instantiation.
+     */
+    protected ClassFieldMapper() {};
+
     /**
      * Returns the {@link ColumnType object which defines the field's SQL properties}.
      *
