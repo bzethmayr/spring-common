@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.TreeMap;
 
 import static org.hamcrest.Matchers.instanceOf;
@@ -16,6 +17,7 @@ import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 public class MapBuilderTest {
+
     @Test
     public void canBuildOnProvidedMap() {
         val original = new HashMap<String, Integer>();
