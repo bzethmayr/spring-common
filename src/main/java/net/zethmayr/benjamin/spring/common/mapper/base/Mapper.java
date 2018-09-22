@@ -4,25 +4,32 @@ import java.sql.ResultSet;
 import java.util.function.BiConsumer;
 
 /**
- * A typesafe mapper
+ * A type-safe mapper
  * for a specific field of a given class.
- * {@inheritDoc}
  *
- * @param <I> The type of the class's mapped field, a.k.a. the internal type
- * @param <O> The JDBC-level type of the mapped field, a.k.a. the external type
+ * @param <C> the object type of which this maps a field, a.k.a the instance type
+ * @param <I> The type of the class's mapped field, a.k.a. the instance field type or internal type
+ * @param <O> The JDBC-level type of the mapped field, a.k.a. the external type or JDBC type
  */
 public abstract class Mapper<C, I, O> extends ClassFieldMapper<C> implements SerMapper<I, O>, RsGetter<O>, PsSetter<O>, DesMapper<I, O> {
 
+    /**
+     * The SQL field name
+     */
     public final String fieldName;
 
     /**
      * Construct a mapper for the given SQL field name.
-     * @param fieldName
+     *
+     * @param fieldName The field name
      */
     protected Mapper(final String fieldName) {
         this.fieldName = fieldName;
     }
 
+    /**
+     * @inheritDoc
+     */
     @Override
     abstract void setInsertOrdinal(int ordinal);
 
@@ -47,6 +54,7 @@ public abstract class Mapper<C, I, O> extends ClassFieldMapper<C> implements Ser
 
     /**
      * Retrieves the field value, in the internal type, from the containing class instance.
+     *
      * @param container The containing instance
      * @return The field value in the internal type
      */
@@ -54,6 +62,7 @@ public abstract class Mapper<C, I, O> extends ClassFieldMapper<C> implements Ser
 
     /**
      * Retrieves the serialized field value from the containing object (in the external type).
+     *
      * @param container The containing instance
      * @return The field value in the external type
      */
@@ -64,8 +73,9 @@ public abstract class Mapper<C, I, O> extends ClassFieldMapper<C> implements Ser
 
     /**
      * Deserializes the field from a {@link ResultSet} directly into the containing object.
+     *
      * @param container The containing instance
-     * @param rs The resultset providing the value
+     * @param rs        The resultset providing the value
      */
     @Override
     public void desTo(final C container, final ResultSet rs) {
@@ -74,8 +84,9 @@ public abstract class Mapper<C, I, O> extends ClassFieldMapper<C> implements Ser
 
     /**
      * Deserializes a serialized value into the containing object's specific field
+     *
      * @param container The containing instance
-     * @param external The field value in the external type
+     * @param external  The field value in the external type
      */
     public void desTo(final C container, final O external) {
         setTo(container, des(external));
@@ -83,8 +94,9 @@ public abstract class Mapper<C, I, O> extends ClassFieldMapper<C> implements Ser
 
     /**
      * Sets the field value on an instance of the class containing the field.
+     *
      * @param container The containing instance
-     * @param value The field value in the internal type
+     * @param value     The field value in the internal type
      */
     public abstract void setTo(final C container, final I value);
 

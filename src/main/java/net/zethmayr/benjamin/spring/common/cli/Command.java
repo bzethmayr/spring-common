@@ -2,7 +2,13 @@ package net.zethmayr.benjamin.spring.common.cli;
 
 import java.util.Arrays;
 
+/**
+ * A parsed command.
+ */
 public class Command implements Runnable {
+    /**
+     * The command name.
+     */
     public final String name;
     private final String[] args;
     final CommandBinding binding;
@@ -13,6 +19,7 @@ public class Command implements Runnable {
         this.args = args;
     }
 
+    @Override
     public void run() {
         binding.doCommand(args);
     }

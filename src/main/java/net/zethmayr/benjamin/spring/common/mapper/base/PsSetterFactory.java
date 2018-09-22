@@ -6,7 +6,7 @@ import java.sql.Types;
 
 /**
  * Factory to create {@link PsSetter} lambdas.
- * @param <O>
+ * @param <O> The JDBC type of values set
  */
 @FunctionalInterface
 public interface PsSetterFactory<O> {

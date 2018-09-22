@@ -29,7 +29,7 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
     private static final Logger LOG = LoggerFactory.getLogger(MapperRepository.class);
     /**
      * If you are using multiple JDBC connections,
-     * you can override this in {@link InitializingBean#afterPropertiesSet()}.
+     * you can override this in {@link InitializingBean#afterPropertiesSet()}
      */
     @Autowired
     protected JdbcTemplate jdbcTemplate;

@@ -29,7 +29,7 @@ public class MavBuilder implements Builder<ModelAndView> {
 
     /**
      * A builder set to the given view
-     * @param viewName
+     * @param viewName the view name
      * @return a new builder for the given view
      */
     public static MavBuilder to(final String viewName) {

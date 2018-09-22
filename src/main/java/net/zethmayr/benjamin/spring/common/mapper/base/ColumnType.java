@@ -1,22 +1,60 @@
 package net.zethmayr.benjamin.spring.common.mapper.base;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
 /**
  * A description of the SQL-level properties of a given field.
- * @param <O>
+ *
+ * @param <O> The JDBC-level type of the field
  */
 public interface ColumnType<O> {
+    /**
+     * Provides access to the {@link ResultSet} getter factory.
+     *
+     * @return the getter factory
+     */
     RsGetterFactory<O> getterFactory();
 
+    /**
+     * Provides access to the {@link PreparedStatement} setter factory.
+     *
+     * @return the setter factory
+     */
     PsSetterFactory<O> setterFactory();
 
+    /**
+     * Returns the SQL used to declare a field of this type.
+     *
+     * @return the SQL used to declare a field of this type.
+     */
     String sqlType();
 
+    /**
+     * Returns true if the field is a generated index, else false.
+     *
+     * @return true if the field is a generated index, else false.
+     */
     boolean isIndexColumn();
 
+    /**
+     * Returns the external (JDBC-level) class of the field
+     *
+     * @return the external (JDBC-level) class of the field
+     */
     Class<O> getExternalClass();
 
+    /**
+     * Enforces limits on values about to be stored.
+     *
+     * @param initial The value presented for storage
+     * @return The limited value
+     */
     O limited(O initial);
 
+    /**
+     * A generated 32-bit signed integer index column.
+     */
     ColumnType<Integer> INTEGER_INDEX = new ColumnType<Integer>() {
         @Override
         public RsGetterFactory<Integer> getterFactory() {
@@ -49,6 +87,9 @@ public interface ColumnType<O> {
         }
     };
 
+    /**
+     * A signed 32-bit integer column.
+     */
     ColumnType<Integer> INTEGER = new ColumnType<Integer>() {
         @Override
         public RsGetterFactory<Integer> getterFactory() {
@@ -81,6 +122,9 @@ public interface ColumnType<O> {
         }
     };
 
+    /**
+     * A signed 64-bit integer column.
+     */
     ColumnType<Long> LONG = new ColumnType<Long>() {
         @Override
         public RsGetterFactory<Long> getterFactory() {
@@ -113,6 +157,10 @@ public interface ColumnType<O> {
         }
     };
 
+    /**
+     * A short fixed-length string column
+     * which truncates excess data on write.
+     */
     ColumnType<String> SHORT_STRING = new ColumnType<String>() {
         @Override
         public RsGetterFactory<String> getterFactory() {
@@ -141,10 +189,14 @@ public interface ColumnType<O> {
 
         @Override
         public String limited(String in) {
-            return in == null ? null : in.length() <= 15 ? in : in.substring(0,15);
+            return in == null ? null : in.length() <= 15 ? in : in.substring(0, 15);
         }
     };
 
+    /**
+     * A longish variable-length string column
+     * which truncates excess data on write.
+     */
     ColumnType<String> LONG_STRING = new ColumnType<String>() {
         @Override
         public RsGetterFactory<String> getterFactory() {
@@ -173,7 +225,7 @@ public interface ColumnType<O> {
 
         @Override
         public String limited(String in) {
-            return in == null ? null : in.length() <= 255 ? in : in.substring(0,255);
+            return in == null ? null : in.length() <= 255 ? in : in.substring(0, 255);
         }
     };
 }

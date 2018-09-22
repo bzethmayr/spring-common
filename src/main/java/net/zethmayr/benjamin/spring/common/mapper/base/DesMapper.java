@@ -4,6 +4,11 @@ import java.math.BigDecimal;
 
 import static net.zethmayr.benjamin.spring.common.Constants.MONEY_CONTEXT;
 
+/**
+ * Functional interface for field deserializer functions.
+ * @param <I> The instance field type
+ * @param <O> The JDBC field type
+ */
 @FunctionalInterface
 public interface DesMapper<I, O> {
     /**
@@ -14,6 +19,8 @@ public interface DesMapper<I, O> {
      */
     I des(final O ser) throws MappingException;
 
-
+    /**
+     * A default deserializer for money values.
+     */
     DesMapper<BigDecimal, String> MONEY = (s) -> new BigDecimal(s, MONEY_CONTEXT);
 }

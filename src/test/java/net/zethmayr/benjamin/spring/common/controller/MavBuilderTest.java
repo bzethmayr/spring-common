@@ -67,8 +67,10 @@ public class MavBuilderTest {
     @Test
     public void canPutValuesInModel() {
         val underTest = MavBuilder.blank();
-        underTest.put("flag", true);
-        val built = underTest.build();
+        val built = underTest
+                .put("flag", true)
+                .put("galf", false)
+                .build();
         assertThat(built.getModel().get("flag"), is(true));
     }
 }

@@ -52,12 +52,12 @@ public class DefaultSchemaService extends AbstractSchemaService implements Initi
     }
 
     @Override
-    @SuppressWarnings("unchecked") // because the generic types in the writeDataFor call are known to come from the same type token
     public void afterPropertiesSet() throws Exception {
         applyEnums();
         applyPojos();
     }
 
+    @SuppressWarnings("unchecked") // because the generic types in the writeDataFor call are known to come from the same type token
     public void applyEnums() {
         applySchemaFor(enumRepositories);
         for (val repository : enumRepositories) {

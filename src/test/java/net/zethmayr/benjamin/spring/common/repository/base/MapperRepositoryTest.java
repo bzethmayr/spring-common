@@ -3,6 +3,7 @@ package net.zethmayr.benjamin.spring.common.repository.base;
 import lombok.val;
 import net.zethmayr.benjamin.spring.common.model.TestPojo;
 import net.zethmayr.benjamin.spring.common.repository.TestPojoRepository;
+import net.zethmayr.benjamin.spring.common.repository.TestSchemaService;
 import net.zethmayr.benjamin.spring.common.util.ListBuilder;
 import org.junit.After;
 import org.junit.Before;
@@ -46,7 +47,7 @@ public class MapperRepositoryTest {
     private TestPojoRepository underTest;
 
     @Autowired
-    private AbstractSchemaService schemaService;
+    private TestSchemaService schemaService;
 
     @SpyBean
     private JdbcTemplate db;
@@ -180,7 +181,7 @@ public class MapperRepositoryTest {
 
     @Test
     public void canGetForIndex() {
-        val fakeReturn = ListBuilder.array().add(null).add(null).build();
+        val fakeReturn = ListBuilder.array().add(doi(), doi()).build();
         doReturn(fakeReturn).when(db).query(anyString(), any(RowMapper.class), any());
         val returned = underTest.getFor(0);
         assertThat(returned, hasSize(2));
@@ -203,7 +204,7 @@ public class MapperRepositoryTest {
 
     @Test
     public void canGetAll() {
-        val fakeReturn = ListBuilder.array().add(null).add(null).build();
+        val fakeReturn = ListBuilder.array().add(doi(), doi()).build();
         doReturn(fakeReturn).when(db).query(anyString(), any(RowMapper.class));
         val returned = underTest.getAll();
         assertThat(returned, hasSize(2));
@@ -226,7 +227,7 @@ public class MapperRepositoryTest {
 
     @Test
     public void canGetUnsafe() {
-        val fakeReturn = ListBuilder.array().add(null).add(null).build();
+        val fakeReturn = ListBuilder.array().add(doi()).add(doi()).build();
         doReturn(fakeReturn).when(db).query(anyString(), any(RowMapper.class), any());
         val returned = underTest.getUnsafe(underTest.getById, 0);
         assertThat(returned, hasSize(2));

@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * A default implementation of command tracking, taking time as the metric.
+ */
 @Service
 public class SingleThreadCommandTracker implements CommandTracker {
     private static final Logger LOG = LoggerFactory.getLogger(SingleThreadCommandTracker.class);

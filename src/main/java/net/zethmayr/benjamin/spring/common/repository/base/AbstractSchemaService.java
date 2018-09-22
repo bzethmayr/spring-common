@@ -36,6 +36,10 @@ public abstract class AbstractSchemaService {
 
     private final JdbcTemplate db;
 
+    /**
+     * Requires a reference to a JDBC template
+     * @param db the JDBC template
+     */
     protected AbstractSchemaService(final @Autowired JdbcTemplate db) {
         this.db = db;
     }
@@ -80,6 +84,10 @@ public abstract class AbstractSchemaService {
         }
     }
 
+    /**
+     * Generates and applies schemas for the given repositories
+     * @param repositories The repositories to apply schemas for
+     */
     @SuppressWarnings("unchecked") // because a repository does have the generic type it does have
     public void applySchemaFor(final Repository... repositories) {
         for (Repository repository : repositories) {
@@ -89,21 +97,36 @@ public abstract class AbstractSchemaService {
         }
     }
 
+    /**
+     * Deletes all contents of the given repositories.
+     * @param toBurn The repositories to delete from
+     */
     public void burn(final Repository... toBurn) {
         for (final Repository repo : toBurn) {
             db.execute("DELETE FROM " + repo.mapper().table());
         }
     }
 
+    /**
+     * Completely removes the given repositories.
+     * @param toNuke The repositories to drop
+     */
     public void nuke(final Repository... toNuke) {
         for (final Repository repo : toNuke) {
             db.execute("DROP TABLE IF EXISTS " + repo.mapper().table());
         }
     }
 
+    /**
+     * Writes the mapped data of an enum, mostly to allow readable ad-hoc queries
+     * @param enumRepository The repository to write data for
+     * @param values The values to write data for
+     * @param <T> The enum type
+     */
     @Transactional(propagation = REQUIRED, isolation = REPEATABLE_READ, rollbackFor = Throwable.class)
     @SafeVarargs
     public final <T extends Enum<T>> void writeDataFor(final EnumRepository<T> enumRepository, final T... values) {
+        if (breaker == null) breaker = new Breaker();
         try {
             final InvertibleRowMapper<T> mapper = enumRepository.mapper();
             breaker.breaker(1);

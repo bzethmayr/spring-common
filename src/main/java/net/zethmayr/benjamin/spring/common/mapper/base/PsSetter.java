@@ -2,6 +2,10 @@ package net.zethmayr.benjamin.spring.common.mapper.base;
 
 import java.sql.PreparedStatement;
 
+/**
+ * Sets a value into a prepared statement
+ * @param <O>
+ */
 @FunctionalInterface
 public interface PsSetter<O> {
     /**
