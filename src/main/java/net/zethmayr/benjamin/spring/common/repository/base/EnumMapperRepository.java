@@ -1,6 +1,7 @@
 package net.zethmayr.benjamin.spring.common.repository.base;
 
 import net.zethmayr.benjamin.spring.common.mapper.base.EnumRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * This is the default base {@link EnumRepository} implementation, for enums.
@@ -13,8 +14,8 @@ public abstract class EnumMapperRepository<T extends Enum<T>> extends MapperRepo
      *
      * @param mapper An enum mapper
      */
-    public EnumMapperRepository(final EnumRowMapper<T> mapper) {
-        super(mapper, mapper.idMapper());
+    public EnumMapperRepository(final JdbcTemplate jdbcTemplate, final EnumRowMapper<T> mapper) {
+        super(jdbcTemplate, mapper, mapper.idMapper());
     }
 
     private static final String CANT_DELETE = "You cannot delete enum values.";

@@ -27,12 +27,8 @@ import static net.zethmayr.benjamin.spring.common.mapper.base.ClassFieldMapper.i
  */
 public abstract class MapperRepository<T, X> implements Repository<T, X> {
     private static final Logger LOG = LoggerFactory.getLogger(MapperRepository.class);
-    /**
-     * If you are using multiple JDBC connections,
-     * you can override this in {@link InitializingBean#afterPropertiesSet()}
-     */
-    @Autowired
-    protected JdbcTemplate jdbcTemplate;
+
+    protected final JdbcTemplate jdbcTemplate;
 
     /**
      * The mapping set at construction.
@@ -67,14 +63,14 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
 
     /**
      * Constructor accepting the mapper and ID mapper for the repository.
-     * Note that if the {@link JdbcTemplate} is to be overridden this must be done after construction.
-     * Also note that the ID mapper need not be the object mapper's ID mapper,
-     * this allows multiple repositories over a single SQL database table.
+     * Note that the ID mapper need not be the object mapper's ID mapper;
+     * this allows multiple repositories over a single SQL database table and mapper.
      *
      * @param mapper   The object mapper
      * @param idMapper The field mapper for the id / index field
      */
-    protected MapperRepository(final InvertibleRowMapper<T> mapper, final Mapper<T, ?, X> idMapper) {
+    protected MapperRepository(final @Autowired JdbcTemplate jdbcTemplate, final InvertibleRowMapper<T> mapper, final Mapper<T, ?, X> idMapper) {
+        this.jdbcTemplate = jdbcTemplate;
         this.mapper = mapper;
         insert = mapper.insert();
         select = mapper.select();
