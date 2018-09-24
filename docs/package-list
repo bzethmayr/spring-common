@@ -1,0 +1,9 @@
+net.zethmayr.benjamin.spring.common
+net.zethmayr.benjamin.spring.common.cli
+net.zethmayr.benjamin.spring.common.controller.base
+net.zethmayr.benjamin.spring.common.mapper.base
+net.zethmayr.benjamin.spring.common.model.base
+net.zethmayr.benjamin.spring.common.repository
+net.zethmayr.benjamin.spring.common.repository.base
+net.zethmayr.benjamin.spring.common.service
+net.zethmayr.benjamin.spring.common.util
