@@ -35,6 +35,12 @@ public class TestPojoMapper extends InvertibleRowMapper<TestPojo> {
             ColumnType.LONG_STRING,
             TestPojo::setComment
     );
+    public static final Mapper<TestPojo, Integer, Integer> STEVE = ComposedMapper.direct(
+            "steve",
+            TestPojo::getSteve,
+            ColumnType.INTEGER,
+            TestPojo::setSteve
+    );
     public static final Mapper<TestPojo, BigDecimal, String> WEIGHTING = ComposedMapper.field(
             "weighting",
             TestPojo::getWeighting,
@@ -44,7 +50,7 @@ public class TestPojoMapper extends InvertibleRowMapper<TestPojo> {
             TestPojo::setWeighting
     );
     public static final List<ClassFieldMapper<TestPojo>> FIELDS = Arrays.asList(
-            ID, EVENT, COMMENT, WEIGHTING
+            ID, EVENT, COMMENT, STEVE, WEIGHTING
     );
     public static final String TABLE = "commentary";
     public TestPojoMapper() {

@@ -48,7 +48,7 @@ public class InvertibleRowMapperTest {
                 .setEvent(MAGNA_CARTA)
                 .setWeighting(WEIGHT);
         final Object[] toInsert = underTest.getInsertValues(pojoToInsert);
-        assertThat(toInsert, arrayContaining(0, COMMENT, "23.01"));
+        assertThat(toInsert, arrayContaining(0, COMMENT, null, "23.01"));
     }
 
     @Test

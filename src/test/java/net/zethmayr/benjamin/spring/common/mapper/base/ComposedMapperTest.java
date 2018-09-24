@@ -1,5 +1,6 @@
 package net.zethmayr.benjamin.spring.common.mapper.base;
 
+import lombok.val;
 import net.zethmayr.benjamin.spring.common.model.History;
 import net.zethmayr.benjamin.spring.common.model.Holder;
 import org.junit.Before;
@@ -138,6 +139,27 @@ public class ComposedMapperTest {
         final Holder<Integer> acceptor = new Holder<>(0);
         final ResultSet mockRs = mock(ResultSet.class);
         when(mockRs.getString("test")).thenThrow(new SQLException());
+        underTest.desTo(acceptor, mockRs);
+    }
+
+    @Test
+    public void throwsWhenRsWasNullThrows() throws Exception {
+        thrown.expect(MappingException.class);
+        final Holder<Integer> acceptor = new Holder<>(0);
+        final ResultSet mockRs = mock(ResultSet.class);
+        when(mockRs.getString("test")).thenReturn("5");
+        when(mockRs.wasNull()).thenThrow(new SQLException());
+        underTest.desTo(acceptor, mockRs);
+    }
+
+    @Test
+    public void rethrowsMappingExceptionUnwrapped() throws Exception {
+        val expected = MappingException.badSetup("four cups");
+        thrown.expect(sameInstance(expected));
+        final Holder<Integer> acceptor = new Holder<>(0);
+        final ResultSet mockRs = mock(ResultSet.class);
+        when(mockRs.getString("test")).thenReturn("5");
+        when(mockRs.wasNull()).thenThrow(expected);
         underTest.desTo(acceptor, mockRs);
     }
 

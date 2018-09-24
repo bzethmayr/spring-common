@@ -1,6 +1,7 @@
 package net.zethmayr.benjamin.spring.common.mapper.base;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.function.BiConsumer;
 
 /**
@@ -79,7 +80,12 @@ public abstract class Mapper<C, I, O> extends ClassFieldMapper<C> implements Ser
      */
     @Override
     public void desTo(final C container, final ResultSet rs) {
-        setTo(container, des(from(rs)));
+        final I got = des(from(rs));
+        try {
+            setTo(container, got != null ? rs.wasNull() ? null : got : got);
+        } catch (SQLException sqle) {
+            throw MappingException.because(sqle);
+        }
     }
 
     /**

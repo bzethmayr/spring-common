@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
 import java.util.Arrays;
@@ -28,7 +29,7 @@ import static net.zethmayr.benjamin.spring.common.mapper.base.ClassFieldMapper.i
 public abstract class MapperRepository<T, X> implements Repository<T, X> {
     private static final Logger LOG = LoggerFactory.getLogger(MapperRepository.class);
 
-    protected final JdbcTemplate jdbcTemplate;
+    protected JdbcTemplate jdbcTemplate;
 
     /**
      * The mapping set at construction.
@@ -66,10 +67,11 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
      * Note that the ID mapper need not be the object mapper's ID mapper;
      * this allows multiple repositories over a single SQL database table and mapper.
      *
+     * @param jdbcTemplate The jdbc template
      * @param mapper   The object mapper
      * @param idMapper The field mapper for the id / index field
      */
-    protected MapperRepository(final @Autowired JdbcTemplate jdbcTemplate, final InvertibleRowMapper<T> mapper, final Mapper<T, ?, X> idMapper) {
+    protected MapperRepository(final JdbcTemplate jdbcTemplate, final InvertibleRowMapper<T> mapper, final Mapper<T, ?, X> idMapper) {
         this.jdbcTemplate = jdbcTemplate;
         this.mapper = mapper;
         insert = mapper.insert();
@@ -77,6 +79,37 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
         this.idMapper = idMapper;
         delete = "DELETE FROM " + mapper.table() + " WHERE " + idMapper.fieldName + " = ?";
         getById = select + " WHERE " + idMapper.fieldName + " = ?";
+    }
+
+    /**
+     * For when you're only using one database.
+     *
+     * Extend this instead of {@link MapperRepository} to autowire your sole JdbcTemplate in
+     * {@link InitializingBean#afterPropertiesSet afterPropertiesSet}.
+     * {@inheritDoc}
+     */
+    public abstract static class SingleWired<T, X> extends MapperRepository<T, X> implements InitializingBean {
+        private static JdbcTemplate jdbcTemplate;
+
+        @Autowired
+        private Injector injector;
+
+        public SingleWired(final InvertibleRowMapper<T> mapper, final Mapper<T, ?, X> idMapper) {
+            super(jdbcTemplate, mapper, idMapper);
+        }
+
+        @Override
+        public void afterPropertiesSet() {
+            ((MapperRepository)this).jdbcTemplate = jdbcTemplate;
+        }
+    }
+
+    @Service
+    public static class Injector {
+        public Injector(final @Autowired(required = false) JdbcTemplate jdbcTemplate) {
+            SingleWired.jdbcTemplate = jdbcTemplate;
+            LOG.debug("Injector was called with jdbcTemplate {}", jdbcTemplate);
+        }
     }
 
     @Override
