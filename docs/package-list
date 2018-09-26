@@ -6,4 +6,5 @@ net.zethmayr.benjamin.spring.common.model.base
 net.zethmayr.benjamin.spring.common.repository
 net.zethmayr.benjamin.spring.common.repository.base
 net.zethmayr.benjamin.spring.common.service
+net.zethmayr.benjamin.spring.common.service.base
 net.zethmayr.benjamin.spring.common.util
