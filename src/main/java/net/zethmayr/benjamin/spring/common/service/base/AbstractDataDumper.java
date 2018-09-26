@@ -11,6 +11,7 @@ import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -32,16 +33,16 @@ public abstract class AbstractDataDumper<C> {
     private static final String TWOQUOTES = "\"\"";
 
     /**
-     * Performs Excel-style CSV quoting and quote escaping.
-     */
-    protected static final Function<String, String> QUOTED =
-            (value) -> QUOTE + (value != null ? value.replace(QUOTE, TWOQUOTES) : "") + QUOTE;
-
-    /**
      * Canonicalizes null or empty strings or "null" to empty strings, else identity.
      */
     protected static final Function<String, String> NULL_IS_NULL_IS_NULL_IS_EMPTY =
             (value) -> value == null ? "" : NULL.equals(value) ? "" : value;
+
+    /**
+     * Performs Excel-style CSV quoting and quote escaping.
+     */
+    protected static final Function<String, String> QUOTED = NULL_IS_NULL_IS_NULL_IS_EMPTY.andThen(
+            (value) -> QUOTE + value.replace(QUOTE, TWOQUOTES) + QUOTE);
 
     /**
      * Adds WHERE clauses to the source query for a dump.
@@ -88,6 +89,21 @@ public abstract class AbstractDataDumper<C> {
         public O sqlValue() {
             return field.ser(value);
         }
+    }
+
+    /**
+     * Convenience method for constructing filters.
+     *
+     * @param fieldMapper The field mapper
+     * @param sqlOp       The operation, e.g. "{@code <}"
+     * @param value       The r-value for the operation
+     * @param <C>         The instance type
+     * @param <I>         The instance field type
+     * @param <O>         The JDBC field type
+     * @return A filter
+     */
+    protected static <C, I, O> DumpFilter<C, I, O> filter(final Mapper<C, I, O> fieldMapper, final String sqlOp, final I value) {
+        return new DumpFilter<>(fieldMapper, sqlOp, value);
     }
 
     /**
@@ -239,7 +255,7 @@ public abstract class AbstractDataDumper<C> {
     protected static <C> DumpExtractor<C> directExtractor(
             final Mapper<C, String, String> concreteMapper
     ) {
-        return directExtractor(concreteMapper, Function.identity());
+        return directExtractor(concreteMapper, NULL_IS_NULL_IS_NULL_IS_EMPTY);
     }
 
     /**
@@ -323,6 +339,7 @@ public abstract class AbstractDataDumper<C> {
         return new DumpExtractor<>(
                 headerName,
                 (c) -> getList.apply(c).stream()
+                        .filter(Objects::nonNull)
                         .filter(itemFilter)
                         .findFirst()
                         .map(valueExtractor)

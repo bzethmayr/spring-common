@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -19,7 +20,10 @@ import static net.zethmayr.benjamin.spring.common.mapper.TestPojoMapper.COMMENT;
 import static net.zethmayr.benjamin.spring.common.mapper.TestPojoMapper.ID;
 import static net.zethmayr.benjamin.spring.common.mapper.TestPojoMapper.STEVE;
 import static net.zethmayr.benjamin.spring.common.mapper.TestPojoMapper.WEIGHTING;
+import static net.zethmayr.benjamin.spring.common.model.History.COLUMBUS;
+import static net.zethmayr.benjamin.spring.common.model.History.DECLARATION_OF_INDEPENDENCE;
 import static net.zethmayr.benjamin.spring.common.model.History.MAGNA_CARTA;
+import static net.zethmayr.benjamin.spring.common.service.base.AbstractDataDumper.filter;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -33,19 +37,29 @@ public class AbstractDataDumperTest {
         protected List<DumpExtractor<TestPojo>> constructExtractors() {
             return Arrays.asList(
                     stringableExtractor(ID),
-                    directExtractor(COMMENT),
+                    directExtractor(COMMENT, QUOTED),
                     new DumpExtractor<>("event name",
-                            e -> e.getEvent().name(),
-                            Function.identity()
+                            e -> {
+                                final History event = e.getEvent();
+                                return event == null ? null : event.name();
+                            },
+                            NULL_IS_NULL_IS_NULL_IS_EMPTY
                     ),
                     listValueExtractor("prior event",
-                            e -> Collections.singletonList(e.getEvent().getPriorRelated()),
+                            e -> {
+                                final History event = e.getEvent();
+                                return event == null ? Collections.emptyList() : Collections.singletonList(event.getPriorRelated());
+                            },
                             e -> true,
                             Enum::name
                     ),
                     setValueExtractor("descends from magna carta?",
                             e -> {
-                                final History prior = e.getEvent().getPriorRelated();
+                                final History event = e.getEvent();
+                                if (event == null) {
+                                    return EnumSet.noneOf(History.class);
+                                }
+                                final History prior = event.getPriorRelated();
                                 if (prior == null) {
                                     return EnumSet.noneOf(History.class);
                                 } else {
@@ -53,11 +67,15 @@ public class AbstractDataDumperTest {
                                 }
                             },
                             MAGNA_CARTA
-                            ),
+                    ),
                     new DumpExtractor<TestPojo>("years",
-                            e -> e.getEvent().year(),
-                            NULL_IS_NULL_IS_NULL_IS_EMPTY).aggregator(numericAggregator()),
-                    stringableExtractor(WEIGHTING),
+                            e -> {
+                                final History event = e.getEvent();
+                                return event == null ? "" : event.year();
+                            },
+                            Function.identity()
+                    ).aggregator(numericAggregator()),
+                    stringableExtractor(WEIGHTING).aggregator(numericAggregator()),
                     stringableExtractor(STEVE).aggregator(numericAggregator())
             );
         }
@@ -76,5 +94,39 @@ public class AbstractDataDumperTest {
     @Test
     public void canDumpNothing() {
         underTest.dump(null, pojoRepository);
+    }
+
+    private final List<TestPojo> someBadPojos() {
+        return Arrays.asList(
+                new TestPojo().setId(0).setComment("fun").setEvent(DECLARATION_OF_INDEPENDENCE).setWeighting(new BigDecimal("0.2")).setSteve(5),
+                new TestPojo().setId(1),
+                new TestPojo()
+        );
+    }
+
+    @Test
+    public void canDumpSomePojosWithNullsInThem() {
+        when(pojoRepository.getUnsafe("")).thenReturn(someBadPojos());
+        underTest.dump(null, pojoRepository);
+    }
+
+    private final List<TestPojo> someGoodPojos() {
+        return Arrays.asList(
+                new TestPojo().setId(0).setEvent(MAGNA_CARTA).setWeighting(new BigDecimal("2")).setComment("Important.").setSteve(12),
+                new TestPojo().setId(1).setEvent(COLUMBUS).setWeighting(new BigDecimal("1")).setComment("Happened.").setSteve(2),
+                new TestPojo().setId(0).setEvent(DECLARATION_OF_INDEPENDENCE).setWeighting(new BigDecimal("0.3")).setComment("Tax protest.").setSteve(32)
+        );
+    }
+
+    @Test
+    public void canDumpSomePojosWithoutNullsInThem() {
+        when(pojoRepository.getUnsafe("")).thenReturn(someGoodPojos());
+        underTest.dump(null, pojoRepository);
+    }
+
+    @Test
+    public void weCouldFilterADumpIfWeWereUsingARealDatabaseInThisTestToo() {
+        when(pojoRepository.getUnsafe(" WHERE id > ? AND id < ?", 10, 20)).thenReturn(someGoodPojos());
+        underTest.dump(null, pojoRepository, filter(ID, ">", 10), filter(ID, "<", 20));
     }
 }
