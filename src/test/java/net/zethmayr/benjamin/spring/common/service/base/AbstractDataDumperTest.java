@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,7 +38,9 @@ public class AbstractDataDumperTest {
         protected List<DumpExtractor<TestPojo>> constructExtractors() {
             return Arrays.asList(
                     stringableExtractor(ID),
+                    directExtractor(COMMENT),
                     directExtractor(COMMENT, QUOTED),
+                    directExtractor(COMMENT, QUOTE_IF_NEEDED),
                     new DumpExtractor<>("event name",
                             e -> {
                                 final History event = e.getEvent();
@@ -93,7 +96,7 @@ public class AbstractDataDumperTest {
 
     @Test
     public void canDumpNothing() {
-        underTest.dump(null, pojoRepository);
+        underTest.dump((File)null, pojoRepository);
     }
 
     private final List<TestPojo> someBadPojos() {
@@ -107,26 +110,29 @@ public class AbstractDataDumperTest {
     @Test
     public void canDumpSomePojosWithNullsInThem() {
         when(pojoRepository.getUnsafe("")).thenReturn(someBadPojos());
-        underTest.dump(null, pojoRepository);
+        underTest.dump((File)null, pojoRepository);
     }
 
     private final List<TestPojo> someGoodPojos() {
         return Arrays.asList(
-                new TestPojo().setId(0).setEvent(MAGNA_CARTA).setWeighting(new BigDecimal("2")).setComment("Important.").setSteve(12),
-                new TestPojo().setId(1).setEvent(COLUMBUS).setWeighting(new BigDecimal("1")).setComment("Happened.").setSteve(2),
-                new TestPojo().setId(0).setEvent(DECLARATION_OF_INDEPENDENCE).setWeighting(new BigDecimal("0.3")).setComment("Tax protest.").setSteve(32)
+                new TestPojo().setId(0).setEvent(MAGNA_CARTA)
+                        .setWeighting(new BigDecimal("2")).setComment("Important.").setSteve(12),
+                new TestPojo().setId(1).setEvent(COLUMBUS)
+                        .setWeighting(new BigDecimal("1")).setComment("Happened.").setSteve(2),
+                new TestPojo().setId(0).setEvent(DECLARATION_OF_INDEPENDENCE)
+                        .setWeighting(new BigDecimal("0.3")).setComment("Tax protest.").setSteve(32)
         );
     }
 
     @Test
     public void canDumpSomePojosWithoutNullsInThem() {
         when(pojoRepository.getUnsafe("")).thenReturn(someGoodPojos());
-        underTest.dump(null, pojoRepository);
+        underTest.dump((File)null, pojoRepository);
     }
 
     @Test
     public void weCouldFilterADumpIfWeWereUsingARealDatabaseInThisTestToo() {
         when(pojoRepository.getUnsafe(" WHERE id > ? AND id < ?", 10, 20)).thenReturn(someGoodPojos());
-        underTest.dump(null, pojoRepository, filter(ID, ">", 10), filter(ID, "<", 20));
+        underTest.dump((File)null, pojoRepository, filter(ID, ">", 10), filter(ID, "<", 20));
     }
 }

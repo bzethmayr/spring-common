@@ -145,6 +145,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <destDir>${project.basedir}/docs</destDir>
+                    <notimestamp>true</notimestamp>
                 </configuration>
                 <executions>
                     <execution>

@@ -16,7 +16,11 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static java.util.regex.Pattern.MULTILINE;
 
 /**
  * Base class for CSV-generating services. Allows more-or-less declarative construction
@@ -39,10 +43,24 @@ public abstract class AbstractDataDumper<C> {
             (value) -> value == null ? "" : NULL.equals(value) ? "" : value;
 
     /**
-     * Performs Excel-style CSV quoting and quote escaping.
+     * Performs Excel-style CSV quoting and quote escaping, after null canonicalization.
      */
     protected static final Function<String, String> QUOTED = NULL_IS_NULL_IS_NULL_IS_EMPTY.andThen(
             (value) -> QUOTE + value.replace(QUOTE, TWOQUOTES) + QUOTE);
+
+    private static final Pattern MUST_QUOTE = Pattern.compile("[\",\r\n]", MULTILINE);
+    /**
+     * Conditionally quotes fields, after null canonicalization.
+     * Fields are quoted if they contain commas, quotes, cr, or lf
+     */
+    protected static final Function<String, String> QUOTE_IF_NEEDED = NULL_IS_NULL_IS_NULL_IS_EMPTY.andThen(
+            (value) -> {
+                final Matcher m = MUST_QUOTE.matcher(value);
+                if (m.find()) {
+                    return QUOTED.apply(value);
+                }
+                return value;
+            });
 
     /**
      * Adds WHERE clauses to the source query for a dump.
@@ -203,30 +221,35 @@ public abstract class AbstractDataDumper<C> {
             } else {
                 out = new PrintStream(new FileOutputStream(outFile));
             }
-            List<DumpExtractor<C>> extractors = constructExtractors(); // preconstruct?
-            printHeaders(out, extractors);
-            final StringBuilder sql = new StringBuilder(repository.select());
-            final Object[] values = new Object[filters.length];
-            boolean first = true;
-            for (int i = 0; i < filters.length; i++) {
-                sql.append(filters[i].sql(first));
-                values[i] = filters[i].sqlValue();
-                first = false;
-            }
-            LOG.debug("sql is {}", sql);
-            final List<C> items = repository.getUnsafe(sql.toString(), values);
-            for (final C item : items) {
-                printItem(out, item, extractors);
-            }
-            if (aggregate()) {
-                printAggregates(out, extractors);
-            }
+            dump(out, repository, filters);
         } catch (Exception e) {
             throw ServiceException.because(e);
         } finally {
             if (mustClose && out != null) {
                 out.close();
             }
+        }
+    }
+
+    @SafeVarargs
+    protected final void dump(final PrintStream out, final Repository<C, ?> repository, final DumpFilter<C, ?, ?>... filters) {
+        List<DumpExtractor<C>> extractors = constructExtractors(); // preconstruct?
+        printHeaders(out, extractors);
+        final StringBuilder sql = new StringBuilder(repository.select());
+        final Object[] values = new Object[filters.length];
+        boolean first = true;
+        for (int i = 0; i < filters.length; i++) {
+            sql.append(filters[i].sql(first));
+            values[i] = filters[i].sqlValue();
+            first = false;
+        }
+        LOG.debug("sql is {}", sql);
+        final List<C> items = repository.getUnsafe(sql.toString(), values);
+        for (final C item : items) {
+            printItem(out, item, extractors);
+        }
+        if (aggregate()) {
+            printAggregates(out, extractors);
         }
     }
 
@@ -370,7 +393,7 @@ public abstract class AbstractDataDumper<C> {
         );
     }
 
-    private void dumpLine(final PrintStream out, final String line) {
+    private static void dumpLine(final PrintStream out, final String line) {
         out.println(line);
         LOG.trace(line);
     }
