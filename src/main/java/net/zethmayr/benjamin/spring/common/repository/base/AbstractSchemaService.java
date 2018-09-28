@@ -123,7 +123,7 @@ public abstract class AbstractSchemaService {
     }
 
     /**
-     * Writes the mapped data of an enum, mostly to allow readable ad-hoc queries
+     * Writes the mapped data of an enum, mostly to allow readable ad-hoc queries.
      *
      * @param enumRepository The repository to write data for
      * @param values         The values to write data for

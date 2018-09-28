@@ -51,7 +51,7 @@ public abstract class AbstractDataDumper<C> {
     private static final Pattern MUST_QUOTE = Pattern.compile("[\",\r\n]", MULTILINE);
     /**
      * Conditionally quotes fields, after null canonicalization.
-     * Fields are quoted if they contain commas, quotes, cr, or lf
+     * Fields are quoted if they contain commas, quotes, cr, or lf.
      */
     protected static final Function<String, String> QUOTE_IF_NEEDED = NULL_IS_NULL_IS_NULL_IS_EMPTY.andThen(
             (value) -> {

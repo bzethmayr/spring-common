@@ -120,7 +120,7 @@ public class AbstractDataDumperTest {
                 new TestPojo().setId(1).setEvent(COLUMBUS)
                         .setWeighting(new BigDecimal("1")).setComment("Happened.").setSteve(2),
                 new TestPojo().setId(0).setEvent(DECLARATION_OF_INDEPENDENCE)
-                        .setWeighting(new BigDecimal("0.3")).setComment("Tax protest.").setSteve(32)
+                        .setWeighting(new BigDecimal("0.3")).setComment("Tax protest, more or less.").setSteve(32)
         );
     }
 
