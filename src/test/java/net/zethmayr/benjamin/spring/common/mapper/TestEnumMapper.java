@@ -18,7 +18,7 @@ public class TestEnumMapper extends EnumRowMapper<TestEnum> {
                     TestEnum::fromOrdinal
             );
     public static final Mapper<TestEnum, String, String> N =
-            ComposedMapper.enumDirect(
+            ComposedMapper.enumSimple(
                     "n",
                     TestEnum::n,
                     ColumnType.SHORT_STRING

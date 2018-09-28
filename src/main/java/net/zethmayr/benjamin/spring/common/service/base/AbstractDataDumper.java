@@ -62,6 +62,21 @@ public abstract class AbstractDataDumper<C> {
                 return value;
             });
 
+    protected enum SqlOp {
+        LT("<"),
+        LTE("<="),
+        GT(">"),
+        GTE(">="),
+        EQ("="),
+        LIKE("LIKE");
+
+        public final String sql;
+
+        SqlOp(final String sql) {
+            this.sql = sql;
+        }
+    }
+
     /**
      * Adds WHERE clauses to the source query for a dump.
      *
@@ -81,9 +96,9 @@ public abstract class AbstractDataDumper<C> {
          * @param sqlOp The operation, e.g. "{@code <}"
          * @param value The r-value for the operation
          */
-        public DumpFilter(final Mapper<C, I, O> field, final String sqlOp, final I value) {
+        public DumpFilter(final Mapper<C, I, O> field, final SqlOp sqlOp, final I value) {
             this.field = field;
-            this.sqlOp = sqlOp;
+            this.sqlOp = sqlOp.sql;
             this.value = value;
         }
 
@@ -120,7 +135,7 @@ public abstract class AbstractDataDumper<C> {
      * @param <O>         The JDBC field type
      * @return A filter
      */
-    protected static <C, I, O> DumpFilter<C, I, O> filter(final Mapper<C, I, O> fieldMapper, final String sqlOp, final I value) {
+    protected static <C, I, O> DumpFilter<C, I, O> filter(final Mapper<C, I, O> fieldMapper, final SqlOp sqlOp, final I value) {
         return new DumpFilter<>(fieldMapper, sqlOp, value);
     }
 
@@ -173,7 +188,7 @@ public abstract class AbstractDataDumper<C> {
      *
      * @return An aggregator
      */
-    protected Function<String, String> numericAggregator() {
+    protected Function<String, String> summingAggregator() {
         final AtomicReference<String> enclosed = new AtomicReference<>(null);
         return (s) -> enclosed.getAndAccumulate(s, (p, n) -> {
             if (n == null) {
@@ -262,7 +277,7 @@ public abstract class AbstractDataDumper<C> {
      * @param <C>              The instance type
      * @return An extractor for the string field value
      */
-    protected static <C> DumpExtractor<C> directExtractor(
+    protected static <C> DumpExtractor<C> stringExtractor(
             final Mapper<C, String, String> concreteMapper,
             final Function<String, String> valueTransformer) {
         return new DumpExtractor<>(concreteMapper.fieldName, concreteMapper::serFrom, valueTransformer);
@@ -275,10 +290,10 @@ public abstract class AbstractDataDumper<C> {
      * @param <C>            The instance type
      * @return An extractor for the string field value
      */
-    protected static <C> DumpExtractor<C> directExtractor(
+    protected static <C> DumpExtractor<C> stringExtractor(
             final Mapper<C, String, String> concreteMapper
     ) {
-        return directExtractor(concreteMapper, NULL_IS_NULL_IS_NULL_IS_EMPTY);
+        return stringExtractor(concreteMapper, NULL_IS_NULL_IS_NULL_IS_EMPTY);
     }
 
     /**
@@ -329,7 +344,7 @@ public abstract class AbstractDataDumper<C> {
      * @param <S>           The set type
      * @return An extractor producing "Yes" or ""
      */
-    protected static <C, T extends Enum<T>, S extends Set<T>> DumpExtractor<C> setValueExtractor(
+    protected static <C, T extends Enum<T>, S extends Set<T>> DumpExtractor<C> setHasValueExtractor(
             final String headerName,
             final Function<C, S> getCollection,
             final T setValue
@@ -353,7 +368,7 @@ public abstract class AbstractDataDumper<C> {
      * @param <L>            The instance field type
      * @return An extractor producing the first matching item or ""
      */
-    protected static <C, X, L extends Collection<X>> DumpExtractor<C> listValueExtractor(
+    protected static <C, X, L extends Collection<X>> DumpExtractor<C> listFilteredValueExtractor(
             final String headerName,
             final Function<C, L> getList,
             final Predicate<X> itemFilter,

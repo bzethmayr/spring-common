@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class TestPojoMapper extends InvertibleRowMapper<TestPojo> {
-    public static final Mapper<TestPojo, Integer, Integer> ID = ComposedMapper.direct(
+    public static final Mapper<TestPojo, Integer, Integer> ID = ComposedMapper.simpleField(
             "id",
             TestPojo::getId,
             ColumnType.INTEGER_INDEX,
@@ -29,13 +29,13 @@ public class TestPojoMapper extends InvertibleRowMapper<TestPojo> {
             History::fromOrdinal,
             TestPojo::setEvent
     );
-    public static final Mapper<TestPojo, String, String> COMMENT = ComposedMapper.direct(
+    public static final Mapper<TestPojo, String, String> COMMENT = ComposedMapper.simpleField(
             "comment",
             TestPojo::getComment,
             ColumnType.LONG_STRING,
             TestPojo::setComment
     );
-    public static final Mapper<TestPojo, Integer, Integer> STEVE = ComposedMapper.direct(
+    public static final Mapper<TestPojo, Integer, Integer> STEVE = ComposedMapper.simpleField(
             "steve",
             TestPojo::getSteve,
             ColumnType.INTEGER,

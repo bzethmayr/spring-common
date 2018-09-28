@@ -24,6 +24,8 @@ import static net.zethmayr.benjamin.spring.common.mapper.TestPojoMapper.WEIGHTIN
 import static net.zethmayr.benjamin.spring.common.model.History.COLUMBUS;
 import static net.zethmayr.benjamin.spring.common.model.History.DECLARATION_OF_INDEPENDENCE;
 import static net.zethmayr.benjamin.spring.common.model.History.MAGNA_CARTA;
+import static net.zethmayr.benjamin.spring.common.service.base.AbstractDataDumper.SqlOp.GT;
+import static net.zethmayr.benjamin.spring.common.service.base.AbstractDataDumper.SqlOp.LT;
 import static net.zethmayr.benjamin.spring.common.service.base.AbstractDataDumper.filter;
 import static org.mockito.Mockito.when;
 
@@ -38,9 +40,9 @@ public class AbstractDataDumperTest {
         protected List<DumpExtractor<TestPojo>> constructExtractors() {
             return Arrays.asList(
                     stringableExtractor(ID),
-                    directExtractor(COMMENT),
-                    directExtractor(COMMENT, QUOTED),
-                    directExtractor(COMMENT, QUOTE_IF_NEEDED),
+                    stringExtractor(COMMENT),
+                    stringExtractor(COMMENT, QUOTED),
+                    stringExtractor(COMMENT, QUOTE_IF_NEEDED),
                     new DumpExtractor<>("event name",
                             e -> {
                                 final History event = e.getEvent();
@@ -48,7 +50,7 @@ public class AbstractDataDumperTest {
                             },
                             NULL_IS_NULL_IS_NULL_IS_EMPTY
                     ),
-                    listValueExtractor("prior event",
+                    listFilteredValueExtractor("prior event",
                             e -> {
                                 final History event = e.getEvent();
                                 return event == null ? Collections.emptyList() : Collections.singletonList(event.getPriorRelated());
@@ -56,7 +58,7 @@ public class AbstractDataDumperTest {
                             e -> true,
                             Enum::name
                     ),
-                    setValueExtractor("descends from magna carta?",
+                    setHasValueExtractor("descends from magna carta?",
                             e -> {
                                 final History event = e.getEvent();
                                 if (event == null) {
@@ -77,9 +79,9 @@ public class AbstractDataDumperTest {
                                 return event == null ? "" : event.year();
                             },
                             Function.identity()
-                    ).aggregator(numericAggregator()),
-                    stringableExtractor(WEIGHTING).aggregator(numericAggregator()),
-                    stringableExtractor(STEVE).aggregator(numericAggregator())
+                    ).aggregator(summingAggregator()),
+                    stringableExtractor(WEIGHTING).aggregator(summingAggregator()),
+                    stringableExtractor(STEVE).aggregator(summingAggregator())
             );
         }
 
@@ -133,6 +135,6 @@ public class AbstractDataDumperTest {
     @Test
     public void weCouldFilterADumpIfWeWereUsingARealDatabaseInThisTestToo() {
         when(pojoRepository.getUnsafe(" WHERE id > ? AND id < ?", 10, 20)).thenReturn(someGoodPojos());
-        underTest.dump((File)null, pojoRepository, filter(ID, ">", 10), filter(ID, "<", 20));
+        underTest.dump((File)null, pojoRepository, filter(ID, GT, 10), filter(ID, LT, 20));
     }
 }

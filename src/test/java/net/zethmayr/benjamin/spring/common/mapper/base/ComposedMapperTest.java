@@ -196,7 +196,7 @@ public class ComposedMapperTest {
 
     @Test
     public void canGetDirectMapper() {
-        final Mapper<Holder<String>, String, String> underTest = ComposedMapper.direct(
+        final Mapper<Holder<String>, String, String> underTest = ComposedMapper.simpleField(
                 "test",
                 Holder::get,
                 ColumnType.SHORT_STRING,
@@ -226,7 +226,7 @@ public class ComposedMapperTest {
 
     @Test
     public void canGetEnumDirectMapper() throws Exception {
-        final Mapper<History, String, String> underTest = ComposedMapper.enumDirect(
+        final Mapper<History, String, String> underTest = ComposedMapper.enumSimple(
                 "event_year",
                 History::year,
                 ColumnType.SHORT_STRING

@@ -153,7 +153,7 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
      * @param <O>        The field type
      * @return A field mapper
      */
-    public static <C, O> Mapper<C, O, O> direct(final String fieldName, final Function<C, O> cGetter, final ColumnType<O> columnType, final BiConsumer<C, O> cSetter) {
+    public static <C, O> Mapper<C, O, O> simpleField(final String fieldName, final Function<C, O> cGetter, final ColumnType<O> columnType, final BiConsumer<C, O> cSetter) {
         return new ComposedMapper<>(
                 fieldName,
                 cGetter,
@@ -221,7 +221,7 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
      * @param <O>        The field type
      * @return A field mapper
      */
-    public static <C extends Enum<C>, O> Mapper<C, O, O> enumDirect(final String fieldName, final Function<C, O> cGetter, final ColumnType<O> columnType) {
+    public static <C extends Enum<C>, O> Mapper<C, O, O> enumSimple(final String fieldName, final Function<C, O> cGetter, final ColumnType<O> columnType) {
         return new ComposedMapper<>(
                 fieldName,
                 cGetter,

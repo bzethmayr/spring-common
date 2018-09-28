@@ -6,6 +6,7 @@ ds:
 logging:
   level:
     net.zethmayr.benjamin.spring.common: TRACE
+    org.springframework.transaction: TRACE
 
 ---
 
