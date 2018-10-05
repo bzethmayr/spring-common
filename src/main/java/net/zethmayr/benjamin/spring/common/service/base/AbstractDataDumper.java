@@ -30,11 +30,19 @@ public abstract class AbstractDataDumper<C> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDataDumper.class);
 
     /**
-     * The canonical String representation of 'null'
+     * The canonical String representation of {@code null}
      */
-    private static final String NULL = "" + null;
+    protected static final String NULL = "" + null;
+
+    /**
+     * A quote.
+     */
     protected static final String QUOTE = "\"";
-    private static final String TWOQUOTES = "\"\"";
+
+    /**
+     * Two quotes.
+     */
+    protected static final String TWOQUOTES = QUOTE + QUOTE;
 
     /**
      * Canonicalizes null or empty strings or "null" to empty strings, else identity.
@@ -140,7 +148,7 @@ public abstract class AbstractDataDumper<C> {
     }
 
     /**
-     * Creates a CSV column based on a function of a result datum, e.g. a getter.
+     * Creates a CSV column based on a function of a result datum, usually a getter.
      *
      * @param <C> The instance type
      */
