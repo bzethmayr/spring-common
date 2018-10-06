@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -197,19 +198,31 @@ public abstract class AbstractDataDumper<C> {
      * @return An aggregator
      */
     protected Function<String, String> summingAggregator() {
-        final AtomicReference<String> enclosed = new AtomicReference<>(null);
+        return numericAggregator(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    protected Function<String, String> numericAggregator(final BigDecimal initial, final BiFunction<BigDecimal,BigDecimal,BigDecimal> combiner) {
+        return genericAggregator(initial, combiner, BigDecimal::new, BigDecimal::toPlainString);
+    }
+
+    protected <T> Function<String, String> genericAggregator(final T initial, final BiFunction<T,T,T> combiner, final Function<String,T> des, final Function<T,String> ser) {
+        final AtomicReference<String> enclosed = new AtomicReference<>();
+        if (initial != null) {
+            enclosed.set(ser.apply(initial));
+        }
         return (s) -> enclosed.getAndAccumulate(s, (p, n) -> {
-            if (n == null) {
-                return ""; // self-destructs on readout...
+            if (n == null) { // we expect never to be passed null until readout
+                return ""; // warning, clears after read
             }
-            if ("".equals(n) || NULL.equals(n)) {
+            if ("".equals(n) || NULL.equals(n)) { // no change to accumulated value
                 return p;
             }
-            if (p == null || "".equals(p) || NULL.equals(p)) {
+            if (p == null || "".equals(p) || NULL.equals(p)) { // there was no prior value
                 return n;
             }
-            return new BigDecimal(p).add(new BigDecimal(n)).toPlainString();
+            return ser.apply(combiner.apply(des.apply(p), des.apply(n)));
         });
+
     }
 
     /**
@@ -235,7 +248,7 @@ public abstract class AbstractDataDumper<C> {
      */
     @SafeVarargs
     protected final void dump(final File outFile, final Repository<C, ?> repository, final DumpFilter<C, ?, ?>... filters) {
-        PrintStream out = null; // Strongly considering making this the parameter...
+        PrintStream out = null;
         boolean mustClose = true;
         try {
             if (outFile == null) {

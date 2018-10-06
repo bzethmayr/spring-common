@@ -1,5 +1,8 @@
 package net.zethmayr.benjamin.spring.common.service.base;
 
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.zethmayr.benjamin.spring.common.model.History;
 import net.zethmayr.benjamin.spring.common.model.TestPojo;
 import net.zethmayr.benjamin.spring.common.repository.TestPojoRepository;
@@ -9,8 +12,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -27,9 +33,14 @@ import static net.zethmayr.benjamin.spring.common.model.History.MAGNA_CARTA;
 import static net.zethmayr.benjamin.spring.common.service.base.AbstractDataDumper.SqlOp.GT;
 import static net.zethmayr.benjamin.spring.common.service.base.AbstractDataDumper.SqlOp.LT;
 import static net.zethmayr.benjamin.spring.common.service.base.AbstractDataDumper.filter;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
+@Slf4j
 public class AbstractDataDumperTest {
 
     @Mock
@@ -80,8 +91,18 @@ public class AbstractDataDumperTest {
                             },
                             Function.identity()
                     ).aggregator(summingAggregator()),
-                    stringableExtractor(WEIGHTING).aggregator(summingAggregator()),
-                    stringableExtractor(STEVE).aggregator(summingAggregator())
+                    stringableExtractor(WEIGHTING)
+                            .aggregator(numericAggregator(
+                                    null,
+                                    BigDecimal::add
+                            )),
+                    stringableExtractor(STEVE)
+                            .aggregator(summingAggregator()),
+                    stringableExtractor("antisteve", STEVE)
+                    .aggregator(numericAggregator(
+                            new BigDecimal("100.00"),
+                            BigDecimal::subtract
+                    ))
             );
         }
 
@@ -136,5 +157,32 @@ public class AbstractDataDumperTest {
     public void weCouldFilterADumpIfWeWereUsingARealDatabaseInThisTestToo() {
         when(pojoRepository.getUnsafe(" WHERE id > ? AND id < ?", 10, 20)).thenReturn(someGoodPojos());
         underTest.dump((File)null, pojoRepository, filter(ID, GT, 10), filter(ID, LT, 20));
+    }
+
+    @AllArgsConstructor
+    private class Gathering {
+        final PrintStream out;
+        final ByteArrayOutputStream buf;
+    }
+
+    private Gathering gatherer() {
+        val buf = new ByteArrayOutputStream();
+        return new Gathering(new PrintStream(buf), buf);
+    }
+
+    @Test
+    public void canDoSums() {
+        when(pojoRepository.getUnsafe("")).thenReturn(someGoodPojos());
+        val gatherer = gatherer();
+        underTest.dump(gatherer.out, pojoRepository);
+        gatherer.out.flush();
+        final String out = new String(gatherer.buf.toByteArray(), StandardCharsets.UTF_8);
+        final String[] lines = out.split(System.lineSeparator());
+        System.out.println(lines[4]);
+        assertThat(lines.length, is(5));
+        assertThat(lines[4], containsString(",4484,"));
+        assertThat(lines[4], containsString(",3.30,"));
+        assertThat(lines[4], containsString(",46,"));
+        assertThat(lines[4], endsWith(",54.00"));
     }
 }
