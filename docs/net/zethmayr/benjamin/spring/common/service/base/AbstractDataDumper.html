@@ -269,7 +269,9 @@ extends <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/service/base/AbstractDataDumper.html#genericAggregator-T-java.util.function.BiFunction-java.util.function.Function-java.util.function.Function-">genericAggregator</a></span>(T&nbsp;initial,
                  <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/BiFunction.html?is-external=true" title="class or interface in java.util.function">BiFunction</a>&lt;T,T,T&gt;&nbsp;combiner,
                  <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html?is-external=true" title="class or interface in java.util.function">Function</a>&lt;<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,T&gt;&nbsp;des,
-                 <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html?is-external=true" title="class or interface in java.util.function">Function</a>&lt;T,<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;ser)</code>&nbsp;</td>
+                 <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html?is-external=true" title="class or interface in java.util.function">Function</a>&lt;T,<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;ser)</code>
+<div class="block">A generic aggregator.</div>
+</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>protected static &lt;C,X,L extends <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</a>&lt;X&gt;&gt;<br><a href="../../../../../../../net/zethmayr/benjamin/spring/common/service/base/AbstractDataDumper.DumpExtractor.html" title="class in net.zethmayr.benjamin.spring.common.service.base">AbstractDataDumper.DumpExtractor</a>&lt;C&gt;</code></td>
@@ -283,7 +285,9 @@ extends <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html?is-external=true" title="class or interface in java.util.function">Function</a>&lt;<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/service/base/AbstractDataDumper.html#numericAggregator-java.math.BigDecimal-java.util.function.BiFunction-">numericAggregator</a></span>(<a href="https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html?is-external=true" title="class or interface in java.math">BigDecimal</a>&nbsp;initial,
-                 <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/BiFunction.html?is-external=true" title="class or interface in java.util.function">BiFunction</a>&lt;<a href="https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html?is-external=true" title="class or interface in java.math">BigDecimal</a>,<a href="https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html?is-external=true" title="class or interface in java.math">BigDecimal</a>,<a href="https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html?is-external=true" title="class or interface in java.math">BigDecimal</a>&gt;&nbsp;combiner)</code>&nbsp;</td>
+                 <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/BiFunction.html?is-external=true" title="class or interface in java.util.function">BiFunction</a>&lt;<a href="https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html?is-external=true" title="class or interface in java.math">BigDecimal</a>,<a href="https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html?is-external=true" title="class or interface in java.math">BigDecimal</a>,<a href="https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html?is-external=true" title="class or interface in java.math">BigDecimal</a>&gt;&nbsp;combiner)</code>
+<div class="block">An aggregator for decimal values</div>
+</td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>protected static &lt;C,T extends <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang">Enum</a>&lt;T&gt;,S extends <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</a>&lt;T&gt;&gt;<br><a href="../../../../../../../net/zethmayr/benjamin/spring/common/service/base/AbstractDataDumper.DumpExtractor.html" title="class in net.zethmayr.benjamin.spring.common.service.base">AbstractDataDumper.DumpExtractor</a>&lt;C&gt;</code></td>
@@ -491,6 +495,14 @@ extends <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html
 <h4>numericAggregator</h4>
 <pre>protected&nbsp;<a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html?is-external=true" title="class or interface in java.util.function">Function</a>&lt;<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;numericAggregator(<a href="https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html?is-external=true" title="class or interface in java.math">BigDecimal</a>&nbsp;initial,
                                                     <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/BiFunction.html?is-external=true" title="class or interface in java.util.function">BiFunction</a>&lt;<a href="https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html?is-external=true" title="class or interface in java.math">BigDecimal</a>,<a href="https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html?is-external=true" title="class or interface in java.math">BigDecimal</a>,<a href="https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html?is-external=true" title="class or interface in java.math">BigDecimal</a>&gt;&nbsp;combiner)</pre>
+<div class="block">An aggregator for decimal values</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>initial</code> - The initial value, if any</dd>
+<dd><code>combiner</code> - The combining function, for example <a href="https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html?is-external=true#add-java.math.BigDecimal-" title="class or interface in java.math"><code>BigDecimal::add</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>An aggregator</dd>
+</dl>
 </li>
 </ul>
 <a name="genericAggregator-java.lang.Object-java.util.function.BiFunction-java.util.function.Function-java.util.function.Function-">
@@ -505,6 +517,18 @@ extends <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html
                                                         <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/BiFunction.html?is-external=true" title="class or interface in java.util.function">BiFunction</a>&lt;T,T,T&gt;&nbsp;combiner,
                                                         <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html?is-external=true" title="class or interface in java.util.function">Function</a>&lt;<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,T&gt;&nbsp;des,
                                                         <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html?is-external=true" title="class or interface in java.util.function">Function</a>&lt;T,<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;ser)</pre>
+<div class="block">A generic aggregator.</div>
+<dl>
+<dt><span class="paramLabel">Type Parameters:</span></dt>
+<dd><code>T</code> - The computation type</dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>initial</code> - The initial value, if any</dd>
+<dd><code>combiner</code> - The combining function</dd>
+<dd><code>des</code> - The deserializing function</dd>
+<dd><code>ser</code> - The serializing function</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>An aggregator</dd>
+</dl>
 </li>
 </ul>
 <a name="constructExtractors--">

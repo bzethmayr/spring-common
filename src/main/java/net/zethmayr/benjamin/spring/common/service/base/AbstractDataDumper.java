@@ -201,11 +201,28 @@ public abstract class AbstractDataDumper<C> {
         return numericAggregator(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    protected Function<String, String> numericAggregator(final BigDecimal initial, final BiFunction<BigDecimal,BigDecimal,BigDecimal> combiner) {
+    /**
+     * An aggregator for decimal values
+     *
+     * @param initial  The initial value, if any
+     * @param combiner The combining function, for example {@link BigDecimal#add BigDecimal::add}.
+     * @return An aggregator
+     */
+    protected Function<String, String> numericAggregator(final BigDecimal initial, final BiFunction<BigDecimal, BigDecimal, BigDecimal> combiner) {
         return genericAggregator(initial, combiner, BigDecimal::new, BigDecimal::toPlainString);
     }
 
-    protected <T> Function<String, String> genericAggregator(final T initial, final BiFunction<T,T,T> combiner, final Function<String,T> des, final Function<T,String> ser) {
+    /**
+     * A generic aggregator.
+     *
+     * @param initial  The initial value, if any
+     * @param combiner The combining function
+     * @param des      The deserializing function
+     * @param ser      The serializing function
+     * @param <T>      The computation type
+     * @return An aggregator
+     */
+    protected <T> Function<String, String> genericAggregator(final T initial, final BiFunction<T, T, T> combiner, final Function<String, T> des, final Function<T, String> ser) {
         final AtomicReference<String> enclosed = new AtomicReference<>();
         if (initial != null) {
             enclosed.set(ser.apply(initial));
