@@ -32,11 +32,10 @@ public class TestEnumMapper extends EnumRowMapper<TestEnum> {
                     Boolean::valueOf
             );
 
-
-    public static final String TABLE = "responses";
     public static final List<ClassFieldMapper<TestEnum>> FIELDS = Collections.unmodifiableList(Arrays.asList(
             ID, N, INDICATION
     ));
+    public static final String TABLE = "responses";
 
     public TestEnumMapper() {
         super(

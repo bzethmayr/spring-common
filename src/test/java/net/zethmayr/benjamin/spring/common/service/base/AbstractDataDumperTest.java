@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Scanner;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static net.zethmayr.benjamin.spring.common.mapper.TestPojoMapper.COMMENT;
@@ -36,6 +38,8 @@ import static net.zethmayr.benjamin.spring.common.service.base.AbstractDataDumpe
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -184,5 +188,39 @@ public class AbstractDataDumperTest {
         assertThat(lines[4], containsString(",3.30,"));
         assertThat(lines[4], containsString(",46,"));
         assertThat(lines[4], endsWith(",54.00"));
+    }
+
+    private static String assertFileExistsAndIsNotEmpty(final File testFile) throws Exception {
+        assertThat(testFile.exists(), is(true));
+        final String contents = new Scanner(testFile, StandardCharsets.UTF_8.name())
+                .useDelimiter("\\Z") // EOF. platform independence?
+                .next();
+        System.out.println(contents);
+        assertThat(contents, not(isEmptyOrNullString()));
+        return contents;
+    }
+
+    @FunctionalInterface
+    private interface Customer<T> {
+        void accept(final T t) throws Exception;
+    }
+
+    private static void withTempFile(final Customer<File> fileTest) throws Exception {
+        final File testFile = new File(System.currentTimeMillis()+Math.random()+".csv");
+        try {
+            fileTest.accept(testFile);
+        } finally {
+            if (!testFile.delete()) testFile.deleteOnExit(); // still need to use distinct filenames...
+        }
+    }
+
+    @Test
+    public void canDumpToAFile() throws Exception {
+        when(pojoRepository.getUnsafe("")).thenReturn(someGoodPojos());
+        withTempFile(f -> {
+            underTest.dump(f, pojoRepository);
+            val contents = assertFileExistsAndIsNotEmpty(f);
+            assertThat(contents, containsString("1492"));
+        });
     }
 }

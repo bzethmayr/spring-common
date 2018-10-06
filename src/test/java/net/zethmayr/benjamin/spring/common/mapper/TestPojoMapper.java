@@ -53,9 +53,11 @@ public class TestPojoMapper extends InvertibleRowMapper<TestPojo> {
             ID, EVENT, COMMENT, STEVE, WEIGHTING
     );
     public static final String TABLE = "commentary";
+
     public TestPojoMapper() {
-        super(TestPojo.class, FIELDS,TABLE, genSelect(FIELDS, TABLE), genInsert(FIELDS, TABLE));
+        super(TestPojo.class, FIELDS, TABLE, genSelect(FIELDS, TABLE), genInsert(FIELDS, TABLE));
     }
+
     @Override
     public TestPojo empty() {
         return new TestPojo();

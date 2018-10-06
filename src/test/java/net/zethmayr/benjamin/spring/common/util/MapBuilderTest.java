@@ -7,13 +7,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.TreeMap;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 public class MapBuilderTest {
@@ -51,6 +51,27 @@ public class MapBuilderTest {
     }
 
     @Test
+    public void canBuildOnProvidedAndWrap() {
+        val original = new TreeMap<String,String>();
+        val built = MapBuilder.on(original)
+                .put("unmp","tsiss")
+                .put("banana","split")
+                .put("stock","value")
+                .in(Collections::unmodifiableNavigableMap)
+                .build();
+        assertThat(built, not(sameInstance(original)));
+        assertThat(built.floorKey("baseball"), is("banana"));
+        Exception expected = null;
+        try {
+            built.put("squeadily","meatily");
+        } catch (Exception e) {
+            expected = e;
+        }
+        assertThat(expected, instanceOf(UnsupportedOperationException.class));
+        assertThat(built.size(), is(3));
+    }
+
+    @Test
     public void canBuildAHashMap() {
         val built = MapBuilder.<Integer, String>hash()
                 .put(1, "singular sensation")
@@ -72,18 +93,20 @@ public class MapBuilderTest {
                 .build();
         assertThat(built, isA(LinkedHashMap.class));
         assertThat(built.size(), is(4));
+        assertThat(built.values().iterator().next(), is("singular sensation"));
     }
 
     @Test
     public void canBuildATreeMap() {
         val built = MapBuilder.<Integer, String>tree()
-                .put(1, "singular sensation")
-                .put(2, "many dancing people")
-                .put(3, "sheets")
                 .put(4, "sleeping")
+                .put(3, "sheets")
+                .put(2, "many dancing people")
+                .put(1, "singular sensation")
                 .build();
         assertThat(built, isA(TreeMap.class));
         assertThat(built.size(), is(4));
+        assertThat(built.values().iterator().next(), is("singular sensation"));
     }
 
     @Test

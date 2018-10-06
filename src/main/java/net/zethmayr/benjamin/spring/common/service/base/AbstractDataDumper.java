@@ -286,23 +286,27 @@ public abstract class AbstractDataDumper<C> {
 
     @SafeVarargs
     protected final void dump(final PrintStream out, final Repository<C, ?> repository, final DumpFilter<C, ?, ?>... filters) {
-        List<DumpExtractor<C>> extractors = constructExtractors(); // preconstruct?
-        printHeaders(out, extractors);
-        final StringBuilder sql = new StringBuilder(repository.select());
-        final Object[] values = new Object[filters.length];
-        boolean first = true;
-        for (int i = 0; i < filters.length; i++) {
-            sql.append(filters[i].sql(first));
-            values[i] = filters[i].sqlValue();
-            first = false;
-        }
-        LOG.debug("sql is {}", sql);
-        final List<C> items = repository.getUnsafe(sql.toString(), values);
-        for (final C item : items) {
-            printItem(out, item, extractors);
-        }
-        if (aggregate()) {
-            printAggregates(out, extractors);
+        try {
+            List<DumpExtractor<C>> extractors = constructExtractors(); // preconstruct?
+            printHeaders(out, extractors);
+            final StringBuilder sql = new StringBuilder(repository.select());
+            final Object[] values = new Object[filters.length];
+            boolean first = true;
+            for (int i = 0; i < filters.length; i++) {
+                sql.append(filters[i].sql(first));
+                values[i] = filters[i].sqlValue();
+                first = false;
+            }
+            LOG.debug("sql is {}", sql);
+            final List<C> items = repository.getUnsafe(sql.toString(), values);
+            for (final C item : items) {
+                printItem(out, item, extractors);
+            }
+            if (aggregate()) {
+                printAggregates(out, extractors);
+            }
+        } catch (Exception e) {
+            throw ServiceException.because(e);
         }
     }
 

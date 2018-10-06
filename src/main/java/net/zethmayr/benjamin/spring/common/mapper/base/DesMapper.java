@@ -1,8 +1,11 @@
 package net.zethmayr.benjamin.spring.common.mapper.base;
 
+import net.zethmayr.benjamin.spring.common.util.Functions;
+
 import java.math.BigDecimal;
 
 import static net.zethmayr.benjamin.spring.common.Constants.MONEY_CONTEXT;
+import static net.zethmayr.benjamin.spring.common.util.Functions.money;
 
 /**
  * Functional interface for field deserializer functions.
@@ -22,5 +25,5 @@ public interface DesMapper<I, O> {
     /**
      * A default deserializer for money values.
      */
-    DesMapper<BigDecimal, String> MONEY = (s) -> new BigDecimal(s, MONEY_CONTEXT);
+    DesMapper<BigDecimal, String> MONEY = Functions::money;
 }
