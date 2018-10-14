@@ -14,9 +14,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -35,7 +37,6 @@ import static net.zethmayr.benjamin.spring.common.model.History.MAGNA_CARTA;
 import static net.zethmayr.benjamin.spring.common.service.base.AbstractDataDumper.SqlOp.GT;
 import static net.zethmayr.benjamin.spring.common.service.base.AbstractDataDumper.SqlOp.LT;
 import static net.zethmayr.benjamin.spring.common.service.base.AbstractDataDumper.filter;
-import static net.zethmayr.benjamin.spring.common.util.Functions.money;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
@@ -101,10 +102,10 @@ public class AbstractDataDumperTest {
                     stringableExtractor(STEVE)
                             .aggregator(summingAggregator()),
                     stringableExtractor("antisteve", STEVE)
-                    .aggregator(numericAggregator(
-                            new BigDecimal("100.00"),
-                            BigDecimal::subtract
-                    ))
+                            .aggregator(numericAggregator(
+                                    new BigDecimal("100.00"),
+                                    BigDecimal::subtract
+                            ))
             );
         }
 
@@ -121,7 +122,7 @@ public class AbstractDataDumperTest {
 
     @Test
     public void canDumpNothing() {
-        underTest.dump((File)null, pojoRepository);
+        underTest.dump((File) null, pojoRepository);
     }
 
     private final List<TestPojo> someBadPojos() {
@@ -135,7 +136,7 @@ public class AbstractDataDumperTest {
     @Test
     public void canDumpSomePojosWithNullsInThem() {
         when(pojoRepository.getUnsafe("")).thenReturn(someBadPojos());
-        underTest.dump((File)null, pojoRepository);
+        underTest.dump((File) null, pojoRepository);
     }
 
     private final List<TestPojo> someGoodPojos() {
@@ -152,13 +153,13 @@ public class AbstractDataDumperTest {
     @Test
     public void canDumpSomePojosWithoutNullsInThem() {
         when(pojoRepository.getUnsafe("")).thenReturn(someGoodPojos());
-        underTest.dump((File)null, pojoRepository);
+        underTest.dump((File) null, pojoRepository);
     }
 
     @Test
     public void weCouldFilterADumpIfWeWereUsingARealDatabaseInThisTestToo() {
         when(pojoRepository.getUnsafe(" WHERE id > ? AND id < ?", 10, 20)).thenReturn(someGoodPojos());
-        underTest.dump((File)null, pojoRepository, filter(ID, GT, 10), filter(ID, LT, 20));
+        underTest.dump((File) null, pojoRepository, filter(ID, GT, 10), filter(ID, LT, 20));
     }
 
     @AllArgsConstructor
@@ -190,9 +191,12 @@ public class AbstractDataDumperTest {
 
     private static String assertFileExistsAndIsNotEmpty(final File testFile) throws Exception {
         assertThat(testFile.exists(), is(true));
-        final String contents = new Scanner(testFile, StandardCharsets.UTF_8.name())
-                .useDelimiter("\\Z") // EOF. platform independence?
-                .next();
+        final String contents;
+        try (val scanner = new Scanner(testFile, StandardCharsets.UTF_8.name())) {
+            contents = scanner
+                    .useDelimiter("\\Z") // EOF. platform independence?
+                    .next();
+        }
         System.out.println(contents);
         assertThat(contents, not(isEmptyOrNullString()));
         return contents;
@@ -204,11 +208,16 @@ public class AbstractDataDumperTest {
     }
 
     private static void withTempFile(final Customer<File> fileTest) throws Exception {
-        final File testFile = new File(System.currentTimeMillis()+Math.random()+".csv");
+        final File testFile = new File(System.currentTimeMillis() + Math.random() + ".csv");
         try {
             fileTest.accept(testFile);
         } finally {
-            if (!testFile.delete()) testFile.deleteOnExit(); // still need to use distinct filenames...
+            try {
+                Files.delete(testFile.toPath());
+            } catch (IOException ioe) {
+                LOG.warn("Couldn't delete " + testFile, ioe);
+                testFile.deleteOnExit(); // still need to use distinct filenames...
+            }
         }
     }
 
