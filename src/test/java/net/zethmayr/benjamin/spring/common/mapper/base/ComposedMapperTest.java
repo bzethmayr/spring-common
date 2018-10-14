@@ -8,6 +8,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -208,6 +209,18 @@ public class ComposedMapperTest {
         assertThat(underTest.des(underTest.ser(null)), is(nullValue()));
     }
 
+    @Test
+    public void canGetMoneyMapper() {
+        final Mapper<Holder<BigDecimal>, BigDecimal, Long> underTest = ComposedMapper.money(
+            "test",
+            Holder::get,
+            Holder::set
+        );
+        assertThat(underTest, isA(Mapper.class));
+        assertThat(underTest.ser(new BigDecimal("1.00")), is(100L));
+        assertThat(underTest.des(100L), is(new BigDecimal("1.00")));
+        assertThat(underTest.des(underTest.ser(null)), is(nullValue()));
+    }
 
     @Test
     public void canGetEnumFieldMapper() {

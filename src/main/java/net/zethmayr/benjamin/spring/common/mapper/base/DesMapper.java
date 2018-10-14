@@ -25,5 +25,6 @@ public interface DesMapper<I, O> {
     /**
      * A default deserializer for money values.
      */
+    @Deprecated
     DesMapper<BigDecimal, String> MONEY = Functions::money;
 }

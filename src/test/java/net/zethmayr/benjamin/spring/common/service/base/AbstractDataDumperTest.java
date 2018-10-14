@@ -35,6 +35,7 @@ import static net.zethmayr.benjamin.spring.common.model.History.MAGNA_CARTA;
 import static net.zethmayr.benjamin.spring.common.service.base.AbstractDataDumper.SqlOp.GT;
 import static net.zethmayr.benjamin.spring.common.service.base.AbstractDataDumper.SqlOp.LT;
 import static net.zethmayr.benjamin.spring.common.service.base.AbstractDataDumper.filter;
+import static net.zethmayr.benjamin.spring.common.util.Functions.money;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
@@ -96,10 +97,7 @@ public class AbstractDataDumperTest {
                             Function.identity()
                     ).aggregator(summingAggregator()),
                     stringableExtractor(WEIGHTING)
-                            .aggregator(numericAggregator(
-                                    null,
-                                    BigDecimal::add
-                            )),
+                            .aggregator(summingAggregator("0.00")),
                     stringableExtractor(STEVE)
                             .aggregator(summingAggregator()),
                     stringableExtractor("antisteve", STEVE)

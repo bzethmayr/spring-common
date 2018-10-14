@@ -3,10 +3,8 @@ package net.zethmayr.benjamin.spring.common.mapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.ClassFieldMapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.ColumnType;
 import net.zethmayr.benjamin.spring.common.mapper.base.ComposedMapper;
-import net.zethmayr.benjamin.spring.common.mapper.base.DesMapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.InvertibleRowMapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.Mapper;
-import net.zethmayr.benjamin.spring.common.mapper.base.SerMapper;
 import net.zethmayr.benjamin.spring.common.model.History;
 import net.zethmayr.benjamin.spring.common.model.TestPojo;
 
@@ -41,12 +39,9 @@ public class TestPojoMapper extends InvertibleRowMapper<TestPojo> {
             ColumnType.INTEGER,
             TestPojo::setSteve
     );
-    public static final Mapper<TestPojo, BigDecimal, String> WEIGHTING = ComposedMapper.field(
+    public static final Mapper<TestPojo, BigDecimal, Long> WEIGHTING = ComposedMapper.money(
             "weighting",
             TestPojo::getWeighting,
-            SerMapper.MONEY,
-            ColumnType.SHORT_STRING,
-            DesMapper.MONEY,
             TestPojo::setWeighting
     );
     public static final List<ClassFieldMapper<TestPojo>> FIELDS = Arrays.asList(

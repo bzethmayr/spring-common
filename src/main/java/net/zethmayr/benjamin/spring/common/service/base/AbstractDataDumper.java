@@ -2,6 +2,7 @@ package net.zethmayr.benjamin.spring.common.service.base;
 
 import net.zethmayr.benjamin.spring.common.mapper.base.Mapper;
 import net.zethmayr.benjamin.spring.common.repository.base.Repository;
+import net.zethmayr.benjamin.spring.common.util.Functions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +23,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.regex.Pattern.MULTILINE;
+import static net.zethmayr.benjamin.spring.common.util.Functions.money;
 
 /**
  * Base class for CSV-generating services. Allows more-or-less declarative construction
@@ -202,6 +204,35 @@ public abstract class AbstractDataDumper<C> {
     }
 
     /**
+     * A summing aggregator for decimal values.
+     *
+     * @param initial The initial value
+     * @return An aggregator
+     */
+    protected Function<String, String> summingAggregator(final String initial) {
+        return numericAggregator(new BigDecimal(initial), BigDecimal::add);
+    }
+
+    /**
+     * A summing aggregator for money values.
+     *
+     * @return
+     */
+    protected Function<String, String> moneyAggregator() {
+        return moneyAggregator("0.00");
+    }
+
+    /**
+     * A summing aggregator for money values.
+     *
+     * @param initial The initial value
+     * @return An aggregator
+     */
+    protected Function<String, String> moneyAggregator(final String initial) {
+        return genericAggregator(money(initial), BigDecimal::add, Functions::money, BigDecimal::toPlainString);
+    }
+
+    /**
      * An aggregator for decimal values
      *
      * @param initial  The initial value, if any
@@ -322,7 +353,7 @@ public abstract class AbstractDataDumper<C> {
     protected static <C> DumpExtractor<C> stringExtractor(
             final Mapper<C, String, String> concreteMapper,
             final Function<String, String> valueTransformer) {
-        return new DumpExtractor<>(concreteMapper.fieldName, concreteMapper::serFrom, valueTransformer);
+        return new DumpExtractor<>(concreteMapper.fieldName, concreteMapper::getFrom, valueTransformer);
     }
 
     /**
@@ -354,7 +385,7 @@ public abstract class AbstractDataDumper<C> {
     ) {
         return new DumpExtractor<>(
                 headerName,
-                (c) -> "" + concreteMapper.serFrom(c),
+                (c) -> "" + concreteMapper.getFrom(c),
                 NULL_IS_NULL_IS_NULL_IS_EMPTY
         );
     }

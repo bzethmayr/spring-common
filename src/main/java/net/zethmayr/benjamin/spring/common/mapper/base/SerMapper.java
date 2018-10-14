@@ -22,6 +22,7 @@ public interface SerMapper<I, O> {
     /**
      * A default serializer for money values.
      */
+    @Deprecated
     SerMapper<BigDecimal, String> MONEY =
             (b) -> money(b).toPlainString();
 }

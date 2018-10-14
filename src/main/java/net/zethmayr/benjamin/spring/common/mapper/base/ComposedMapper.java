@@ -1,12 +1,16 @@
 package net.zethmayr.benjamin.spring.common.mapper.base;
 
+import net.zethmayr.benjamin.spring.common.util.Functions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import static net.zethmayr.benjamin.spring.common.Constants.MONEY_CONTEXT;
 
 /**
  * This is the primary concrete field mapper implementation.
@@ -160,6 +164,29 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
                 (in) -> in,
                 columnType,
                 (out) -> out,
+                cSetter
+        );
+    }
+
+    private static final BigDecimal ONE_HUNDRED = new BigDecimal(100);
+
+    /**
+     * Creates a mapper
+     * for a field representing money values with 2-digit precision.
+     *
+     * @param fieldName The field name
+     * @param cGetter   The instance getter method
+     * @param cSetter   The instance setter method
+     * @param <C>       The instance type
+     * @return A field mapper
+     */
+    public static <C> Mapper<C, BigDecimal, Long> money(final String fieldName, final Function<C, BigDecimal> cGetter, final BiConsumer<C, BigDecimal> cSetter) {
+        return new ComposedMapper<>(
+                fieldName,
+                cGetter,
+                (in) -> in.multiply(ONE_HUNDRED).longValue(),
+                ColumnType.LONG,
+                (out) -> Functions.money(new BigDecimal(out)).divide(ONE_HUNDRED, MONEY_CONTEXT.getRoundingMode()),
                 cSetter
         );
     }

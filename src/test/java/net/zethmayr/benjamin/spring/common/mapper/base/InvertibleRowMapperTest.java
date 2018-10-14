@@ -48,14 +48,14 @@ public class InvertibleRowMapperTest {
                 .setEvent(MAGNA_CARTA)
                 .setWeighting(WEIGHT);
         final Object[] toInsert = underTest.getInsertValues(pojoToInsert);
-        assertThat(toInsert, arrayContaining(0, COMMENT, null, "23.01"));
+        assertThat(toInsert, arrayContaining(0, COMMENT, null, 2301L));
     }
 
     @Test
     public void canMapFromRs() throws Exception {
         final ResultSet mockRs = mock(ResultSet.class);
         when(mockRs.getInt(TestPojoMapper.ID.fieldName)).thenReturn(73);
-        when(mockRs.getString(TestPojoMapper.WEIGHTING.fieldName)).thenReturn("23.01");
+        when(mockRs.getLong(TestPojoMapper.WEIGHTING.fieldName)).thenReturn(2301L);
         when(mockRs.getString(TestPojoMapper.COMMENT.fieldName)).thenReturn(COMMENT);
         when(mockRs.getInt(TestPojoMapper.EVENT.fieldName)).thenReturn(MAGNA_CARTA.ordinal());
         final TestPojo read = underTest.mapRow(mockRs, 0);
