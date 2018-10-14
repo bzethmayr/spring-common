@@ -2,6 +2,7 @@ package net.zethmayr.benjamin.spring.common.mapper.base;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.Instant;
 
 /**
  * A description of the SQL-level properties of a given field.
@@ -82,7 +83,7 @@ public interface ColumnType<O> {
         }
 
         @Override
-        public Integer limited(Integer in) {
+        public Integer limited(final Integer in) {
             return in;
         }
     };
@@ -117,7 +118,7 @@ public interface ColumnType<O> {
         }
 
         @Override
-        public Integer limited(Integer in) {
+        public Integer limited(final Integer in) {
             return in;
         }
     };
@@ -152,7 +153,7 @@ public interface ColumnType<O> {
         }
 
         @Override
-        public Long limited(Long in) {
+        public Long limited(final Long in) {
             return in;
         }
     };
@@ -188,7 +189,7 @@ public interface ColumnType<O> {
         }
 
         @Override
-        public String limited(String in) {
+        public String limited(final String in) {
             return in == null ? null : in.length() <= 15 ? in : in.substring(0, 15);
         }
     };
@@ -224,8 +225,43 @@ public interface ColumnType<O> {
         }
 
         @Override
-        public String limited(String in) {
+        public String limited(final String in) {
             return in == null ? null : in.length() <= 255 ? in : in.substring(0, 255);
+        }
+    };
+
+    /**
+     * A column type for dates.
+     */
+    ColumnType<Instant> INSTANT = new ColumnType<Instant>() {
+        @Override
+        public RsGetterFactory<Instant> getterFactory() {
+            return RsGetterFactory.instant();
+        }
+
+        @Override
+        public PsSetterFactory<Instant> setterFactory() {
+            return PsSetterFactory::instant;
+        }
+
+        @Override
+        public String sqlType() {
+            return "TIMESTAMP WITH TIME ZONE";
+        }
+
+        @Override
+        public boolean isIndexColumn() {
+            return false;
+        }
+
+        @Override
+        public Class<Instant> getExternalClass() {
+            return Instant.class;
+        }
+
+        @Override
+        public Instant limited(final Instant initial) {
+            return initial;
         }
     };
 }

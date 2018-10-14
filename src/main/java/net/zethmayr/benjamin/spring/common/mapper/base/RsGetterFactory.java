@@ -2,6 +2,7 @@ package net.zethmayr.benjamin.spring.common.mapper.base;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 
 /**
  * Implementations (such as included defaults) can
@@ -106,5 +107,25 @@ public interface RsGetterFactory<O> {
      */
     static RsGetter<Long> longInteger(final String fieldName) {
         return factory(ResultSet::getLong, fieldName);
+    }
+
+    /**
+     * Returns {@link #instant(String)} bounds as a getter factory.
+     *
+     * @return
+     */
+    static RsGetterFactory<Instant> instant() {
+        return RsGetterFactory::instant;
+    }
+
+    /**
+     * Specific factory method for
+     * Instant fields.
+     *
+     * @param fieldName The field name
+     * @return An instant getter
+     */
+    static RsGetter<Instant> instant(final String fieldName) {
+        return factory((rs, f) -> rs.getObject(fieldName, Instant.class), fieldName);
     }
 }

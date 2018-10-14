@@ -17,7 +17,7 @@ public abstract class ClassFieldMapper<C> {
     /**
      * Sub-classes do not have to provide any particular arguments at instantiation.
      */
-    protected ClassFieldMapper() {};
+    protected ClassFieldMapper() {}
 
     /**
      * Returns the {@link ColumnType object which defines the field's SQL properties}.

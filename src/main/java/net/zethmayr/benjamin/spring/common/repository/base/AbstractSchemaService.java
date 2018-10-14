@@ -118,6 +118,7 @@ public abstract class AbstractSchemaService {
      */
     public void nuke(final Repository... toNuke) {
         for (final Repository repo : toNuke) {
+            LOG.debug("nuking \n{}", repo);
             db.execute("DROP TABLE IF EXISTS " + repo.mapper().table());
         }
     }

@@ -1,11 +1,14 @@
 package net.zethmayr.benjamin.spring.common.mapper.base;
 
+import lombok.val;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
+import java.time.Instant;
 
 import static org.hamcrest.Matchers.isA;
 import static org.junit.Assert.assertThat;
@@ -53,5 +56,16 @@ public class PsSetterFactoryTest {
         doThrow(new SQLException())
                 .when(evil).setLong(eq(4),eq(5L));
         underTest.apply(evil,5L);
+    }
+
+    @Test
+    public void instantInstancesWrapExceptions() throws Exception {
+        thrown.expect(MappingException.class);
+        val underTest = PsSetterFactory.instant(8);
+        val evil = mock(PreparedStatement.class);
+        val now = Instant.now();
+        doThrow(new SQLException())
+                .when(evil).setObject(8, now, Types.TIMESTAMP_WITH_TIMEZONE);
+        underTest.apply(evil, now);
     }
 }

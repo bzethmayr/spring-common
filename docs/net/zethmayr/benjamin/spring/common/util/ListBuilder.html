@@ -285,7 +285,8 @@ public static&nbsp;&lt;T&gt;&nbsp;<a href="../../../../../../net/zethmayr/benjam
 <ul class="blockList">
 <li class="blockList">
 <h4>vector</h4>
-<pre>public static&nbsp;&lt;T&gt;&nbsp;<a href="../../../../../../net/zethmayr/benjamin/spring/common/util/ListBuilder.html" title="class in net.zethmayr.benjamin.spring.common.util">ListBuilder</a>&lt;T,<a href="https://docs.oracle.com/javase/8/docs/api/java/util/Vector.html?is-external=true" title="class or interface in java.util">Vector</a>&lt;T&gt;&gt;&nbsp;vector(T...&nbsp;values)</pre>
+<pre><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/SafeVarargs.html?is-external=true" title="class or interface in java.lang">@SafeVarargs</a>
+public static&nbsp;&lt;T&gt;&nbsp;<a href="../../../../../../net/zethmayr/benjamin/spring/common/util/ListBuilder.html" title="class in net.zethmayr.benjamin.spring.common.util">ListBuilder</a>&lt;T,<a href="https://docs.oracle.com/javase/8/docs/api/java/util/Vector.html?is-external=true" title="class or interface in java.util">Vector</a>&lt;T&gt;&gt;&nbsp;vector(T...&nbsp;values)</pre>
 <div class="block">Creates a builder populating
  a new <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Vector.html?is-external=true" title="class or interface in java.util"><code>Vector</code></a>.
  Note that if you just want a synchronized list,

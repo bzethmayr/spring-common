@@ -18,7 +18,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":17,"i1":6,"i2":17,"i3":17,"i4":17,"i5":17};
+var methods = {"i0":17,"i1":6,"i2":17,"i3":17,"i4":17,"i5":17,"i6":17};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -167,24 +167,30 @@ public interface <span class="typeNameLabel">PsSetterFactory&lt;O&gt;</span></pr
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>static <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/PsSetter.html" title="interface in net.zethmayr.benjamin.spring.common.mapper.base">PsSetter</a>&lt;<a href="https://docs.oracle.com/javase/8/docs/api/java/time/Instant.html?is-external=true" title="class or interface in java.time">Instant</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/PsSetterFactory.html#instant-int-">instant</a></span>(int&nbsp;ordinal)</code>
+<div class="block">Specific factory method for setters for instants (timestamps).</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/PsSetter.html" title="interface in net.zethmayr.benjamin.spring.common.mapper.base">PsSetter</a>&lt;<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/PsSetterFactory.html#integer-int-">integer</a></span>(int&nbsp;ordinal)</code>
 <div class="block">Specific factory method for setters for integers.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/PsSetter.html" title="interface in net.zethmayr.benjamin.spring.common.mapper.base">PsSetter</a>&lt;<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/PsSetterFactory.html#longInteger-int-">longInteger</a></span>(int&nbsp;ordinal)</code>
 <div class="block">Specific factory method for setters for longs.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/PsSetter.html" title="interface in net.zethmayr.benjamin.spring.common.mapper.base">PsSetter</a>&lt;<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/PsSetterFactory.html#longString-int-">longString</a></span>(int&nbsp;ordinal)</code>
 <div class="block">Specific factory method for setters for variable-length strings.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/PsSetter.html" title="interface in net.zethmayr.benjamin.spring.common.mapper.base">PsSetter</a>&lt;<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/PsSetterFactory.html#shortString-int-">shortString</a></span>(int&nbsp;ordinal)</code>
 <div class="block">Specific factory method for setters for fixed-length strings.</div>
@@ -294,7 +300,7 @@ public interface <span class="typeNameLabel">PsSetterFactory&lt;O&gt;</span></pr
 <a name="longInteger-int-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>longInteger</h4>
 <pre>static&nbsp;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/PsSetter.html" title="interface in net.zethmayr.benjamin.spring.common.mapper.base">PsSetter</a>&lt;<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</a>&gt;&nbsp;longInteger(int&nbsp;ordinal)</pre>
@@ -304,6 +310,22 @@ public interface <span class="typeNameLabel">PsSetterFactory&lt;O&gt;</span></pr
 <dd><code>ordinal</code> - The insert ordinal</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A long setter</dd>
+</dl>
+</li>
+</ul>
+<a name="instant-int-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>instant</h4>
+<pre>static&nbsp;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/PsSetter.html" title="interface in net.zethmayr.benjamin.spring.common.mapper.base">PsSetter</a>&lt;<a href="https://docs.oracle.com/javase/8/docs/api/java/time/Instant.html?is-external=true" title="class or interface in java.time">Instant</a>&gt;&nbsp;instant(int&nbsp;ordinal)</pre>
+<div class="block">Specific factory method for setters for instants (timestamps).</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>ordinal</code> - The insert ordinal</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>An instant setter</dd>
 </dl>
 </li>
 </ul>

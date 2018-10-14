@@ -79,6 +79,7 @@ public class ListBuilder<T, L extends List<T>> implements Builder<L> {
      * @param <T> Ye element type
      * @return Yon builder
      */
+    @SafeVarargs
     public static <T> ListBuilder<T, Vector<T>> vector(final T... values) {
         return new ListBuilder<>(new Vector<T>()).add(values);
     }

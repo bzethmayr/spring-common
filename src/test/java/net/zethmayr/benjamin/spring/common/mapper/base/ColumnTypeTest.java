@@ -1,11 +1,14 @@
 package net.zethmayr.benjamin.spring.common.mapper.base;
 
+import lombok.val;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.security.SecureRandom;
+import java.time.Instant;
 
+import static net.zethmayr.benjamin.spring.common.mapper.base.ColumnType.INSTANT;
 import static net.zethmayr.benjamin.spring.common.mapper.base.ColumnType.INTEGER;
 import static net.zethmayr.benjamin.spring.common.mapper.base.ColumnType.INTEGER_INDEX;
 import static net.zethmayr.benjamin.spring.common.mapper.base.ColumnType.LONG;
@@ -33,6 +36,12 @@ public class ColumnTypeTest {
     public void evenLongValueTypesHavePreparedStatementSetters() {
         assertThat(LONG.isIndexColumn(), is(false));
         assertThat(LONG.setterFactory(), isA(PsSetterFactory.class));
+    }
+
+    @Test
+    public void weCanGetADate() {
+        assertThat(INSTANT.isIndexColumn(), is(false));
+        assertThat(INSTANT.setterFactory(), isA(PsSetterFactory.class));
     }
 
     @Test
@@ -76,4 +85,5 @@ public class ColumnTypeTest {
         assertThat(LONG_STRING.limited(twofiftyfive), is(twofiftyfive));
         assertThat(LONG_STRING.limited(twofiftysix), is(twofiftyfive));
     }
+
 }

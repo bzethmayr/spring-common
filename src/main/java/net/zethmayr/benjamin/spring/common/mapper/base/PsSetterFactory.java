@@ -3,6 +3,7 @@ package net.zethmayr.benjamin.spring.common.mapper.base;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.Instant;
 
 /**
  * Implementations (such as included defaults) can
@@ -76,6 +77,7 @@ public interface PsSetterFactory<O> {
 
     /**
      * Specific factory method for setters for integers.
+     *
      * @param ordinal The insert ordinal.
      * @return An integer setter
      */
@@ -85,10 +87,21 @@ public interface PsSetterFactory<O> {
 
     /**
      * Specific factory method for setters for longs.
+     *
      * @param ordinal The insert ordinal
      * @return A long setter
      */
     static PsSetter<Long> longInteger(final int ordinal) {
         return factory(PreparedStatement::setLong, ordinal, Types.BIGINT);
+    }
+
+    /**
+     * Specific factory method for setters for instants (timestamps).
+     *
+     * @param ordinal The insert ordinal
+     * @return An instant setter
+     */
+    static PsSetter<Instant> instant(final int ordinal) {
+        return factory((ps, i, o) -> ps.setObject(i, o, Types.TIMESTAMP_WITH_TIMEZONE), ordinal, Types.TIMESTAMP_WITH_TIMEZONE);
     }
 }

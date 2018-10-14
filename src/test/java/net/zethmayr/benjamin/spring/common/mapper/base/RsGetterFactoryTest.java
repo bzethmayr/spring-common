@@ -6,6 +6,7 @@ import org.junit.rules.ExpectedException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 
 import static org.hamcrest.Matchers.isA;
 import static org.junit.Assert.assertThat;
@@ -28,6 +29,7 @@ public class RsGetterFactoryTest {
     @Test
     public void stringInstancesWrapExceptions() throws Exception {
         thrown.expect(MappingException.class);
+        thrown.expectCause(isA(SQLException.class));
         final RsGetter<String> underTest = RsGetterFactory.string("test");
         final ResultSet evil = mock(ResultSet.class);
         when(evil.getString("test")).thenThrow(new SQLException());
@@ -37,6 +39,7 @@ public class RsGetterFactoryTest {
     @Test
     public void integerInstancesWrapExceptions() throws Exception {
         thrown.expect(MappingException.class);
+        thrown.expectCause(isA(SQLException.class));
         final RsGetter<Integer> underTest = RsGetterFactory.integer("test");
         final ResultSet evil = mock(ResultSet.class);
         when(evil.getInt("test")).thenThrow(new SQLException());
@@ -46,9 +49,20 @@ public class RsGetterFactoryTest {
     @Test
     public void longInstancesWrapExceptions() throws Exception {
         thrown.expect(MappingException.class);
+        thrown.expectCause(isA(SQLException.class));
         final RsGetter<Long> underTest = RsGetterFactory.longInteger("test");
         final ResultSet evil = mock(ResultSet.class);
         when(evil.getLong("test")).thenThrow(new SQLException());
+        underTest.from(evil);
+    }
+
+    @Test
+    public void instantInstancesWrapExceptions() throws Exception {
+        thrown.expect(MappingException.class);
+        thrown.expectCause(isA(SQLException.class));
+        final RsGetter<Instant> underTest = RsGetterFactory.instant("test");
+        final ResultSet evil = mock(ResultSet.class);
+        when(evil.getObject("test", Instant.class)).thenThrow(new SQLException());
         underTest.from(evil);
     }
 }
