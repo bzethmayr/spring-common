@@ -3,7 +3,7 @@ package net.zethmayr.benjamin.spring.common.mapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.ClassFieldMapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.ColumnType;
 import net.zethmayr.benjamin.spring.common.mapper.base.ComposedMapper;
-import net.zethmayr.benjamin.spring.common.mapper.base.InvertibleRowMapper;
+import net.zethmayr.benjamin.spring.common.mapper.base.InvertibleRowMapperBase;
 import net.zethmayr.benjamin.spring.common.mapper.base.Mapper;
 import net.zethmayr.benjamin.spring.common.model.History;
 import net.zethmayr.benjamin.spring.common.model.TestPojo;
@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
-public class TestPojoMapper extends InvertibleRowMapper<TestPojo> {
+public class TestPojoMapper extends InvertibleRowMapperBase<TestPojo> {
     public static final Mapper<TestPojo, Integer, Integer> ID = ComposedMapper.simpleField(
             "id",
             TestPojo::getId,

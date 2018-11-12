@@ -1,6 +1,7 @@
 package net.zethmayr.benjamin.spring.common.repository.base;
 
 import net.zethmayr.benjamin.spring.common.mapper.base.InvertibleRowMapper;
+import net.zethmayr.benjamin.spring.common.mapper.base.InvertibleRowMapperBase;
 import net.zethmayr.benjamin.spring.common.mapper.base.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
     /**
      * The mapping set at construction.
      */
-    public final InvertibleRowMapper<T> mapper;
+    public final InvertibleRowMapperBase<T> mapper;
 
     /**
      * The INSERT query set at construction.
@@ -71,7 +72,7 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
      * @param mapper   The object mapper
      * @param idMapper The field mapper for the id / index field
      */
-    protected MapperRepository(final JdbcTemplate jdbcTemplate, final InvertibleRowMapper<T> mapper, final Mapper<T, ?, X> idMapper) {
+    protected MapperRepository(final JdbcTemplate jdbcTemplate, final InvertibleRowMapperBase<T> mapper, final Mapper<T, ?, X> idMapper) {
         this.jdbcTemplate = jdbcTemplate;
         this.mapper = mapper;
         insert = mapper.insert();
@@ -81,36 +82,6 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
         getById = select + " WHERE " + idMapper.fieldName + " = ?";
     }
 
-    /**
-     * For when you're only using one database.
-     *
-     * Extend this instead of {@link MapperRepository} to autowire your sole JdbcTemplate in
-     * {@link InitializingBean#afterPropertiesSet afterPropertiesSet}.
-     * {@inheritDoc}
-     */
-    public abstract static class SingleWired<T, X> extends MapperRepository<T, X> implements InitializingBean {
-        private static JdbcTemplate jdbcTemplate;
-
-        @Autowired
-        private Injector injector;
-
-        public SingleWired(final InvertibleRowMapper<T> mapper, final Mapper<T, ?, X> idMapper) {
-            super(jdbcTemplate, mapper, idMapper);
-        }
-
-        @Override
-        public void afterPropertiesSet() {
-            ((MapperRepository)this).jdbcTemplate = jdbcTemplate;
-        }
-    }
-
-    @Service
-    public static class Injector {
-        public Injector(final @Autowired(required = false) JdbcTemplate jdbcTemplate) {
-            SingleWired.jdbcTemplate = jdbcTemplate;
-            LOG.debug("Injector was called with jdbcTemplate {}", jdbcTemplate);
-        }
-    }
 
     @Override
     public InvertibleRowMapper<T> mapper() {
@@ -241,6 +212,37 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
             throw rethrow;
         } catch (Exception e) {
             throw RepositoryException.because(e);
+        }
+    }
+
+    /**
+     * For when you're only using one database.
+     *
+     * Extend this instead of {@link MapperRepository} to autowire your sole JdbcTemplate in
+     * {@link InitializingBean#afterPropertiesSet afterPropertiesSet}.
+     * {@inheritDoc}
+     */
+    public abstract static class SingleWired<T, X> extends MapperRepository<T, X> implements InitializingBean {
+        private static JdbcTemplate jdbcTemplate;
+
+        @Autowired
+        private Injector injector;
+
+        public SingleWired(final InvertibleRowMapperBase<T> mapper, final Mapper<T, ?, X> idMapper) {
+            super(jdbcTemplate, mapper, idMapper);
+        }
+
+        @Override
+        public void afterPropertiesSet() {
+            ((MapperRepository)this).jdbcTemplate = jdbcTemplate;
+        }
+    }
+
+    @Service
+    public static class Injector {
+        public Injector(final @Autowired(required = false) JdbcTemplate jdbcTemplate) {
+            SingleWired.jdbcTemplate = jdbcTemplate;
+            LOG.debug("Injector was called with jdbcTemplate {}", jdbcTemplate);
         }
     }
 }

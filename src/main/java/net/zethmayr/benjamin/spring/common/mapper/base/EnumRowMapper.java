@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * A row mapper for tables which reflect enums -
@@ -15,9 +17,15 @@ import java.util.function.Predicate;
  *
  * @param <T> The mapped enum.
  */
-public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapper<T> {
+public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapperBase<T> {
 
     private final Mapper<T, T, Integer> idMapper;
+    private final T rowClassToken;
+
+    @Override
+    public Mapper<T, ?, Integer> idMapper() {
+        return idMapper;
+    }
 
     /**
      * @param rowClassToken  An instance of the enum being mapped
@@ -29,7 +37,29 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
     @SuppressWarnings("unchecked") // casting the class of an enum to that same class, will succeed
     protected EnumRowMapper(final T rowClassToken, final List<ClassFieldMapper<T>> fields, final String table, final String selectMappable, final String insert) {
         super(rowClassToken.getDeclaringClass(), fields, table, selectMappable, insert);
+        this.rowClassToken = rowClassToken;
         idMapper = findIdMapper(fields);
+    }
+
+    @Override
+    public EnumRowMapper<T> copyTransforming(final RowMapperTransform<T> rowTransform, final FieldMapperTransform<T> fieldTransform) {
+        final String tableTransformed = rowTransform.table(table());
+        final List<ClassFieldMapper<T>> fieldsTransformed = fields().stream().map((field) -> field.copyTransforming(fieldTransform)).collect(Collectors.toList());
+
+        /*
+         * EWWWWW... Probably we should accept a supplier rather than trail references around
+         */
+        final Supplier<T> empty = this::empty;
+
+        return new EnumRowMapper<T>(
+                rowClassToken,
+                fieldsTransformed,
+                tableTransformed,
+                genSelect(fieldsTransformed, tableTransformed),
+                genInsert(fieldsTransformed, tableTransformed)
+        ) {
+
+        };
     }
 
     /**
@@ -39,15 +69,6 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
      */
     public final T[] enumValues() {
         return rowClass().getEnumConstants();
-    }
-
-    /**
-     * Returns the mapper for the id/ordinal field.
-     *
-     * @return The mapper for the id/ordinal field
-     */
-    public Mapper<T, T, Integer> idMapper() {
-        return idMapper;
     }
 
     /**

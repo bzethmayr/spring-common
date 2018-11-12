@@ -20,8 +20,11 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class InvertibleRowMapperTest {
-    private InvertibleRowMapper<TestPojo> underTest;
+public class InvertibleRowMapperBaseTest {
+    private InvertibleRowMapperBase<TestPojo> underTest;
+
+    private static final String COMMENT = "expected";
+    private static final BigDecimal WEIGHT = new BigDecimal("23.01");
 
     @Before
     public void setUp() {
@@ -37,9 +40,6 @@ public class InvertibleRowMapperTest {
         assertThat(underTest.insert(), not(isEmptyOrNullString()));
         assertThat(underTest.select(), not(isEmptyOrNullString()));
     }
-
-    private static final String COMMENT = "expected";
-    private static final BigDecimal WEIGHT = new BigDecimal("23.01");
 
     @Test
     public void canGenerateInsertValues() {

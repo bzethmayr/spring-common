@@ -19,6 +19,8 @@ public abstract class ClassFieldMapper<C> {
      */
     protected ClassFieldMapper() {}
 
+    public abstract ClassFieldMapper<C> copyTransforming(final FieldMapperTransform<C> fieldTransform);
+
     /**
      * Returns the {@link ColumnType object which defines the field's SQL properties}.
      *
