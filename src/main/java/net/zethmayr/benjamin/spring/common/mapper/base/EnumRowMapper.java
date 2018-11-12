@@ -46,16 +46,11 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
         final String tableTransformed = rowTransform.table(table());
         final List<ClassFieldMapper<T>> fieldsTransformed = fields().stream().map((field) -> field.copyTransforming(fieldTransform)).collect(Collectors.toList());
 
-        /*
-         * EWWWWW... Probably we should accept a supplier rather than trail references around
-         */
-        final Supplier<T> empty = this::empty;
-
         return new EnumRowMapper<T>(
                 rowClassToken,
                 fieldsTransformed,
                 tableTransformed,
-                genSelect(fieldsTransformed, tableTransformed),
+                genSelectIds(fieldsTransformed, tableTransformed),
                 genInsert(fieldsTransformed, tableTransformed)
         ) {
 
