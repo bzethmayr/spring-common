@@ -98,7 +98,9 @@ public class AbstractDataDumperTest {
                             Function.identity()
                     ).aggregator(summingAggregator()),
                     stringableExtractor(WEIGHTING)
-                            .aggregator(summingAggregator("0.00")),
+                            .aggregator(moneyAggregator("0.00")),
+                    stringableExtractor(WEIGHTING)
+                            .aggregator(summingAggregator()),
                     stringableExtractor(STEVE)
                             .aggregator(summingAggregator()),
                     stringableExtractor("antisteve", STEVE)
@@ -184,6 +186,7 @@ public class AbstractDataDumperTest {
         System.out.println(lines[4]);
         assertThat(lines.length, is(5));
         assertThat(lines[4], containsString(",4484,"));
+        assertThat(lines[4], containsString(",3.3,"));
         assertThat(lines[4], containsString(",3.30,"));
         assertThat(lines[4], containsString(",46,"));
         assertThat(lines[4], endsWith(",54.00"));
