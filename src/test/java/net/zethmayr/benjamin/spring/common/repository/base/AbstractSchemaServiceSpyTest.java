@@ -6,6 +6,7 @@ import net.zethmayr.benjamin.spring.common.repository.TestEnumRepository;
 import net.zethmayr.benjamin.spring.common.repository.TestSchemaService;
 import net.zethmayr.benjamin.spring.common.service.Breaker;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -44,6 +45,7 @@ public class AbstractSchemaServiceSpyTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
+    @Before
     @After
     public void tearDown() {
         underTest.nuke(enumRepository);

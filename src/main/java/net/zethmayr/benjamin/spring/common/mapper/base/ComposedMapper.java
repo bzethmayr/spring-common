@@ -1,5 +1,6 @@
 package net.zethmayr.benjamin.spring.common.mapper.base;
 
+import lombok.val;
 import net.zethmayr.benjamin.spring.common.util.Functions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,26 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
         externalClass = columnType.getExternalClass();
         this.columnType = columnType;
         LOG.trace("Created column mapper {}", this);
+    }
+
+    private ComposedMapper(final String fieldName, final Function<C, I> cGetter, final SerMapper<I, O> serMapper, final ColumnType<O> columnType, final RsGetter<O> rsGetter, final DesMapper<I, O> desMapper, final BiConsumer<C, I> cSetter) {
+        super(fieldName);
+        this.cGetter = cGetter;
+        this.serMapper = serMapper;
+        this.rsGetter = rsGetter;
+        this.desMapper = desMapper;
+        this.cSetter = cSetter;
+        sqlType = columnType.sqlType();
+        externalClass = columnType.getExternalClass();
+        this.columnType = columnType;
+        LOG.trace("Created column mapper {}", this);
+    }
+
+    @Override
+    public ClassFieldMapper<C> copyTransforming(FieldMapperTransform<C> fieldTransform) {
+        final String nameTransformed = fieldTransform.fieldName(fieldName);
+        val copy = new ComposedMapper<C,I,O>(fieldName, cGetter, serMapper, columnType, columnType.getterFactory().field(nameTransformed), desMapper, cSetter);
+        return copy;
     }
 
     @Override
