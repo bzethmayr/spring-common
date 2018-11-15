@@ -1,6 +1,5 @@
 package net.zethmayr.benjamin.spring.common.mapper.base;
 
-import lombok.val;
 import net.zethmayr.benjamin.spring.common.model.base.ModelTrusted;
 import org.springframework.lang.Nullable;
 
@@ -28,16 +27,7 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
     private final String insert;
     private final Mapper<T, ?, ?> idMapper;
 
-    /**
-     * Creates a new instance.
-     *
-     * @param rowClass       The row class
-     * @param fields         The field mappers
-     * @param table          The table name
-     * @param selectMappable A SELECT query to retrieve mappable fields
-     * @param insert         An INSERT query to insert settable fields
-     */
-    protected InvertibleRowMapperBase(final Class<T> rowClass, final List<ClassFieldMapper<T>> fields, final String table, final String selectMappable, final String insert) {
+    private InvertibleRowMapperBase(final Class<T> rowClass, final List<ClassFieldMapper<T>> fields, final String table, final boolean mystery, final String selectMappable, final String insert) {
         this.rowClass = rowClass;
         this.fields = Collections.unmodifiableList(fields);
         int i = 1;
@@ -47,14 +37,35 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
                 ++i;
             }
         }
-        idMapper = fields.stream()
-                .filter((m) -> m.fieldName().equals("id"))
-                .map(Mapper.class::<T, Object, Object>cast)
-                .findFirst()
-                .orElseThrow(() -> MappingException.badSetup("No ID field"));
+        idMapper = findIdMapper(fields);
         this.table = table;
         this.selectMappable = selectMappable;
         this.insert = insert;
+    }
+
+    /**
+     * Creates a new instance.
+     *
+     * @param rowClass       The row class
+     * @param fields         The field mappers
+     * @param table          The table name
+     */
+    protected InvertibleRowMapperBase(final Class<T> rowClass, final List<ClassFieldMapper<T>> fields, final String table) {
+        this(rowClass, fields, table, false, genSelect(fields, table), genInsert(fields, table));
+    }
+
+    /**
+     * Creates a new instance.
+     *
+     * @param rowClass       The row class
+     * @param fields         The field mappers
+     * @param table          The table name
+     * @param selectMappable A SELECT query to retrieve mappable fields
+     * @param insert         An INSERT query to insert settable fields
+     */
+    @Deprecated
+    protected InvertibleRowMapperBase(final Class<T> rowClass, final List<ClassFieldMapper<T>> fields, final String table, final String selectMappable, final String insert) {
+        this(rowClass, fields, table, true, selectMappable, insert);
     }
 
     @Override
@@ -70,9 +81,7 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
         return new InvertibleRowMapperBase<T>(
                 this.rowClass,
                 fieldsTransformed,
-                tableTransformed,
-                genSelect(fieldsTransformed, tableTransformed),
-                genInsert(fieldsTransformed, tableTransformed)
+                tableTransformed
         ) {
 
             @Override
@@ -80,6 +89,15 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
                 return empty.get();
             }
         };
+    }
+
+    @SuppressWarnings("unchecked") // All ClassFieldMappers are secretly Mappers.
+    private static <T> Mapper<T,?,?> findIdMapper(final List<ClassFieldMapper<T>> fields) {
+        return fields.stream()
+                .filter((m) -> m.fieldName().equals("id") || isIndex(m))
+                .map(Mapper.class::<T, Object, Object>cast)
+                .findFirst()
+                .orElseThrow(() -> MappingException.badSetup("No ID field"));
     }
 
     /**
@@ -100,6 +118,11 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
 
     @Override
     public final List<ClassFieldMapper<T>> fields() {
+        return fields;
+    }
+
+    @Override
+    public List<ClassFieldMapper<T>> mappableFields() {
         return fields;
     }
 

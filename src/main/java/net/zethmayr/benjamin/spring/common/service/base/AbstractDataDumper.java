@@ -1,6 +1,7 @@
 package net.zethmayr.benjamin.spring.common.service.base;
 
 import net.zethmayr.benjamin.spring.common.mapper.base.Mapper;
+import net.zethmayr.benjamin.spring.common.mapper.base.SqlOp;
 import net.zethmayr.benjamin.spring.common.repository.base.Repository;
 import net.zethmayr.benjamin.spring.common.util.Functions;
 import org.slf4j.Logger;
@@ -73,20 +74,6 @@ public abstract class AbstractDataDumper<C> {
                 return value;
             });
 
-    protected enum SqlOp {
-        LT("<"),
-        LTE("<="),
-        GT(">"),
-        GTE(">="),
-        EQ("="),
-        LIKE("LIKE");
-
-        public final String sql;
-
-        SqlOp(final String sql) {
-            this.sql = sql;
-        }
-    }
 
     /**
      * Adds WHERE clauses to the source query for a dump.

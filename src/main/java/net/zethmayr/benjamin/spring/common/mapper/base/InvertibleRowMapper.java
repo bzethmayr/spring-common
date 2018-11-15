@@ -23,6 +23,12 @@ public interface InvertibleRowMapper<T> extends RowMapper<T> {
     List<ClassFieldMapper<T>> fields();
 
     /**
+     * Returns the field mappers that are actually used in SELECT queries
+     * @return
+     */
+    List<ClassFieldMapper<T>> mappableFields();
+
+    /**
      * Returns the table name given at creation.
      *
      * @return {@link #table}

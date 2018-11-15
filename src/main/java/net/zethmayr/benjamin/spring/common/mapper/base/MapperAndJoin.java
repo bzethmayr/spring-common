@@ -2,6 +2,7 @@ package net.zethmayr.benjamin.spring.common.mapper.base;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.experimental.Accessors;
 import lombok.val;
 
@@ -21,13 +22,26 @@ import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.Gett
 @Accessors(fluent = true)
 public class MapperAndJoin<P, T> {
     @Getter(PUBLIC)
+    @NonNull
     private final InvertibleRowMapper<T> mapper;
     @Getter(PUBLIC)
+    @NonNull
     private final BiConsumer<P, T> parentAcceptor;
     @Getter(PUBLIC)
+    @NonNull
     private final Function<P,GetterState<P,T>> getterStateFactory;
     @Getter(PUBLIC)
+    @NonNull
     private final BiFunction<P, GetterState<P,T>, T> parentGetter;
+    @Getter(PUBLIC)
+    @NonNull
+    private final Mapper<P, ?, ?> parentField;
+    @Getter(PUBLIC)
+    @NonNull
+    private final SqlOp relation;
+    @Getter(PUBLIC)
+    @NonNull
+    private final Mapper<T, ?, ?> relatedField;
 
     public static <T, P> Function<P,GetterState<P,T>> instanceState(final Function<P, T> getInstance) {
         return (parent) -> new GetterState<>(parent, INIT_INSTANCE, getInstance, null);
