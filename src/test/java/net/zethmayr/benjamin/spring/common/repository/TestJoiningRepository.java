@@ -1,18 +1,17 @@
 package net.zethmayr.benjamin.spring.common.repository;
 
+import net.zethmayr.benjamin.spring.common.mapper.TestJoiningMapper;
+import net.zethmayr.benjamin.spring.common.model.TestPojo;
+import net.zethmayr.benjamin.spring.common.repository.base.JoiningRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
-
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@ActiveProfiles("ezmode")
-public class TestJoiningRepository {
-    @Test
-    public void readsOverJoin() {
-
+@Service
+public class TestJoiningRepository extends JoiningRepository<TestPojo, Integer> {
+    protected TestJoiningRepository(final @Autowired JdbcTemplate jdbcTemplate,
+        final @Autowired TestPojoRepository pojos,
+        final @Autowired TestEnumRepository enums) {
+        super(jdbcTemplate, new TestJoiningMapper(), pojos, enums);
     }
 }

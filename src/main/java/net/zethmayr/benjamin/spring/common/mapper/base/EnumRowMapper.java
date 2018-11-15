@@ -4,6 +4,7 @@ import org.springframework.lang.Nullable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -55,6 +56,11 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
         ) {
 
         };
+    }
+
+    @Override
+    public final List<ClassFieldMapper<T>> mappableFields() {
+        return Collections.singletonList(idMapper);
     }
 
     /**
