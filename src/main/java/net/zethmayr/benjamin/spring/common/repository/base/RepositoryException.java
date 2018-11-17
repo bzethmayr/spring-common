@@ -63,4 +63,14 @@ public class RepositoryException extends RuntimeException {
     public static RepositoryException writeFailed(final Throwable cause) {
         return new RepositoryException(WRITE_FAILED, cause);
     }
+
+    /**
+     * Create an exception because a repository was setup incorrectly
+     *
+     * @param what what is wrong
+     * @return An exception
+     */
+    public static RepositoryException badSetup(final String what) {
+        return new RepositoryException("Bad repository setup: "+what);
+    }
 }

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class TestJoiningRepository extends JoiningRepository<TestPojo, Integer> {
     protected TestJoiningRepository(final @Autowired JdbcTemplate jdbcTemplate,
         final @Autowired TestPojoRepository pojos,
-        final @Autowired TestEnumRepository enums) {
+        final @Autowired HistoryRepository enums) {
         super(jdbcTemplate, new TestJoiningMapper(), pojos, enums);
     }
 }

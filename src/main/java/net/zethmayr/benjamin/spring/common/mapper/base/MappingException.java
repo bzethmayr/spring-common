@@ -25,7 +25,7 @@ public class MappingException extends RuntimeException {
     }
 
     /**
-     * The message for when bad mapper setup is detected.
+     * The message for when a bad mapper setup is detected.
      */
     public static final String BAD_SETUP = "Bad mapper setup: ";
 

@@ -42,7 +42,7 @@ public abstract class ClassFieldMapper<C> {
      * @param container The instance being mapped into
      * @param rs        A ResultSet containing the field to map
      */
-    public abstract void desTo(C container, ResultSet rs);
+    public abstract Object desTo(C container, ResultSet rs);
 
     /**
      * Sets this field's position in a whole-row INSERT query.
