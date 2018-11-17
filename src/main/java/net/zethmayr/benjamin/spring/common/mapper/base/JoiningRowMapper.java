@@ -1,5 +1,6 @@
 package net.zethmayr.benjamin.spring.common.mapper.base;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -8,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,10 +19,11 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+@Slf4j
 public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
 
-    private final InvertibleRowMapper<T> primary;
-    private final List<MapperAndJoin> joinedMappers;
+    public final InvertibleRowMapper<T> primary;
+    public final List<MapperAndJoin> joinedMappers;
     private final InvertibleRowMapper[] allMappers;
     private final String selectEntire;
     private static final String LIST_SEP = ", ";
@@ -29,13 +32,14 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
     protected JoiningRowMapper(final InvertibleRowMapper<T> primary, final MapperAndJoin<T, ?>... joinedMappers) {
         int initIndex = 0;
         this.primary = rebindWithPrefix(primary, initIndex);
-        this.joinedMappers = Arrays.asList(joinedMappers);
+        this.joinedMappers = Collections.unmodifiableList(Arrays.asList(joinedMappers));
         this.allMappers = new InvertibleRowMapper[joinedMappers.length + 1];
         allMappers[0] = this.primary;
         for (int i = 0; i < joinedMappers.length; i++) {
             allMappers[i + 1] = rebindWithPrefix(joinedMappers[i].mapper(), ++initIndex);
         }
         selectEntire = generateSelectEntire(this.primary, this.joinedMappers);
+        LOG.trace("generated JOIN select {}", selectEntire);
     }
 
     private static String prefix(final AtomicInteger index) {
@@ -104,12 +108,12 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
 
     @Override
     public List<ClassFieldMapper<T>> fields() {
-        throw new UnsupportedOperationException();
+        return primary.fields();
     }
 
     @Override
     public List<ClassFieldMapper<T>> mappableFields() {
-        return fields();
+        return primary.mappableFields();
     }
 
     @Override
@@ -133,19 +137,16 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
     }
 
     public ResultSetExtractor<List<T>> listExtractor() {
-        return new ResultSetExtractor<List<T>>() {
-            @Override
-            public List<T> extractData(ResultSet rs) throws SQLException, DataAccessException {
-                final List<T> results = new ArrayList<>();
-                T one;
-                if (rs.next()) do {
-                    one = extractDataInternal(rs);
-                    if (!Objects.isNull(one)) {
-                        results.add(one);
-                    }
-                } while (!rs.isAfterLast());
-                return results;
-            }
+        return rs -> {
+            final List<T> results = new ArrayList<>();
+            T one;
+            if (rs.next()) do {
+                one = extractDataInternal(rs);
+                if (!Objects.isNull(one)) {
+                    results.add(one);
+                }
+            } while (!rs.isAfterLast());
+            return results;
         };
     }
 
@@ -158,6 +159,7 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
             rs.next();
         }
         final T top = primary.mapRow(rs, rs.getRow());
+        LOG.trace("top is {}", top);
         // Wait, might there not be any number of subordinates on the first row?
         final Map<Integer, Set<Object>> dedup = new HashMap<>();
         readJoined(rs, top, dedup);
@@ -166,7 +168,6 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
             while (rs.next()) {
                 Object thisId = primary.idMapper().from(rs);
                 if (!id.equals(thisId)) {
-                    // We cannot rs.previous here.
                     break;
                 } else {
                     readJoined(rs, top, dedup);
@@ -178,7 +179,7 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
 
     private void readJoined(final ResultSet rs, final T top, final Map<Integer, Set<Object>> dedup) throws SQLException {
         for (int i = 0; i < joinedMappers.size(); i++) {
-            val subMapper = allMappers[i + 1];
+            InvertibleRowMapper<?> subMapper = allMappers[i + 1];
             val idMapper = subMapper.idMapper();
             final Object subId = idMapper.from(rs);
             final Set<Object> existing = dedup.computeIfAbsent(i, (x) -> new HashSet<>());
@@ -186,7 +187,7 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
                 existing.add(subId);
                 final Object sub = subMapper.mapRow(rs, rs.getRow());
                 if (sub != null) {
-                    joinedMappers.get(i).parentAcceptor().accept(top, subMapper.rowClass().cast(sub));
+                    joinedMappers.get(i).acceptor().accept(top, subMapper.rowClass().cast(sub));
                 }
             }
         }

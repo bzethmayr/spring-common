@@ -1,5 +1,6 @@
 package net.zethmayr.benjamin.spring.common.repository.base;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.zethmayr.benjamin.spring.common.model.TestPojo;
 import net.zethmayr.benjamin.spring.common.repository.HistoryRepository;
@@ -18,12 +19,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static net.zethmayr.benjamin.spring.common.model.History.DECLARATION_OF_INDEPENDENCE;
+import static net.zethmayr.benjamin.spring.common.model.History.MAGNA_CARTA;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@Slf4j
 public class JoiningRepositoryTest {
     @SpyBean
     private TestPojoRepository pojos;
@@ -64,5 +67,17 @@ public class JoiningRepositoryTest {
         final TestPojo read = underTest.get(id).orElseThrow(() -> new IllegalStateException("There is too much wrong for this test"));
         assertThat(read, isA(TestPojo.class));
         assertThat(read.getEvent(), is(DECLARATION_OF_INDEPENDENCE));
+    }
+
+    @Test
+    public void canInsertSomeTestData() throws Exception {
+        val id = writeSomeTestDataUsingTheSimpleRepos();
+        final TestPojo read = underTest.get(id).orElseThrow(Exception::new);
+        LOG.info("read is {}", read);
+        schemaService.burn(pojos, enums);
+        val inserted = underTest.insert(read);
+        val reread = underTest.get(inserted).orElseThrow(Exception::new);
+        LOG.info("reread is {}", reread);
+        assertThat(reread, is(read.setEvent(MAGNA_CARTA)));
     }
 }

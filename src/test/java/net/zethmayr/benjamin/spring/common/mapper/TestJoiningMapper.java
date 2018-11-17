@@ -5,8 +5,9 @@ import net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin;
 import net.zethmayr.benjamin.spring.common.model.History;
 import net.zethmayr.benjamin.spring.common.model.TestPojo;
 
-import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.instanceGetter;
-import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.instanceState;
+import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.DeleteStyle.DONT_DELETE;
+import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.InsertStyle.DONT_INSERT;
+import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.single;
 import static net.zethmayr.benjamin.spring.common.mapper.base.SqlOp.EQ;
 
 public class TestJoiningMapper extends JoiningRowMapper<TestPojo> {
@@ -17,9 +18,10 @@ public class TestJoiningMapper extends JoiningRowMapper<TestPojo> {
                         .parentField(TestPojoMapper.EVENT)
                         .relation(EQ)
                         .relatedField(HistoryMapper.ID)
-                        .getterStateFactory(instanceState(TestPojo::getEvent))
-                        .parentGetter(instanceGetter())
-                        .parentAcceptor(TestPojo::setEvent)
+                        .getter(single(TestPojo::getEvent))
+                        .acceptor(TestPojo::setEvent)
+                        .insertions(DONT_INSERT)
+                        .deletions(DONT_DELETE)
                         .build()
         );
     }

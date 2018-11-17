@@ -136,8 +136,9 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
     }
 
     @Override
-    public void setTo(C container, I value) {
+    public I setTo(C container, I value) {
         cSetter.accept(container, value);
+        return value;
     }
 
     /**

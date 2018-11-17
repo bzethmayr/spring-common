@@ -9,14 +9,17 @@ import net.zethmayr.benjamin.spring.common.mapper.base.Mapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin;
 import net.zethmayr.benjamin.spring.common.model.LinkyPojo;
 import net.zethmayr.benjamin.spring.common.model.TestPojo;
-import sun.awt.image.ImageWatched;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.collectionGetter;
-import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.collectionState;
+import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.DeleteStyle.MATERIALIZE_PARENT;
+import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.DeleteStyle.USE_PARENT_ID;
+import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.InsertStyle.DONT_INSERT;
+import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.InsertStyle.INDEPENDENT_INSERT;
+import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.collection;
+import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.single;
 import static net.zethmayr.benjamin.spring.common.mapper.base.SqlOp.EQ;
 
 public class LinkyPojoMapper extends JoiningRowMapper<LinkyPojo> {
@@ -60,19 +63,20 @@ public class LinkyPojoMapper extends JoiningRowMapper<LinkyPojo> {
                         .parentField(CoreMapper.ID)
                         .relation(EQ)
                         .relatedField(TestPojoMapper.ID)
-                        .parentAcceptor((p, t) -> p.getTop().add(t))
-                        // I have got to clean this up...
-                        .getterStateFactory(collectionState(LinkyPojo::getTop))
-                        .parentGetter(collectionGetter())
+                        .acceptor(LinkyPojo::setTop)
+                        .getter(single(LinkyPojo::getTop))
+                        .insertions(DONT_INSERT)
+                        .deletions(USE_PARENT_ID)
                         .build(),
                 MapperAndJoin.<LinkyPojo, TestPojo>builder()
                         .mapper(new TestPojoMapper())
                         .parentField(CoreMapper.LINK)
                         .relation(EQ)
                         .relatedField(TestPojoMapper.STEVE)
-                        .parentAcceptor((p, t) -> p.getLeft().add(t))
-                        .getterStateFactory(collectionState(LinkyPojo::getLeft))
-                        .parentGetter(collectionGetter())
+                        .acceptor((p, t) -> p.getLeft().add(t))
+                        .getter(collection(LinkyPojo::getLeft))
+                        .insertions(INDEPENDENT_INSERT)
+                        .deletions(MATERIALIZE_PARENT)
                         .build()
                 );
     }

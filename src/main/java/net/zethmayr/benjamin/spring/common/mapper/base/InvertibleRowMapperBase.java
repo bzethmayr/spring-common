@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -182,12 +183,17 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
     @Override
     public T mapRow(final @Nullable ResultSet rs, final int i) throws SQLException {
         final T partial = empty();
+        boolean allNull = true;
         marshaling(partial, true);
         for (ClassFieldMapper<T> m : fields) {
-            m.desTo(partial, rs);
+            allNull &= Objects.isNull(m.desTo(partial, rs));
         }
         marshaling(partial, false);
-        return partial;
+        if (allNull) {
+            return null;
+        } else {
+            return partial;
+        }
     }
 
     @Override

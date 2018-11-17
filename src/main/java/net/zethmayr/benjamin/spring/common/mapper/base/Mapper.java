@@ -2,6 +2,7 @@ package net.zethmayr.benjamin.spring.common.mapper.base;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 /**
@@ -79,10 +80,10 @@ public abstract class Mapper<C, I, O> extends ClassFieldMapper<C> implements Ser
      * @param rs        The resultset providing the value
      */
     @Override
-    public void desTo(final C container, final ResultSet rs) {
+    public I desTo(final C container, final ResultSet rs) {
         final I got = des(from(rs));
         try {
-            setTo(container, got != null ? rs.wasNull() ? null : got : got);
+            return setTo(container, Objects.isNull(got) ? null : rs.wasNull() ? null : got);
         } catch (SQLException sqle) {
             throw MappingException.because(sqle);
         }
@@ -104,7 +105,7 @@ public abstract class Mapper<C, I, O> extends ClassFieldMapper<C> implements Ser
      * @param container The containing instance
      * @param value     The field value in the internal type
      */
-    public abstract void setTo(final C container, final I value);
+    public abstract I setTo(final C container, final I value);
 
     /**
      * Returns a setter for enum fields.
