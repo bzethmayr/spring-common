@@ -23,13 +23,13 @@ import java.util.stream.Collectors;
 public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
 
     public final InvertibleRowMapper<T> primary;
-    public final List<MapperAndJoin> joinedMappers;
+    public final List<MapperAndJoin<T, ?, ?>> joinedMappers;
     private final InvertibleRowMapper[] allMappers;
     private final String selectEntire;
     private static final String LIST_SEP = ", ";
 
     @SafeVarargs
-    protected JoiningRowMapper(final InvertibleRowMapper<T> primary, final MapperAndJoin<T, ?>... joinedMappers) {
+    protected JoiningRowMapper(final InvertibleRowMapper<T> primary, final MapperAndJoin<T, ?, ?>... joinedMappers) {
         int initIndex = 0;
         this.primary = rebindWithPrefix(primary, initIndex);
         this.joinedMappers = Collections.unmodifiableList(Arrays.asList(joinedMappers));
@@ -50,7 +50,7 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         return "_" + index + "__";
     }
 
-    private static <T> String generateSelectEntire(final InvertibleRowMapper<T> primary, final List<MapperAndJoin> joinedMappers) {
+    private static <T> String generateSelectEntire(final InvertibleRowMapper<T> primary, final List<MapperAndJoin<T, ?, ?>> joinedMappers) {
         val sb = new StringBuilder();
         final AtomicInteger initIndex = new AtomicInteger(0);
         sb.append("SELECT \n")
@@ -182,12 +182,14 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
             InvertibleRowMapper<?> subMapper = allMappers[i + 1];
             val idMapper = subMapper.idMapper();
             final Object subId = idMapper.from(rs);
-            final Set<Object> existing = dedup.computeIfAbsent(i, (x) -> new HashSet<>());
-            if (!existing.contains(subId)) {
-                existing.add(subId);
-                final Object sub = subMapper.mapRow(rs, rs.getRow());
-                if (sub != null) {
-                    joinedMappers.get(i).acceptor().accept(top, subMapper.rowClass().cast(sub));
+            if (!Objects.isNull(subId)) {
+                final Set<Object> existing = dedup.computeIfAbsent(i, (x) -> new HashSet<>());
+                if (!existing.contains(subId)) {
+                    existing.add(subId);
+                    final Object sub = subMapper.mapRow(rs, rs.getRow());
+                    if (sub != null) {
+                        ((MapperAndJoin) joinedMappers.get(i)).acceptor().accept(top, subMapper.rowClass().cast(sub));
+                    }
                 }
             }
         }

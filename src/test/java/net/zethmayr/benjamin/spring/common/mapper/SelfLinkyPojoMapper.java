@@ -19,7 +19,6 @@ import static net.zethmayr.benjamin.spring.common.mapper.SelfLinkyPojoMapper.Cor
 import static net.zethmayr.benjamin.spring.common.mapper.SelfLinkyPojoMapper.CoreMapper.OWNS;
 import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.DeleteStyle.DONT_DELETE;
 import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.DeleteStyle.MATERIALIZE_PARENT;
-import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.InsertStyle.DONT_INSERT;
 import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.InsertStyle.INDEPENDENT_INSERT;
 import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.InsertStyle.NEEDS_PARENT_ID;
 import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.InsertStyle.PARENT_NEEDS_ID;
@@ -69,7 +68,7 @@ public class SelfLinkyPojoMapper extends JoiningRowMapper<SelfLinkyPojo> {
 
     public SelfLinkyPojoMapper() {
         super(new CoreMapper(),
-                MapperAndJoin.<SelfLinkyPojo, SelfLinkyPojo>builder()
+                MapperAndJoin.<SelfLinkyPojo, SelfLinkyPojo, Integer>builder()
                         .mapper(new CoreMapper())
                         .parentField(GROUP)
                         .relation(EQ)
@@ -79,7 +78,7 @@ public class SelfLinkyPojoMapper extends JoiningRowMapper<SelfLinkyPojo> {
                         .acceptor((p, o) -> p.getNeighbors().add(o))
                         .getter(collection(SelfLinkyPojo::getNeighbors))
                         .build(),
-                MapperAndJoin.<SelfLinkyPojo, SelfLinkyPojo>builder()
+                MapperAndJoin.<SelfLinkyPojo, SelfLinkyPojo, Integer>builder()
                         .mapper(new CoreMapper())
                         .parentField(OWNS)
                         .relation(EQ)
@@ -89,7 +88,7 @@ public class SelfLinkyPojoMapper extends JoiningRowMapper<SelfLinkyPojo> {
                         .acceptor(SelfLinkyPojo::setOwned)
                         .getter(single(SelfLinkyPojo::getOwned))
                         .build(),
-                MapperAndJoin.<SelfLinkyPojo, SelfLinkyPojo>builder()
+                MapperAndJoin.<SelfLinkyPojo, SelfLinkyPojo, Integer>builder()
                         .mapper(new CoreMapper())
                         .parentField(ID)
                         .relation(EQ)

@@ -78,6 +78,6 @@ public class JoiningRepositoryTest {
         val inserted = underTest.insert(read);
         val reread = underTest.get(inserted).orElseThrow(Exception::new);
         LOG.info("reread is {}", reread);
-        assertThat(reread, is(read.setEvent(MAGNA_CARTA)));
+        assertThat(reread, is(read));
     }
 }

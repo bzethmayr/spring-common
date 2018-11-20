@@ -58,7 +58,7 @@ public class LinkyPojoMapper extends JoiningRowMapper<LinkyPojo> {
 
     public LinkyPojoMapper() {
         super(new CoreMapper(),
-                MapperAndJoin.<LinkyPojo, TestPojo>builder()
+                MapperAndJoin.<LinkyPojo, TestPojo, Integer>builder()
                         .mapper(new TestPojoMapper())
                         .parentField(CoreMapper.ID)
                         .relation(EQ)
@@ -68,7 +68,7 @@ public class LinkyPojoMapper extends JoiningRowMapper<LinkyPojo> {
                         .insertions(DONT_INSERT)
                         .deletions(USE_PARENT_ID)
                         .build(),
-                MapperAndJoin.<LinkyPojo, TestPojo>builder()
+                MapperAndJoin.<LinkyPojo, TestPojo, Integer>builder()
                         .mapper(new TestPojoMapper())
                         .parentField(CoreMapper.LINK)
                         .relation(EQ)

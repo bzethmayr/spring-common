@@ -13,7 +13,7 @@ import static net.zethmayr.benjamin.spring.common.mapper.base.SqlOp.EQ;
 public class TestJoiningMapper extends JoiningRowMapper<TestPojo> {
     public TestJoiningMapper() {
         super(new TestPojoMapper(),
-                MapperAndJoin.<TestPojo, History>builder()
+                MapperAndJoin.<TestPojo, History, Integer>builder()
                         .mapper(new HistoryMapper())
                         .parentField(TestPojoMapper.EVENT)
                         .relation(EQ)
