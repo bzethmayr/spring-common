@@ -15,4 +15,5 @@ public class TestOrder {
     private TestUser user;
     private Instant orderedAt;
     private List<TestOrderItem> items = new ArrayList<>();
+    private TestOrderSummary summary;
 }

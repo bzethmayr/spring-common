@@ -67,7 +67,7 @@ public interface InvertibleRowMapper<T> extends RowMapper<T> {
      */
     Object[] getInsertValues(T insert);
 
-    InvertibleRowMapper<T> copyTransforming(final RowMapperTransform<T> mapperTransform, final FieldMapperTransform<T> fieldTransform);
+    InvertibleRowMapper<T> copyTransforming(final RowMapperTransform mapperTransform, final FieldMapperTransform fieldTransform);
 
     Mapper<T, ?, ?> idMapper();
 }

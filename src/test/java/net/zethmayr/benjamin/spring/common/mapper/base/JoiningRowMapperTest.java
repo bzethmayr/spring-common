@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 
 import static net.zethmayr.benjamin.spring.common.model.History.COLUMBUS;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 import static org.junit.Assert.assertThat;
@@ -36,6 +37,8 @@ public class JoiningRowMapperTest {
         assertThat(underTest, isA(JoiningRowMapper.class));
         val select = underTest.select();
         LOG.info("select is {}", select);
+        assertThat(select, containsString(underTest.table()));
+        assertThat(select, containsString("history"));
     }
 
     @Test

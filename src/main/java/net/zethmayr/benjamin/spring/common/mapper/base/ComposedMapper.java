@@ -72,7 +72,7 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
     }
 
     @Override
-    public ClassFieldMapper<C> copyTransforming(FieldMapperTransform<C> fieldTransform) {
+    public ClassFieldMapper<C> copyTransforming(FieldMapperTransform fieldTransform) {
         final String nameTransformed = fieldTransform.fieldName(fieldName);
         val copy = new ComposedMapper<C,I,O>(fieldName, cGetter, serMapper, columnType, columnType.getterFactory().field(nameTransformed), desMapper, cSetter);
         return copy;

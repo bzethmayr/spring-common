@@ -10,6 +10,7 @@ import net.zethmayr.benjamin.spring.common.mapper.base.Mapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin;
 import net.zethmayr.benjamin.spring.common.model.TestOrder;
 import net.zethmayr.benjamin.spring.common.model.TestOrderItem;
+import net.zethmayr.benjamin.spring.common.model.TestOrderSummary;
 import net.zethmayr.benjamin.spring.common.model.TestUser;
 
 import java.time.Instant;
@@ -77,7 +78,17 @@ public class TestOrderMapper extends JoiningRowMapper<TestOrder> {
                         .getter(collection(TestOrder::getItems))
                         .acceptor((o, i) -> o.getItems().add(i))
                         .relation(EQ)
-                        .relatedField(TestOrderItemMapper.CoreMapper.ID)
+                        .relatedField(TestOrderItemMapper.CoreMapper.ORDER_ID)
+                        .insertions(MapperAndJoin.InsertStyle.NEEDS_PARENT_ID)
+                        .deletions(MapperAndJoin.DeleteStyle.USE_PARENT_ID)
+                        .build(),
+                MapperAndJoin.<TestOrder, TestOrderSummary, Integer>builder()
+                        .mapper(new TestOrderSummaryMapper())
+                        .parentField(CoreMapper.ID)
+                        .getter(single(TestOrder::getSummary))
+                        .acceptor(TestOrder::setSummary)
+                        .relation(EQ)
+                        .relatedField(TestOrderSummaryMapper.ORDER_ID)
                         .insertions(MapperAndJoin.InsertStyle.NEEDS_PARENT_ID)
                         .deletions(MapperAndJoin.DeleteStyle.USE_PARENT_ID)
                         .build()
