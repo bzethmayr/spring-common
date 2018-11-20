@@ -4,15 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.zethmayr.benjamin.spring.common.mapper.base.InvertibleRowMapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.JoiningRowMapper;
-import net.zethmayr.benjamin.spring.common.mapper.base.Mapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin;
-import net.zethmayr.benjamin.spring.common.mapper.base.MappingException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,9 +36,9 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
     public final String getById;
 
     private final Map<MapperAndJoin, MapperRepository> joinedRepositories;
-    private final List<MapperAndJoin> insertFirst;
-    private final List<MapperAndJoin> insertAfter;
-    private final List<MapperAndJoin> insertWhenever;
+    private final List<MapperAndJoin<T, ?, ?>> insertFirst;
+    private final List<MapperAndJoin<T, ?, ?>> insertAfter;
+    private final List<MapperAndJoin<T, ?, ?>> insertWhenever;
 
     protected JoiningRepository(final JdbcTemplate jdbcTemplate, final JoiningRowMapper<T> mapper, final MapperRepository<T, X> primary, final MapperRepository... supplemental) {
         this.jdbcTemplate = jdbcTemplate;
@@ -89,25 +86,25 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
     @Override
     @Transactional(propagation = REQUIRED, isolation = REPEATABLE_READ, rollbackFor = Throwable.class)
     public X insert(T toInsert) {
-        for (final MapperAndJoin<T, ?> parentNeedsId : insertFirst) {
+        for (final MapperAndJoin<T, ?, ?> parentNeedsId : insertFirst) {
             internalInsertFirst(parentNeedsId, toInsert);
         }
-        for (final MapperAndJoin<T, ?> whenever : insertWhenever) {
+        for (final MapperAndJoin<T, ?, ?> whenever : insertWhenever) {
             internalInsertWhenever(whenever, toInsert);
         }
         val primaryId = primary.insert(toInsert);
-        for (final MapperAndJoin<T, ?> needsParentId : insertAfter) {
+        for (final MapperAndJoin<T, ?, ?> needsParentId : insertAfter) {
             internalInsertAfter(needsParentId, toInsert);
         }
         return primaryId;
     }
 
-    private <F> void internalInsertFirst(final MapperAndJoin<T, F> parentNeedsId, final T parent) {
-        final MapperAndJoin.GetterState<T, F> getter = parentNeedsId.getter().apply(parent);
+    private <F, O> void internalInsertFirst(final MapperAndJoin<T, F, O> parentNeedsId, final T parent) {
+        final MapperAndJoin.GetterState<T, F> getter = parentNeedsId.getter().get();
         switch (getter.state()) {
             case INIT_INSTANCE:
                 internalInsert(parentNeedsId, parent, getter).ifPresent(inserted ->
-                        ((Mapper) parentNeedsId.parentField()).setTo(parent, parentNeedsId.relatedField().getFrom(inserted))
+                        parentNeedsId.parentField().desTo(parent, parentNeedsId.relatedField().serFrom(inserted))
                 );
                 break;
             case INIT_COLLECTION:
@@ -117,8 +114,8 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
         }
     }
 
-    private <F> void internalInsertWhenever(final MapperAndJoin<T, F> whenever, final T parent) {
-        final MapperAndJoin.GetterState<T, F> getter = whenever.getter().apply(parent);
+    private <F, O> void internalInsertWhenever(final MapperAndJoin<T, F, O> whenever, final T parent) {
+        final MapperAndJoin.GetterState<T, F> getter = whenever.getter().get();
         switch (getter.state()) {
             case INIT_INSTANCE:
                 internalInsert(whenever, parent, getter);
@@ -133,10 +130,10 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
         }
     }
 
-    private <F> void internalInsertAfter(final MapperAndJoin<T, F> needsParentId, final T parent) {
-        final MapperAndJoin.GetterState<T, F> getter = needsParentId.getter().apply(parent);
+    private <F, O> void internalInsertAfter(final MapperAndJoin<T, F, O> needsParentId, final T parent) {
+        final MapperAndJoin.GetterState<T, F> getter = needsParentId.getter().get();
         final Consumer<F> setter = (f) -> {
-                    ((Mapper) needsParentId.relatedField()).setTo(f, needsParentId.parentField().getFrom(parent));
+                    needsParentId.relatedField().desTo(f, needsParentId.parentField().serFrom(parent));
                 };
         switch (getter.state()) {
             case INIT_INSTANCE:
@@ -149,12 +146,12 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
         }
     }
 
-    private <F> Optional<F> internalInsert(final MapperAndJoin<T, F> join, final T parent, final MapperAndJoin.GetterState<T, F> getter) {
+    private <F, O> Optional<F> internalInsert(final MapperAndJoin<T, F, O> join, final T parent, final MapperAndJoin.GetterState<T, F> getter) {
         return internalInsert(join, parent, getter, (f) -> {
         });
     }
 
-    private <F> Optional<F> internalInsert(final MapperAndJoin<T, F> join, final T parent,
+    private <F, O> Optional<F> internalInsert(final MapperAndJoin<T, F, O> join, final T parent,
                                            final MapperAndJoin.GetterState<T, F> getter, final Consumer<F> mutator) {
         final Repository<F, ?> repo = joinedRepositories.get(join);
         final F toInsert = getter.getter().apply(parent, getter);

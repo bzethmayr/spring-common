@@ -1,5 +1,7 @@
 package net.zethmayr.benjamin.spring.common.mapper.base;
 
+import lombok.val;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -42,7 +44,8 @@ public interface RsGetterFactory<O> {
     static <O> RsGetter<O> factory(final GetterRsFieldName<O> rsMethod, final String fieldName) {
         return (rs) -> {
             try {
-                return rsMethod.rsGet(rs, fieldName);
+                val maybeNull = rsMethod.rsGet(rs, fieldName);
+                return rs.wasNull() ? null : maybeNull;
             } catch (SQLException sqle) {
                 throw MappingException.because(sqle);
             }
