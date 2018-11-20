@@ -70,7 +70,7 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
     }
 
     @Override
-    public InvertibleRowMapperBase<T> copyTransforming(final RowMapperTransform<T> rowTransform, final FieldMapperTransform<T> fieldTransform) {
+    public InvertibleRowMapperBase<T> copyTransforming(final RowMapperTransform rowTransform, final FieldMapperTransform fieldTransform) {
         final String tableTransformed = rowTransform.table(this.table);
         final List<ClassFieldMapper<T>> fieldsTransformed = this.fields.stream().map((field) -> field.copyTransforming(fieldTransform)).collect(Collectors.toList());
 

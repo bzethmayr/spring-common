@@ -43,7 +43,7 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
     }
 
     @Override
-    public EnumRowMapper<T> copyTransforming(final RowMapperTransform<T> rowTransform, final FieldMapperTransform<T> fieldTransform) {
+    public EnumRowMapper<T> copyTransforming(final RowMapperTransform rowTransform, final FieldMapperTransform fieldTransform) {
         final String tableTransformed = rowTransform.table(table());
         final List<ClassFieldMapper<T>> fieldsTransformed = fields().stream().map((field) -> field.copyTransforming(fieldTransform)).collect(Collectors.toList());
 

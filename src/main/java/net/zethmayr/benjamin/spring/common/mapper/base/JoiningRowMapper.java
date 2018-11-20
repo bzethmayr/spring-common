@@ -33,13 +33,38 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         int initIndex = 0;
         this.primary = rebindWithPrefix(primary, initIndex);
         this.joinedMappers = Collections.unmodifiableList(Arrays.asList(joinedMappers));
-        this.allMappers = new InvertibleRowMapper[joinedMappers.length + 1];
-        allMappers[0] = this.primary;
+        final ArrayList<InvertibleRowMapper> mappers = new ArrayList<>();
         for (int i = 0; i < joinedMappers.length; i++) {
-            allMappers[i + 1] = rebindWithPrefix(joinedMappers[i].mapper(), ++initIndex);
+            final InvertibleRowMapper<?> mapper = joinedMappers[i].mapper();
+            mappers.add(rebindWithPrefix(mapper, ++initIndex));
+            initIndex = addAnyJoinedMappers(mapper, mappers, initIndex);
+        }
+        this.allMappers = new InvertibleRowMapper[initIndex + 1];
+        allMappers[0] = this.primary;
+        for (int i = 0; i < mappers.size(); i++) {
+            allMappers[i + 1] = mappers.get(i);
         }
         selectEntire = generateSelectEntire(this.primary, this.joinedMappers);
         LOG.trace("generated JOIN select {}", selectEntire);
+    }
+
+    @Override
+    public JoiningRowMapper<T> copyTransforming(final RowMapperTransform mapperTransform, final FieldMapperTransform fieldTransform) {
+        MapperAndJoin[] copy = new MapperAndJoin[joinedMappers.size()];
+        for (int i = 0; i < copy.length; i++) {
+            final MapperAndJoin<T, ?, ?> original = joinedMappers.get(i);
+            copy[i] = copyJoinTransforming(original, mapperTransform, fieldTransform);
+        }
+        return new JoiningRowMapper<T>(primary.copyTransforming(mapperTransform, fieldTransform), copy) {
+        };
+    }
+
+    private static <P, F, X> MapperAndJoin<P, F, X> copyJoinTransforming(final MapperAndJoin<P, F, X> original, final RowMapperTransform mapperTransform, final FieldMapperTransform fieldTransform) {
+        return original.toBuilder()
+                // IntelliJ lombok plugin exhibits an issue, below. Going to, let it do so.
+                .mapper(original.mapper().copyTransforming(mapperTransform, fieldTransform))
+                .leftIndex(mapperTransform.leftIndex())
+                .build();
     }
 
     private static String prefix(final AtomicInteger index) {
@@ -74,7 +99,7 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
                 .append("\n")
                 .append(joinedMappers.stream()
                         .map(j -> "LEFT JOIN " + j.mapper().table() + " " + prefix(initIndex.incrementAndGet())
-                                + " ON " + prefix(0) + "." + j.parentField().fieldName()
+                                + " ON " + prefix(j.leftIndex()) + "." + j.parentField().fieldName()
                                 + " " + j.relation().sql + " "
                                 + prefix(initIndex) + "." + j.relatedField().fieldName
                                 + "\n"
@@ -84,15 +109,24 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         return sb.toString();
     }
 
+    private static <T> int addAnyJoinedMappers(final InvertibleRowMapper<T> mapper, final List<InvertibleRowMapper> mappers, int initIndex) {
+        return initIndex;
+    }
+
     private static <T> InvertibleRowMapper<T> rebindWithPrefix(final InvertibleRowMapper<T> original, final int joinIndex) {
         return original.copyTransforming(
-                new RowMapperTransform<T>() {
+                new RowMapperTransform() {
                     @Override
                     public String table(final String table) {
                         return table;
                     }
+
+                    @Override
+                    public int leftIndex() {
+                        return joinIndex;
+                    }
                 },
-                new FieldMapperTransform<T>() {
+                new FieldMapperTransform() {
                     @Override
                     public String fieldName(final String fieldName) {
                         return prefix(joinIndex) + fieldName;
@@ -197,7 +231,7 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
 
     @Override
     public T mapRow(ResultSet rs, int i) throws SQLException {
-        throw new UnsupportedOperationException();
+        return extractDataInternal(rs);
     }
 
     @Override
@@ -205,10 +239,6 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public InvertibleRowMapper<T> copyTransforming(RowMapperTransform<T> mapperTransform, FieldMapperTransform<T> fieldTransform) {
-        throw MappingException.badSetup("I can't deal with that.");
-    }
 
     @Override
     public Mapper<T, ?, ?> idMapper() {
