@@ -73,7 +73,7 @@ public class TestOrderMapper extends JoiningRowMapper<TestOrder> {
                         .deletions(MapperAndJoin.DeleteStyle.MATERIALIZE_PARENT) // but really, don't delete
                         .build(),
                 MapperAndJoin.<TestOrder, TestOrderItem, Integer>builder()
-                        .mapper(new TestOrderItemMapper.CoreMapper())
+                        .mapper(new TestOrderItemMapper())
                         .parentField(CoreMapper.ID)
                         .getter(collection(TestOrder::getItems))
                         .acceptor((o, i) -> o.getItems().add(i))
