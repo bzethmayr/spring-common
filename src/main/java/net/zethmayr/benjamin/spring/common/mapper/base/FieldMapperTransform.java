@@ -4,4 +4,7 @@ interface FieldMapperTransform {
     default String fieldName(final String fieldName) {
         return fieldName;
     }
+    default int joinIndex() {
+        return 0;
+    }
 }

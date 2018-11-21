@@ -32,35 +32,36 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
     public final JdbcTemplate jdbcTemplate;
     public final JoiningRowMapper<T> mapper;
     public final MapperRepository<T, X> primary;
-    public final List<MapperRepository> supplemental;
+    public final List<Repository> supplemental;
     public final String getById;
 
-    private final Map<MapperAndJoin, MapperRepository> joinedRepositories;
+    private final Map<MapperAndJoin, Repository> joinedRepositories;
     private final List<MapperAndJoin<T, ?, ?>> insertFirst;
     private final List<MapperAndJoin<T, ?, ?>> insertAfter;
     private final List<MapperAndJoin<T, ?, ?>> insertWhenever;
 
-    protected JoiningRepository(final JdbcTemplate jdbcTemplate, final JoiningRowMapper<T> mapper, final MapperRepository<T, X> primary, final MapperRepository... supplemental) {
+    protected JoiningRepository(final JdbcTemplate jdbcTemplate, final JoiningRowMapper<T> mapper, final MapperRepository<T, X> primary, final Repository... supplemental) {
         this.jdbcTemplate = jdbcTemplate;
         this.mapper = mapper;
         this.primary = primary;
         this.supplemental = Arrays.asList(supplemental);
         joinedRepositories = correlateRepositories(mapper, primary, supplemental);
         getById = mapper.select() + "\nWHERE " + prefix(0) + "." + primary.idMapper.fieldName + " = ?";
-        insertFirst = mapper.joinedMappers.stream()
+        val topMappers = mapper.topMappers();
+        insertFirst = topMappers.stream()
                 .filter(m -> m.insertions() == PARENT_NEEDS_ID)
                 .collect(Collectors.toList());
-        insertAfter = mapper.joinedMappers.stream()
+        insertAfter = topMappers.stream()
                 .filter(m -> m.insertions() == NEEDS_PARENT_ID)
                 .collect(Collectors.toList());
-        insertWhenever = mapper.joinedMappers.stream()
+        insertWhenever = topMappers.stream()
                 .filter(m -> m.insertions() == INDEPENDENT_INSERT)
                 .collect(Collectors.toList());
     }
 
-    private Map<MapperAndJoin, MapperRepository> correlateRepositories(final JoiningRowMapper<T> mapper, final MapperRepository primary, final MapperRepository... supplemental) {
-        final Map<MapperAndJoin, MapperRepository> joinedRepositories = new IdentityHashMap<>();
-        for (val join : mapper.joinedMappers) {
+    private Map<MapperAndJoin, Repository> correlateRepositories(final JoiningRowMapper<T> mapper, final MapperRepository primary, final Repository... supplemental) {
+        final Map<MapperAndJoin, Repository> joinedRepositories = new IdentityHashMap<>();
+        for (val join : mapper.topMappers()) {
             if (LOG.isTraceEnabled()) {
                 LOG.trace("Looking at {} vs {}", join.mapper().rowClass(), primary.mapper().rowClass());
             }

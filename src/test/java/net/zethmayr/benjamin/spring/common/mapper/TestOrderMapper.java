@@ -3,7 +3,6 @@ package net.zethmayr.benjamin.spring.common.mapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.ClassFieldMapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.ColumnType;
 import net.zethmayr.benjamin.spring.common.mapper.base.ComposedMapper;
-import net.zethmayr.benjamin.spring.common.mapper.base.InvertibleRowMapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.InvertibleRowMapperBase;
 import net.zethmayr.benjamin.spring.common.mapper.base.JoiningRowMapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.Mapper;
