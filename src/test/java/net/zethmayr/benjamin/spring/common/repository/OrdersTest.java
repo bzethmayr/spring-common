@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
@@ -27,6 +28,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -35,20 +40,24 @@ public class OrdersTest {
     @Autowired
     private TestSchemaService schemaService;
 
-    @Autowired
+    @SpyBean
     private TestUserRepository users;
 
     @Autowired
     private TestOrderRepository orders;
 
-    @Autowired
+    @SpyBean
     private TestOrderItemRepository orderItems;
 
-    @Autowired
+    @SpyBean
     private TestOrderSummaryRepository orderSummaries;
 
-    @Autowired
+    @SpyBean
     private TestItemRepository items;
+
+    private static final BigDecimal FIVE_DOLLARS = new BigDecimal("5.00");
+    private static final BigDecimal ABOUT_A_HUNDRED_DOLLARS = new BigDecimal("99.95");
+    private static final BigDecimal THREE_FIFTY = new BigDecimal("3.50");
 
     @Before
     public void setUp() {
@@ -62,14 +71,16 @@ public class OrdersTest {
         val orderList = orders.getAll();
         val orderItemsList = orderItems.getAll();
         val itemsList = items.getAll();
+        val summaries = orderSummaries.getAll();
         assertThat(userList, is(empty()));
         assertThat(orderList, is(empty()));
         assertThat(orderItemsList, is(empty()));
         assertThat(itemsList, is(empty()));
+        assertThat(summaries, is(empty()));
     }
 
     public Matcher<String> containsJoinFor(final String table) {
-        return containsString("JOIN "+table);
+        return containsString("JOIN " + table);
     }
 
     @Test
@@ -83,23 +94,47 @@ public class OrdersTest {
         assertThat(select, containsJoinFor("order_summaries"));
     }
 
-    @Test
-    public void prettySoonIBetterThinkAboutFullRecursion() throws Exception {
-        val now = Instant.now();
-        val FIVE_DOLLARS = new BigDecimal("5.00");
-        val ABOUT_A_HUNDRED_DOLLARS = new BigDecimal("99.95");
-        val THREE_FIFTY = new BigDecimal("3.50");
-        val order = new TestOrder()
-                .setUser(new TestUser().setName("Yarn Bean"))
+    private TestOrder asOf(final Instant now) {
+        return new TestOrder()
                 .setOrderedAt(now)
+                .setSummary(new TestOrderSummary().setSummary("Hasty and suspicious"));
+
+    }
+
+    private TestOrder withItems(final Instant now) {
+        return asOf(now)
+                .setUser(new TestUser().setName("Yarn Bean"))
                 .setItems(Arrays.asList(
                         new TestOrderItem().setItem(new TestItem().setName("Soap").setPrice(FIVE_DOLLARS)).setQuantity(2),
                         new TestOrderItem().setItem(new TestItem().setName("Cheese").setPrice(ABOUT_A_HUNDRED_DOLLARS)).setQuantity(1),
                         new TestOrderItem().setItem(new TestItem().setName("Soda").setPrice(THREE_FIFTY)).setQuantity(12)
-                ))
-                .setSummary(new TestOrderSummary().setSummary("Hasty and suspicious"));
+                ));
+    }
 
+    private TestOrder withItemIds(final Instant now) {
+        return asOf(now)
+                .setUserId(1)
+                .setItems(Arrays.asList(
+                        new TestOrderItem().setItemId(1).setQuantity(2),
+                        new TestOrderItem().setItemId(2).setQuantity(1),
+                        new TestOrderItem().setItemId(3).setQuantity(12)
+                ));
+    }
+
+    @Test
+    public void prettySoonIBetterThinkAboutFullRecursion() throws Exception {
+        val now = Instant.now();
+        val order = withItems(now);
         val id = orders.insert(order);
+        verify(users).insert(order.getUser());
+        verify(items).insert(order.getItems().get(0).getItem());
+        verify(orderItems).insert(order.getItems().get(0));
+        verify(items).insert(order.getItems().get(1).getItem());
+        verify(orderItems).insert(order.getItems().get(1));
+        verify(items).insert(order.getItems().get(2).getItem());
+        verify(orderItems).insert(order.getItems().get(2));
+        verify(orderSummaries).insert(order.getSummary());
+        LOG.info("id is {}", id);
         val usersList = users.getAll();
         val ordersList = orders.getAll();
         val orderItemsList = orderItems.getAll();
@@ -110,8 +145,14 @@ public class OrdersTest {
         assertThat(orderItemsList, hasSize(3));
         assertThat(summariesList, hasSize(1));
         assertThat(itemsList, hasSize(3));
+        reset(users, orderItems, orderSummaries, items);
 
         val read = orders.get(id).orElseThrow(Exception::new);
+        verifyNoMoreInteractions(users, orderItems, orderSummaries, items);
+        assertIsExpectedOrder(read, now, id);
+    }
+
+    private void assertIsExpectedOrder(final TestOrder read, final Instant now, final Integer id) {
         assertThat(read.getId(), is(id));
         assertThat(read.getOrderedAt(), is(now));
         assertThat(read.getUserId(), is(1));
@@ -135,6 +176,25 @@ public class OrdersTest {
         assertThat(soda.getQuantity(), is(12));
         assertThat(soda.getItem(), isA(TestItem.class));
         assertThat(soda.getItem().getName(), is("Soda"));
+    }
+
+    @Test
+    public void canAvoidInsertion() {
+        val now = Instant.now();
+        val withItems = withItems(now);
+        val withIds = withItemIds(now);
+        val anotherWithIds = withItemIds(now);
+        val startInsert = System.nanoTime();
+        val idInitial = orders.insert(withItems);
+        val idSecond = orders.insert(withIds);
+        val idThird = orders.insert(anotherWithIds);
+        LOG.info("inserted in about {}ns", System.nanoTime() - startInsert);
+        val startRead = System.nanoTime();
+        val all = orders.getAll();
+        LOG.info("got all in about {}ns", System.nanoTime() - startRead);
+        assertIsExpectedOrder(all.get(0), now, idInitial);
+        assertIsExpectedOrder(all.get(1), now, idSecond);
+        assertIsExpectedOrder(all.get(2), now, idThird);
     }
 }
 
