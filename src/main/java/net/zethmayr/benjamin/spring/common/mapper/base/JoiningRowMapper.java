@@ -2,14 +2,12 @@ package net.zethmayr.benjamin.spring.common.mapper.base;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import net.zethmayr.benjamin.spring.common.repository.base.JoiningRepository;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,12 +16,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
 
-    public final InvertibleRowMapper<T> primary;
+    public final InvertibleRowMapperBase<T> primary;
     private final List<MapperAndJoin> joinedMappers;
     private final List<MapperAndJoin<T, ?, ?>> topMappers;
     public final int topIndex;
@@ -33,11 +33,11 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
     private static final String LIST_SEP = ", ";
 
     @SafeVarargs
-    private JoiningRowMapper(final InvertibleRowMapper<T> primary, final int initIndex, final MapperAndJoin<T, ?, ?>... joinedMappers) {
+    private JoiningRowMapper(final InvertibleRowMapperBase<T> primary, final MapperAndJoin chainParent, final int initIndex, final MapperAndJoin<T, ?, ?>... joinedMappers) {
         int index = this.topIndex = initIndex;
         LOG.trace("new, topIndex is {}", topIndex);
-        this.primary = rebindWithPrefix(primary, initIndex, index);
-        this.joinedMappers = Collections.unmodifiableList(rebindAndFlatten(initIndex, joinedMappers));
+        this.primary = rebindPrimary(primary, initIndex, index);
+        this.joinedMappers = Collections.unmodifiableList(rebindAndFlatten(initIndex, chainParent, joinedMappers));
         this.topMappers = topMappers(this.joinedMappers, topIndex);
         lastIndex = initIndex + this.joinedMappers.size();
         this.allMappers = new InvertibleRowMapper[this.joinedMappers.size() + 1];
@@ -57,7 +57,7 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         return topMappers;
     }
 
-    @SuppressWarnings("unchecked") // we know the types of all top-level mappers
+    @SuppressWarnings("unchecked") // we know the parent types of all top-level mappers - it's our own type.
     private static <T> List<MapperAndJoin<T, ?, ?>> topMappers(final List<MapperAndJoin> joinedMappers, final int topIndex) {
         return joinedMappers.stream()
                 .filter(m -> m.leftIndex() == topIndex)
@@ -66,30 +66,30 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
     }
 
     @SafeVarargs
-    protected JoiningRowMapper(final InvertibleRowMapper<T> primary, final MapperAndJoin<T, ?, ?>... joinedMappers) {
-        this(primary, 0, joinedMappers);
+    protected JoiningRowMapper(final InvertibleRowMapperBase<T> primary, final MapperAndJoin<T, ?, ?>... joinedMappers) {
+        this(primary, null, 0, joinedMappers);
         LOG.trace("subclass constructor end");
     }
 
-    private List<MapperAndJoin> rebindAndFlatten(final int leftIndex, final MapperAndJoin... topJoinedMappers) {
+    private List<MapperAndJoin> rebindAndFlatten(final int leftIndex, final MapperAndJoin chainParent, final MapperAndJoin... topJoinedMappers) {
         val flattened = new ArrayList<MapperAndJoin>();
-        rebindAndFlatten(leftIndex, flattened, topJoinedMappers);
+        rebindAndFlatten(leftIndex, chainParent, flattened, topJoinedMappers);
         return flattened;
     }
 
-    private void rebindAndFlatten(final int leftIndex, final List<MapperAndJoin> list, final MapperAndJoin... topJoinedMappers) {
+    private void rebindAndFlatten(final int leftIndex, final MapperAndJoin chainParent, final List<MapperAndJoin> list, final MapperAndJoin... topJoinedMappers) {
         LOG.trace("internal rebinding joins, leftIndex is {}", leftIndex);
         int index = leftIndex;
         for (int i = 0; i < topJoinedMappers.length; i++) {
             ++index;
             val mapperTransform = mapperTransform(leftIndex);
             val fieldTransform = fieldTransform(index);
-            val transformedJoin = copyJoinTransforming(topJoinedMappers[i], mapperTransform, fieldTransform);
+            val transformedJoin = copyJoinTransforming(topJoinedMappers[i], chainParent, mapperTransform, fieldTransform);
             list.add(transformedJoin);
-            val joinedMapper = transformedJoin.mapper();
+            final InvertibleRowMapper joinedMapper = transformedJoin.mapper();
             if (joinedMapper instanceof JoiningRowMapper) {
-                final JoiningRowMapper joiningMapper = (JoiningRowMapper)joinedMapper.copyTransforming(mapperTransform, fieldTransform);
-                joiningMapper.rebindAndFlatten(index++, list, (MapperAndJoin[])joiningMapper.topMappers().toArray(new MapperAndJoin[]{}));
+                final JoiningRowMapper joiningMapper = (JoiningRowMapper)joinedMapper;
+                joiningMapper.rebindAndFlatten(index++, transformedJoin, list, (MapperAndJoin[])joiningMapper.topMappers().toArray(new MapperAndJoin[]{}));
             }
         }
     }
@@ -101,20 +101,28 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         final int leftIndex = mapperTransform.leftIndex();
         for (int i = 0; i < copy.length; i++) {
             final MapperAndJoin<T, ?, ?> original = joinedMappers.get(i);
-            copy[i] = copyJoinTransforming(original, mapperTransform, fieldTransform(leftIndex + 1 + i));
+            copy[i] = copyJoinTransforming(original, null, mapperTransform, fieldTransform(leftIndex + 1 + i));
         }
-        return new JoiningRowMapper<T>(primary.copyTransforming(mapperTransform, fieldTransform), fieldTransform.joinIndex(), copy) {
+        return new JoiningRowMapper<T>(primary.copyTransforming(mapperTransform, fieldTransform), null, fieldTransform.joinIndex(), copy) {
         };
     }
 
-    private static <P, F, X> MapperAndJoin<P, F, X> copyJoinTransforming(final MapperAndJoin<P, F, X> original, final RowMapperTransform mapperTransform, final FieldMapperTransform fieldTransform) {
+    @SuppressWarnings("unchecked") // we adapt types in here, as far as we know safely...
+    private <P, F, X> MapperAndJoin copyJoinTransforming(final MapperAndJoin<P, F, X> original, final MapperAndJoin<T, P, ?> parent, final RowMapperTransform mapperTransform, final FieldMapperTransform fieldTransform) {
         LOG.trace("copying join, leftIndex is {}, fieldTransform is {}", mapperTransform.leftIndex(), fieldTransform);
+        final BiConsumer<P, F> bareAcceptor = original.acceptor();
+        final BiConsumer curriedAcceptor;
+        if (parent != null) {
+            final Function parentLast = parent.getter().get().getLast();
+            curriedAcceptor = (t, f) -> bareAcceptor.accept((P)parentLast.apply(t), (F)f);
+        } else {
+            curriedAcceptor = bareAcceptor;
+        }
         return original.toBuilder()
-                // IntelliJ lombok plugin exhibits an issue, below. Going to, let it do so.
                 .mapper(original.mapper().copyTransforming(mapperTransform, fieldTransform))
-                .parentField((Mapper<P, ?, X>)original.parentField().copyTransforming(fieldTransform(mapperTransform.leftIndex())))
-                .relatedField((Mapper<F, ?, X>)original.relatedField().copyTransforming(fieldTransform))
-                //.leftIndex(mapperTransform.leftIndex())
+                .acceptor(curriedAcceptor)
+                .parentField((Mapper)original.parentField().copyTransforming(fieldTransform(mapperTransform.leftIndex())))
+                .relatedField((Mapper)original.relatedField().copyTransforming(fieldTransform))
                 .leftIndex(mapperTransform.leftIndex())
                 .build();
     }
@@ -161,7 +169,7 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         return sb.toString();
     }
 
-    private static <T> InvertibleRowMapper<T> rebindWithPrefix(final InvertibleRowMapper<T> original, final int leftIndex, final int joinIndex) {
+    private static <T> InvertibleRowMapperBase<T> rebindPrimary(final InvertibleRowMapperBase<T> original, final int leftIndex, final int joinIndex) {
         LOG.trace("static rebind of {} to leftIndex {}, joinIndex {}", original, leftIndex, joinIndex);
         return original.copyTransforming(
                 mapperTransform(leftIndex),
@@ -282,8 +290,9 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
     }
 
     private void readJoined(final ResultSet rs, final T top, final Map<Integer, Set<Object>> dedup) throws SQLException {
-        for (int i = 0; i < topMappers.size(); i++) {
-            InvertibleRowMapper<?> subMapper = topMappers.get(i).mapper();
+        val basis = joinedMappers; // using topMappers works for up to one one-to-many traversal, but not more.
+        for (int i = 0; i < basis.size(); i++) {
+            InvertibleRowMapper<?> subMapper = basis.get(i).mapper();
             val idMapper = subMapper.idMapper();
             final Object subId = idMapper.from(rs);
             if (!Objects.isNull(subId)) {
@@ -292,7 +301,11 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
                     existing.add(subId);
                     final Object sub = subMapper.mapRow(rs, rs.getRow());
                     if (sub != null) {
-                        ((MapperAndJoin) topMappers.get(i)).acceptor().accept(top, subMapper.rowClass().cast(sub));
+                        // we need to curry acceptors during rebind to allow this to work for grand+child objects
+                        // the uncurried acceptor will want to bind the leaf type into its containing type
+                        // the curried acceptor must bind the leaf type into the root type
+                        // also needs to allow for multiple currying steps
+                        ((MapperAndJoin) basis.get(i)).acceptor().accept(top, subMapper.rowClass().cast(sub));
                     }
                 }
             }
@@ -301,7 +314,16 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
 
     @Override
     public T mapRow(ResultSet rs, int i) throws SQLException {
-        return extractDataInternal(rs, false);
+        /**
+         * We can map simple graphs without currying acceptors, by using the joining extractor here.
+         * But, this disallows traversing more than one one to many join, because we have to prevent
+         * the joining extractor from advancing the rs.
+         *
+         * So, we'll delegate, and rely on flattening picking up the mapper for the subsidiary objects,
+         * and we'll have to curry those mappers with a type adapter over some new synthetic getter during rebind.
+         * Delegating to the simple mapper here should make test order item detail retrieval fail for a bit.
+         */
+        return primary.mapRow(rs, i);
     }
 
     @Override

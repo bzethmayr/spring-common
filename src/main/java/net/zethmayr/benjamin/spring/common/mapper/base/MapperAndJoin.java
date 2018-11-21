@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -199,12 +200,25 @@ public class MapperAndJoin<P, F, O> {
 
         private final Function<P, F> getInstance;
         private final Function<P, Collection<F>> getCollection;
+        @Getter
+        private final Function<P, F> getLast;
 
         private GetterState(final State initialState, final Function<P, F> getInstance, final Function<P, Collection<F>> getCollection, final BiFunction<P, GetterState<P, F>, F> getter) {
             this.state = this.initialState = initialState;
             this.getInstance = getInstance;
             this.getCollection = getCollection;
             this.getter = getter;
+            if (initialState == INIT_INSTANCE) {
+                this.getLast = getInstance;
+            } else {
+                this.getLast = (p) -> {
+                    final Collection<F> collection = getCollection.apply(p);
+                    if (collection instanceof List) {
+                        return ((List<F>)collection).get(collection.size() - 1);
+                    }
+                    return (F)collection.toArray()[collection.size() - 1];
+                };
+            }
         }
     }
 }
