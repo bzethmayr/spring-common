@@ -12,10 +12,11 @@ import org.springframework.stereotype.Service;
 public class TestOrderRepository extends JoiningRepository<TestOrder, Integer> {
     public TestOrderRepository(final @Autowired JdbcTemplate jdbcTemplate,
                                final @Autowired TestOrderItemRepository orderItems,
+                               final @Autowired TestItemRepository items,
                                final @Autowired TestUserRepository users,
                                final @Autowired TestOrderSummaryRepository summaries
                                ) {
-        super(jdbcTemplate, new TestOrderMapper(), new CoreRepository(jdbcTemplate), orderItems.primary, users, summaries);
+        super(jdbcTemplate, new TestOrderMapper(), new CoreRepository(jdbcTemplate), orderItems, items, users, summaries);
     }
 
     public static class CoreRepository extends MapperRepository<TestOrder, Integer> {

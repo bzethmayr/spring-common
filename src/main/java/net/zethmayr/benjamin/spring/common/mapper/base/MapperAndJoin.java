@@ -89,7 +89,7 @@ public class MapperAndJoin<P, F, O> {
     @Override
     public String toString() {
         return "MapperAndJoin@" + Integer.toString(System.identityHashCode(this), 16)
-                + "(" + parentField.fieldName + relation.sql + relatedField.fieldName + ")";
+                + "(" + leftIndex + "." + parentField.fieldName + relation.sql + relatedField.fieldName + ")";
     }
 
     public static class MapperAndJoinBuilder<P,F,O> {

@@ -7,6 +7,7 @@ import net.zethmayr.benjamin.spring.common.model.TestOrder;
 import net.zethmayr.benjamin.spring.common.model.TestOrderItem;
 import net.zethmayr.benjamin.spring.common.model.TestOrderSummary;
 import net.zethmayr.benjamin.spring.common.model.TestUser;
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,14 +68,19 @@ public class OrdersTest {
         assertThat(itemsList, is(empty()));
     }
 
+    public Matcher<String> containsJoinFor(final String table) {
+        return containsString("JOIN "+table);
+    }
+
     @Test
     public void queryIncludesExpectedJoins() {
         val select = orders.select();
         LOG.info("select is {}", select);
-        assertThat(select, containsString("orders"));
-        assertThat(select, containsString("users"));
-        assertThat(select, containsString("order_summaries"));
-        assertThat(select, containsString("order_items"));
+        assertThat(select, containsString("FROM orders"));
+        assertThat(select, containsJoinFor("users"));
+        assertThat(select, containsJoinFor("order_items"));
+        assertThat(select, containsJoinFor("items"));
+        assertThat(select, containsJoinFor("order_summaries"));
     }
 
     @Test
@@ -92,15 +98,19 @@ public class OrdersTest {
                         new TestOrderItem().setItem(new TestItem().setName("Soda").setPrice(THREE_FIFTY)).setQuantity(12)
                 ))
                 .setSummary(new TestOrderSummary().setSummary("Hasty and suspicious"));
+
         val id = orders.insert(order);
         val usersList = users.getAll();
         val ordersList = orders.getAll();
         val orderItemsList = orderItems.getAll();
         val summariesList = orderSummaries.getAll();
+        val itemsList = items.getAll();
         assertThat(usersList, hasSize(1));
         assertThat(ordersList, hasSize(1));
         assertThat(orderItemsList, hasSize(3));
         assertThat(summariesList, hasSize(1));
+        assertThat(itemsList, hasSize(3));
+
         val read = orders.get(id).orElseThrow(Exception::new);
         assertThat(read.getId(), is(id));
         assertThat(read.getOrderedAt(), is(now));
@@ -112,11 +122,19 @@ public class OrdersTest {
         val items = read.getItems();
         assertThat(items, hasSize(3));
         val soap = items.get(0);
-//        assertThat(soap.getItem(), isA(TestItem.class));
-        val cheese = items.get(1);
-//        assertThat(cheese.getItem(), isA(TestItem.class));
+        assertThat(soap.getQuantity(), is(2));
+        assertThat(soap.getItem(), isA(TestItem.class));
+        assertThat(soap.getItem().getName(), is("Soap"));
+        val cheeses = items.get(1);
+        assertThat(cheeses.getQuantity(), is(1));
+        val cheese = cheeses.getItem();
+        assertThat(cheese, isA(TestItem.class));
+        assertThat(cheese.getName(), is("Cheese"));
+        assertThat(cheese.getPrice(), is(ABOUT_A_HUNDRED_DOLLARS));
         val soda = items.get(2);
-//        assertThat(soda.getItem(), isA(TestItem.class));
+        assertThat(soda.getQuantity(), is(12));
+        assertThat(soda.getItem(), isA(TestItem.class));
+        assertThat(soda.getItem().getName(), is("Soda"));
     }
 }
 

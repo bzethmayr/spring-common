@@ -2,6 +2,7 @@ package net.zethmayr.benjamin.spring.common.mapper.base;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import net.zethmayr.benjamin.spring.common.repository.base.JoiningRepository;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
@@ -23,46 +24,97 @@ import java.util.stream.Collectors;
 public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
 
     public final InvertibleRowMapper<T> primary;
-    public final List<MapperAndJoin<T, ?, ?>> joinedMappers;
+    private final List<MapperAndJoin> joinedMappers;
+    private final List<MapperAndJoin<T, ?, ?>> topMappers;
+    public final int topIndex;
+    public final int lastIndex;
     private final InvertibleRowMapper[] allMappers;
     private final String selectEntire;
     private static final String LIST_SEP = ", ";
 
     @SafeVarargs
-    protected JoiningRowMapper(final InvertibleRowMapper<T> primary, final MapperAndJoin<T, ?, ?>... joinedMappers) {
-        int initIndex = 0;
-        this.primary = rebindWithPrefix(primary, initIndex);
-        this.joinedMappers = Collections.unmodifiableList(Arrays.asList(joinedMappers));
-        final ArrayList<InvertibleRowMapper> mappers = new ArrayList<>();
-        for (int i = 0; i < joinedMappers.length; i++) {
-            final InvertibleRowMapper<?> mapper = joinedMappers[i].mapper();
-            mappers.add(rebindWithPrefix(mapper, ++initIndex));
-            initIndex = addAnyJoinedMappers(mapper, mappers, initIndex);
-        }
-        this.allMappers = new InvertibleRowMapper[initIndex + 1];
+    private JoiningRowMapper(final InvertibleRowMapper<T> primary, final int initIndex, final MapperAndJoin<T, ?, ?>... joinedMappers) {
+        int index = this.topIndex = initIndex;
+        LOG.trace("new, topIndex is {}", topIndex);
+        this.primary = rebindWithPrefix(primary, initIndex, index);
+        this.joinedMappers = Collections.unmodifiableList(rebindAndFlatten(initIndex, joinedMappers));
+        this.topMappers = topMappers(this.joinedMappers, topIndex);
+        lastIndex = initIndex + this.joinedMappers.size();
+        this.allMappers = new InvertibleRowMapper[this.joinedMappers.size() + 1];
         allMappers[0] = this.primary;
-        for (int i = 0; i < mappers.size(); i++) {
-            allMappers[i + 1] = mappers.get(i);
+        for (int i = 1; i < allMappers.length; i++) {
+            allMappers[i] = this.joinedMappers.get(i - 1).mapper();
         }
         selectEntire = generateSelectEntire(this.primary, this.joinedMappers);
         LOG.trace("generated JOIN select {}", selectEntire);
     }
 
+    public List<MapperAndJoin> joinedMappers() {
+        return joinedMappers;
+    }
+
+    public List<MapperAndJoin<T, ?, ?>> topMappers() {
+        return topMappers;
+    }
+
+    @SuppressWarnings("unchecked") // we know the types of all top-level mappers
+    private static <T> List<MapperAndJoin<T, ?, ?>> topMappers(final List<MapperAndJoin> joinedMappers, final int topIndex) {
+        return joinedMappers.stream()
+                .filter(m -> m.leftIndex() == topIndex)
+                .map(m -> (MapperAndJoin<T,?,?>)m)
+                .collect(Collectors.toList());
+    }
+
+    @SafeVarargs
+    protected JoiningRowMapper(final InvertibleRowMapper<T> primary, final MapperAndJoin<T, ?, ?>... joinedMappers) {
+        this(primary, 0, joinedMappers);
+        LOG.trace("subclass constructor end");
+    }
+
+    private List<MapperAndJoin> rebindAndFlatten(final int leftIndex, final MapperAndJoin... topJoinedMappers) {
+        val flattened = new ArrayList<MapperAndJoin>();
+        rebindAndFlatten(leftIndex, flattened, topJoinedMappers);
+        return flattened;
+    }
+
+    private void rebindAndFlatten(final int leftIndex, final List<MapperAndJoin> list, final MapperAndJoin... topJoinedMappers) {
+        LOG.trace("internal rebinding joins, leftIndex is {}", leftIndex);
+        int index = leftIndex;
+        for (int i = 0; i < topJoinedMappers.length; i++) {
+            ++index;
+            val mapperTransform = mapperTransform(leftIndex);
+            val fieldTransform = fieldTransform(index);
+            val transformedJoin = copyJoinTransforming(topJoinedMappers[i], mapperTransform, fieldTransform);
+            list.add(transformedJoin);
+            val joinedMapper = transformedJoin.mapper();
+            if (joinedMapper instanceof JoiningRowMapper) {
+                final JoiningRowMapper joiningMapper = (JoiningRowMapper)joinedMapper.copyTransforming(mapperTransform, fieldTransform);
+                joiningMapper.rebindAndFlatten(index++, list, (MapperAndJoin[])joiningMapper.topMappers().toArray(new MapperAndJoin[]{}));
+            }
+        }
+    }
+
     @Override
     public JoiningRowMapper<T> copyTransforming(final RowMapperTransform mapperTransform, final FieldMapperTransform fieldTransform) {
+        LOG.trace("copying, leftIndex is {}, fieldTransform is {}", mapperTransform.leftIndex(), fieldTransform);
         MapperAndJoin[] copy = new MapperAndJoin[joinedMappers.size()];
+        final int leftIndex = mapperTransform.leftIndex();
         for (int i = 0; i < copy.length; i++) {
             final MapperAndJoin<T, ?, ?> original = joinedMappers.get(i);
-            copy[i] = copyJoinTransforming(original, mapperTransform, fieldTransform);
+            copy[i] = copyJoinTransforming(original, mapperTransform, fieldTransform(leftIndex + 1 + i));
         }
-        return new JoiningRowMapper<T>(primary.copyTransforming(mapperTransform, fieldTransform), copy) {
+        return new JoiningRowMapper<T>(primary.copyTransforming(mapperTransform, fieldTransform), fieldTransform.joinIndex(), copy) {
         };
     }
 
     private static <P, F, X> MapperAndJoin<P, F, X> copyJoinTransforming(final MapperAndJoin<P, F, X> original, final RowMapperTransform mapperTransform, final FieldMapperTransform fieldTransform) {
+        LOG.trace("copying join, leftIndex is {}, fieldTransform is {}", mapperTransform.leftIndex(), fieldTransform);
         return original.toBuilder()
                 // IntelliJ lombok plugin exhibits an issue, below. Going to, let it do so.
                 .mapper(original.mapper().copyTransforming(mapperTransform, fieldTransform))
+                .parentField((Mapper<P, ?, X>)original.parentField().copyTransforming(fieldTransform(mapperTransform.leftIndex())))
+                .relatedField((Mapper<F, ?, X>)original.relatedField().copyTransforming(fieldTransform))
+                //.leftIndex(mapperTransform.leftIndex())
                 .leftIndex(mapperTransform.leftIndex())
                 .build();
     }
@@ -75,7 +127,7 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         return "_" + index + "__";
     }
 
-    private static <T> String generateSelectEntire(final InvertibleRowMapper<T> primary, final List<MapperAndJoin<T, ?, ?>> joinedMappers) {
+    private static <T> String generateSelectEntire(final InvertibleRowMapper<T> primary, final List<MapperAndJoin> joinedMappers) {
         val sb = new StringBuilder();
         final AtomicInteger initIndex = new AtomicInteger(0);
         sb.append("SELECT \n")
@@ -109,30 +161,41 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         return sb.toString();
     }
 
-    private static <T> int addAnyJoinedMappers(final InvertibleRowMapper<T> mapper, final List<InvertibleRowMapper> mappers, int initIndex) {
-        return initIndex;
+    private static <T> InvertibleRowMapper<T> rebindWithPrefix(final InvertibleRowMapper<T> original, final int leftIndex, final int joinIndex) {
+        LOG.trace("static rebind of {} to leftIndex {}, joinIndex {}", original, leftIndex, joinIndex);
+        return original.copyTransforming(
+                mapperTransform(leftIndex),
+                fieldTransform(joinIndex)
+        );
     }
 
-    private static <T> InvertibleRowMapper<T> rebindWithPrefix(final InvertibleRowMapper<T> original, final int joinIndex) {
-        return original.copyTransforming(
-                new RowMapperTransform() {
-                    @Override
-                    public String table(final String table) {
-                        return table;
-                    }
+    private static RowMapperTransform mapperTransform(final int leftIndex) {
+        LOG.trace("new mapper transform, leftIndex is {}", leftIndex);
+        return new RowMapperTransform() {
+            @Override
+            public String table(final String table) {
+                return table;
+            }
 
-                    @Override
-                    public int leftIndex() {
-                        return joinIndex;
-                    }
-                },
-                new FieldMapperTransform() {
-                    @Override
-                    public String fieldName(final String fieldName) {
-                        return prefix(joinIndex) + fieldName;
-                    }
-                }
-        );
+            @Override
+            public int leftIndex() {
+                return leftIndex;
+            }
+        };
+    }
+
+    private static FieldMapperTransform fieldTransform(final int joinIndex) {
+        LOG.trace("new field transform, joinIndex is {}", joinIndex);
+        return new FieldMapperTransform() {
+            @Override
+            public String fieldName(final String fieldName) {
+                return prefix(joinIndex) + fieldName;
+            }
+            @Override
+            public int joinIndex() {
+                return joinIndex;
+            }
+        };
     }
 
     @Override
@@ -189,6 +252,10 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
     }
 
     private T extractDataInternal(ResultSet rs) throws SQLException, DataAccessException {
+        return extractDataInternal(rs, true);
+    }
+
+    private T extractDataInternal(ResultSet rs, final boolean allowAdvance) throws SQLException, DataAccessException {
         if (rs.isBeforeFirst()) {
             rs.next();
         }
@@ -197,6 +264,9 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         // Wait, might there not be any number of subordinates on the first row?
         final Map<Integer, Set<Object>> dedup = new HashMap<>();
         readJoined(rs, top, dedup);
+        if (!allowAdvance) {
+            return top;
+        }
         final Object id = primary.idMapper().from(rs);
         if (!Objects.isNull(top)) {
             while (rs.next()) {
@@ -212,8 +282,8 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
     }
 
     private void readJoined(final ResultSet rs, final T top, final Map<Integer, Set<Object>> dedup) throws SQLException {
-        for (int i = 0; i < joinedMappers.size(); i++) {
-            InvertibleRowMapper<?> subMapper = allMappers[i + 1];
+        for (int i = 0; i < topMappers.size(); i++) {
+            InvertibleRowMapper<?> subMapper = topMappers.get(i).mapper();
             val idMapper = subMapper.idMapper();
             final Object subId = idMapper.from(rs);
             if (!Objects.isNull(subId)) {
@@ -222,7 +292,7 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
                     existing.add(subId);
                     final Object sub = subMapper.mapRow(rs, rs.getRow());
                     if (sub != null) {
-                        ((MapperAndJoin) joinedMappers.get(i)).acceptor().accept(top, subMapper.rowClass().cast(sub));
+                        ((MapperAndJoin) topMappers.get(i)).acceptor().accept(top, subMapper.rowClass().cast(sub));
                     }
                 }
             }
@@ -231,7 +301,7 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
 
     @Override
     public T mapRow(ResultSet rs, int i) throws SQLException {
-        return extractDataInternal(rs);
+        return extractDataInternal(rs, false);
     }
 
     @Override
