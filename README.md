@@ -3,7 +3,8 @@
 Things helpful for simple Spring Boot JDBC web applications,
 including:
  * a trivial ORM implementation
-   * featuring insertion and materialization of arbitrary POJOs or enums
+   * featuring insertion, deletion and materialization of arbitrary POJOs or enums
+     * across basic JOINs
    * not featuring any UPDATE capability
  * declarative creation of CSV reports,
  * a hierarchical command parser,
