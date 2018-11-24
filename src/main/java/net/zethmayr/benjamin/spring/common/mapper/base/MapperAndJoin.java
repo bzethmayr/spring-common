@@ -211,6 +211,8 @@ public class MapperAndJoin<P, F, O> {
             if (initialState == INIT_INSTANCE) {
                 this.getLast = getInstance;
             } else {
+                // A getLast was presented a TestUser but was expecting a TestOrder...
+                // it should have received another getLast result, then? like planned?
                 this.getLast = (p) -> {
                     final Collection<F> collection = getCollection.apply(p);
                     if (collection instanceof List) {
@@ -219,6 +221,13 @@ public class MapperAndJoin<P, F, O> {
                     return (F)collection.toArray()[collection.size() - 1];
                 };
             }
+        }
+
+        public <T> Supplier<GetterState<T, F>> rebind(final Function<T, P> chain) {
+            return () -> new GetterState(initialState,
+                    (Objects.isNull(getInstance) ? null : chain.andThen(getInstance)),
+                    (Objects.isNull(getCollection) ? null : chain.andThen(getCollection)),
+                    getter);
         }
     }
 }

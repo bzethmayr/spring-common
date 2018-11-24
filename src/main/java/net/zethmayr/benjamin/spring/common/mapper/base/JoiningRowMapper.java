@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -97,10 +98,10 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
     @Override
     public JoiningRowMapper<T> copyTransforming(final RowMapperTransform mapperTransform, final FieldMapperTransform fieldTransform) {
         LOG.trace("copying, leftIndex is {}, fieldTransform is {}", mapperTransform.leftIndex(), fieldTransform);
-        MapperAndJoin[] copy = new MapperAndJoin[joinedMappers.size()];
+        MapperAndJoin[] copy = new MapperAndJoin[topMappers.size()];
         final int leftIndex = mapperTransform.leftIndex();
         for (int i = 0; i < copy.length; i++) {
-            final MapperAndJoin<T, ?, ?> original = joinedMappers.get(i);
+            final MapperAndJoin<T, ?, ?> original = topMappers.get(i);
             copy[i] = copyJoinTransforming(original, null, mapperTransform, fieldTransform(leftIndex + 1 + i));
         }
         return new JoiningRowMapper<T>(primary.copyTransforming(mapperTransform, fieldTransform), null, fieldTransform.joinIndex(), copy) {
@@ -111,16 +112,25 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
     private <P, F, X> MapperAndJoin copyJoinTransforming(final MapperAndJoin<P, F, X> original, final MapperAndJoin<T, P, ?> parent, final RowMapperTransform mapperTransform, final FieldMapperTransform fieldTransform) {
         LOG.trace("copying join, leftIndex is {}, fieldTransform is {}", mapperTransform.leftIndex(), fieldTransform);
         final BiConsumer<P, F> bareAcceptor = original.acceptor();
+        final Supplier<MapperAndJoin.GetterState<P, F>> bareGetter = original.getter();
         final BiConsumer curriedAcceptor;
+        final Supplier curriedGetter;
         if (parent != null) {
+            /*
+             * So where's the chaining happening? This looks like just one level happening.
+             */
+            LOG.trace("Currying acceptor over {}", bareAcceptor);
             final Function parentLast = parent.getter().get().getLast();
             curriedAcceptor = (t, f) -> bareAcceptor.accept((P)parentLast.apply(t), (F)f);
+            curriedGetter = bareGetter.get().rebind(parentLast);
         } else {
             curriedAcceptor = bareAcceptor;
+            curriedGetter = bareGetter;
         }
         return original.toBuilder()
                 .mapper(original.mapper().copyTransforming(mapperTransform, fieldTransform))
                 .acceptor(curriedAcceptor)
+                .getter(curriedGetter)
                 .parentField((Mapper)original.parentField().copyTransforming(fieldTransform(mapperTransform.leftIndex())))
                 .relatedField((Mapper)original.relatedField().copyTransforming(fieldTransform))
                 .leftIndex(mapperTransform.leftIndex())
@@ -292,12 +302,21 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
     private void readJoined(final ResultSet rs, final T top, final Map<Integer, Set<Object>> dedup) throws SQLException {
         val basis = joinedMappers; // using topMappers works for up to one one-to-many traversal, but not more.
         for (int i = 0; i < basis.size(); i++) {
-            InvertibleRowMapper<?> subMapper = basis.get(i).mapper();
+            val join = basis.get(i);
+            final InvertibleRowMapper<?> subMapper = join.mapper();
             val idMapper = subMapper.idMapper();
             final Object subId = idMapper.from(rs);
             if (!Objects.isNull(subId)) {
                 final Set<Object> existing = dedup.computeIfAbsent(i, (x) -> new HashSet<>());
                 if (!existing.contains(subId)) {
+                    final int thisLeft = join.leftIndex();
+                    for (int clear = thisLeft; clear < basis.size(); clear++) {
+                        // Yuck. A little piece of N-squared-like in the number of tables.
+                        // TODO: figure out how to hoist this search
+                        if (basis.get(clear).leftIndex() > thisLeft) {
+                            dedup.computeIfPresent(clear, (k, s) -> {s.clear(); return s;});
+                        }
+                    }
                     existing.add(subId);
                     final Object sub = subMapper.mapRow(rs, rs.getRow());
                     if (sub != null) {
@@ -305,7 +324,7 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
                         // the uncurried acceptor will want to bind the leaf type into its containing type
                         // the curried acceptor must bind the leaf type into the root type
                         // also needs to allow for multiple currying steps
-                        ((MapperAndJoin) basis.get(i)).acceptor().accept(top, subMapper.rowClass().cast(sub));
+                        ((MapperAndJoin) join).acceptor().accept(top, subMapper.rowClass().cast(sub));
                     }
                 }
             }

@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.zethmayr.benjamin.spring.common.model.TestItem;
 import net.zethmayr.benjamin.spring.common.model.TestOrder;
-import net.zethmayr.benjamin.spring.common.model.TestOrderItem;
 import net.zethmayr.benjamin.spring.common.model.TestOrderSummary;
 import net.zethmayr.benjamin.spring.common.model.TestUser;
 import org.hamcrest.Matcher;
@@ -16,11 +15,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Arrays;
 
-import static org.hamcrest.Matchers.contains;
+import static net.zethmayr.benjamin.spring.common.repository.FakeOrders.ABOUT_A_HUNDRED_DOLLARS;
+import static net.zethmayr.benjamin.spring.common.repository.FakeOrders.withItemIds;
+import static net.zethmayr.benjamin.spring.common.repository.FakeOrders.withItems;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
@@ -31,7 +30,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -55,9 +53,6 @@ public class OrdersTest {
     @SpyBean
     private TestItemRepository items;
 
-    private static final BigDecimal FIVE_DOLLARS = new BigDecimal("5.00");
-    private static final BigDecimal ABOUT_A_HUNDRED_DOLLARS = new BigDecimal("99.95");
-    private static final BigDecimal THREE_FIFTY = new BigDecimal("3.50");
 
     @Before
     public void setUp() {
@@ -94,32 +89,6 @@ public class OrdersTest {
         assertThat(select, containsJoinFor("order_summaries"));
     }
 
-    private TestOrder asOf(final Instant now) {
-        return new TestOrder()
-                .setOrderedAt(now)
-                .setSummary(new TestOrderSummary().setSummary("Hasty and suspicious"));
-
-    }
-
-    private TestOrder withItems(final Instant now) {
-        return asOf(now)
-                .setUser(new TestUser().setName("Yarn Bean"))
-                .setItems(Arrays.asList(
-                        new TestOrderItem().setItem(new TestItem().setName("Soap").setPrice(FIVE_DOLLARS)).setQuantity(2),
-                        new TestOrderItem().setItem(new TestItem().setName("Cheese").setPrice(ABOUT_A_HUNDRED_DOLLARS)).setQuantity(1),
-                        new TestOrderItem().setItem(new TestItem().setName("Soda").setPrice(THREE_FIFTY)).setQuantity(12)
-                ));
-    }
-
-    private TestOrder withItemIds(final Instant now) {
-        return asOf(now)
-                .setUserId(1)
-                .setItems(Arrays.asList(
-                        new TestOrderItem().setItemId(1).setQuantity(2),
-                        new TestOrderItem().setItemId(2).setQuantity(1),
-                        new TestOrderItem().setItemId(3).setQuantity(12)
-                ));
-    }
 
     @Test
     public void prettySoonIBetterThinkAboutFullRecursion() throws Exception {
