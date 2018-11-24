@@ -201,9 +201,10 @@ public abstract class AbstractDataDumper<C> {
     }
 
     /**
-     * A summing aggregator for money values.
+     * A summing aggregator for money values,
+     * with an initial value of "0.00".
      *
-     * @return
+     * @return An aggregator
      */
     protected Function<String, String> moneyAggregator() {
         return moneyAggregator("0.00");

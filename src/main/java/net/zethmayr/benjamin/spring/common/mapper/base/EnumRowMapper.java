@@ -3,7 +3,6 @@ package net.zethmayr.benjamin.spring.common.mapper.base;
 import org.springframework.lang.Nullable;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;

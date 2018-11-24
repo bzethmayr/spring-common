@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static net.zethmayr.benjamin.spring.common.mapper.base.ClassFieldMapper.NOT_INDEX;
@@ -118,7 +119,7 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
                 final KeyHolder keys = new GeneratedKeyHolder();
                 insertedCount = jdbcTemplate.update(psc, keys);
                 Object key = keys.getKey();
-                if (key == null) {
+                if (Objects.isNull(key)) {
                     key = jdbcTemplate.queryForObject("SELECT MAX(" + idMapper.fieldName + ") FROM " + mapper.table(), idMapper.getExternalClass());
                     LOG.warn("key not returned - retrieved new maximum from db");
                 } else {

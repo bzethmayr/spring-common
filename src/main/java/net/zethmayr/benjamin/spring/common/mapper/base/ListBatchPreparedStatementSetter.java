@@ -4,7 +4,6 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.lang.Nullable;
 
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -28,7 +27,7 @@ public class ListBatchPreparedStatementSetter<T> implements BatchPreparedStateme
 
     @Override
     @SuppressWarnings("unchecked") // methods of same mapper are known to match in type
-    public void setValues(@Nullable PreparedStatement ps, int i) throws SQLException {
+    public void setValues(@Nullable PreparedStatement ps, int i) {
         final T value = valueObjects.get(i);
         rowMapper.fields().stream()
                 .filter(Mapper.NOT_INDEX)

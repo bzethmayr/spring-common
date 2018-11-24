@@ -1,6 +1,5 @@
 package net.zethmayr.benjamin.spring.common.mapper.base;
 
-import lombok.val;
 import net.zethmayr.benjamin.spring.common.util.Functions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

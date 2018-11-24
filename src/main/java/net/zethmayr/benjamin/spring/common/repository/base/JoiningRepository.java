@@ -98,6 +98,11 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
         return Collections.unmodifiableMap(joinedRepositories);
     }
 
+    @SuppressWarnings("unchecked") // We correlate repositories on F, this is fine
+    private <F, O> Repository<F, ?> getJoinedRepository(final MapperAndJoin<T, F, O> join) {
+        return joinedRepositories.get(join);
+    }
+
     @Override
     @Transactional(propagation = REQUIRED, isolation = REPEATABLE_READ, rollbackFor = Throwable.class)
     public X insert(T toInsert) {
@@ -147,9 +152,8 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
 
     private <F, O> void internalInsertAfter(final MapperAndJoin<T, F, O> needsParentId, final T parent) {
         final MapperAndJoin.GetterState<T, F> getter = needsParentId.getter().get();
-        final Consumer<F> setter = (f) -> {
-            needsParentId.relatedField().desTo(f, needsParentId.parentField().serFrom(parent));
-        };
+        final Consumer<F> setter = (f) ->
+                needsParentId.relatedField().desTo(f, needsParentId.parentField().serFrom(parent));
         switch (getter.state()) {
             case INIT_INSTANCE:
                 internalInsert(needsParentId, parent, getter, setter);
@@ -168,7 +172,7 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
 
     private <F, O> Optional<F> internalInsert(final MapperAndJoin<T, F, O> join, final T parent,
                                               final MapperAndJoin.GetterState<T, F> getter, final Consumer<F> mutator) {
-        final Repository<F, ?> repo = joinedRepositories.get(join);
+        final Repository<F, ?> repo = getJoinedRepository(join);
         final F toInsert = getter.getter().apply(parent, getter);
         if (!Objects.isNull(toInsert)) {
             mutator.accept(toInsert);

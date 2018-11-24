@@ -6,9 +6,6 @@ import java.math.BigDecimal;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static net.zethmayr.benjamin.spring.common.Constants.MONEY_CONTEXT;
-import static net.zethmayr.benjamin.spring.common.util.Functions.money;
-
 /**
  * Functional interface for field deserializer functions.
  * @param <I> The instance field type

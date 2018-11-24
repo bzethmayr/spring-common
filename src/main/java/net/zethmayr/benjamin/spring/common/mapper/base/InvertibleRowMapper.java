@@ -66,7 +66,7 @@ public interface InvertibleRowMapper<T> extends RowMapper<T> {
     Supplier<T> empty();
 
     @Override
-    T mapRow(@Nullable ResultSet rs, int i) throws SQLException;
+    T mapRow(@Nullable ResultSet rs, int i);
 
     /**
      * Extracts insert field values from an instance of the row type.

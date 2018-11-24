@@ -115,7 +115,7 @@ public interface RsGetterFactory<O> {
     /**
      * Returns {@link #instant(String)} bounds as a getter factory.
      *
-     * @return
+     * @return An instant getter factory
      */
     static RsGetterFactory<Instant> instant() {
         return RsGetterFactory::instant;

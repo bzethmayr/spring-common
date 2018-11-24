@@ -5,7 +5,6 @@ import org.springframework.lang.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -214,7 +213,7 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
     }
 
     @Override
-    public T mapRow(final @Nullable ResultSet rs, final int i) throws SQLException {
+    public T mapRow(final @Nullable ResultSet rs, final int i) {
         final T partial = empty.get();
         boolean allNull = true;
         marshaling(partial, true);

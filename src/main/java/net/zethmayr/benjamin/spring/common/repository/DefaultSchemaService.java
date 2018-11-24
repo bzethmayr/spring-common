@@ -61,7 +61,7 @@ public class DefaultSchemaService extends AbstractSchemaService implements Initi
      * Applies schema for all bound repositories, writing data for any enum repositories.
      */
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         applyEnums();
         applyPojos();
     }

@@ -19,6 +19,7 @@ public abstract class ModelTrusted<C extends ModelTrusted> {
      * @param marshaling The marshaling flag
      * @return The subclass instance
      */
+    @SuppressWarnings("unchecked") // casts into the subclass type, which it is of
     public C marshaling(final Object trusting, final boolean marshaling) {
         if (Trusting.class.isAssignableFrom(trusting.getClass())) {
             ((Trusting) trusting).marshaling(marshaling);
