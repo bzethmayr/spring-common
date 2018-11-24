@@ -3,6 +3,7 @@ package net.zethmayr.benjamin.spring.common.mapper.base;
 import net.zethmayr.benjamin.spring.common.model.base.ModelTrusted;
 import org.springframework.lang.Nullable;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
@@ -24,12 +25,23 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
     private final Class<T> rowClass;
     private final List<ClassFieldMapper<T>> fields;
     private final String table;
+    private final Supplier<T> empty;
     private final String selectMappable;
     private final String insert;
     private final Mapper<T, ?, ?> idMapper;
 
-    private InvertibleRowMapperBase(final Class<T> rowClass, final List<ClassFieldMapper<T>> fields, final String table, final boolean mystery, final String selectMappable, final String insert) {
+    @SuppressWarnings("unused") // for the time being, without the unused boolean we would collide with the deprecated constructor
+    InvertibleRowMapperBase(
+            final Class<T> rowClass,
+            final List<ClassFieldMapper<T>> fields,
+            final String table,
+            final Supplier<T> empty,
+            final boolean unusedSignatureDifferentiator,
+            final String selectMappable,
+            final String insert
+    ) {
         this.rowClass = rowClass;
+        this.empty = empty;
         this.fields = Collections.unmodifiableList(fields);
         int i = 1;
         for (ClassFieldMapper<?> m : fields) {
@@ -47,12 +59,12 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
     /**
      * Creates a new instance.
      *
-     * @param rowClass       The row class
-     * @param fields         The field mappers
-     * @param table          The table name
+     * @param rowClass The row class
+     * @param fields   The field mappers
+     * @param table    The table name
      */
-    protected InvertibleRowMapperBase(final Class<T> rowClass, final List<ClassFieldMapper<T>> fields, final String table) {
-        this(rowClass, fields, table, false, genSelect(fields, table), genInsert(fields, table));
+    protected InvertibleRowMapperBase(final Class<T> rowClass, final List<ClassFieldMapper<T>> fields, final String table, final Supplier<T> empty) {
+        this(rowClass, fields, table, empty, false, genSelect(fields, table), genInsert(fields, table));
     }
 
     /**
@@ -66,34 +78,43 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
      */
     @Deprecated
     protected InvertibleRowMapperBase(final Class<T> rowClass, final List<ClassFieldMapper<T>> fields, final String table, final String selectMappable, final String insert) {
-        this(rowClass, fields, table, true, selectMappable, insert);
+        this(rowClass, fields, table, () -> {
+            try {
+                return rowClass.getConstructor().newInstance();
+            } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+                throw MappingException.because(e);
+            }
+        }, true, selectMappable, insert);
+    }
+
+    @Override
+    public final Supplier<T> empty() {
+        return empty;
+    }
+
+    private static class Cloned<T> extends InvertibleRowMapperBase<T> {
+        private Cloned(final Class<T> rowClass, final List<ClassFieldMapper<T>> fields, final String table, final Supplier<T> empty) {
+            super(rowClass, fields, table, empty);
+        }
     }
 
     @Override
     public InvertibleRowMapperBase<T> copyTransforming(final RowMapperTransform rowTransform, final FieldMapperTransform fieldTransform) {
         final String tableTransformed = rowTransform.table(this.table);
-        final List<ClassFieldMapper<T>> fieldsTransformed = this.fields.stream().map((field) -> field.copyTransforming(fieldTransform)).collect(Collectors.toList());
+        final List<ClassFieldMapper<T>> fieldsTransformed = this.fields.stream()
+                .map((field) -> field.copyTransforming(fieldTransform))
+                .collect(Collectors.toList());
 
-        /*
-         * EWWWWW... Probably we should accept a supplier rather than trail references around
-         */
-        final Supplier<T> empty = this::empty;
-
-        return new InvertibleRowMapperBase<T>(
+        return new Cloned<>(
                 this.rowClass,
                 fieldsTransformed,
-                tableTransformed
-        ) {
-
-            @Override
-            public T empty() {
-                return empty.get();
-            }
-        };
+                tableTransformed,
+                this.empty
+        );
     }
 
     @SuppressWarnings("unchecked") // All ClassFieldMappers are secretly Mappers.
-    private static <T> Mapper<T,?,?> findIdMapper(final List<ClassFieldMapper<T>> fields) {
+    private static <T> Mapper<T, ?, ?> findIdMapper(final List<ClassFieldMapper<T>> fields) {
         return fields.stream()
                 .filter((m) -> m.fieldName().equals("id") || isIndex(m))
                 .map(Mapper.class::<T, Object, Object>cast)
@@ -182,7 +203,7 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
 
     @Override
     public T mapRow(final @Nullable ResultSet rs, final int i) throws SQLException {
-        final T partial = empty();
+        final T partial = empty.get();
         boolean allNull = true;
         marshaling(partial, true);
         for (ClassFieldMapper<T> m : fields) {

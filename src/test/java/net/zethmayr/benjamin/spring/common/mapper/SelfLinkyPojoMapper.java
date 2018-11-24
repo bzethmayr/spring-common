@@ -57,12 +57,7 @@ public class SelfLinkyPojoMapper extends JoiningRowMapper<SelfLinkyPojo> {
         ));
 
         public CoreMapper() {
-            super(SelfLinkyPojo.class, FIELDS, "self_linky");
-        }
-
-        @Override
-        public SelfLinkyPojo empty() {
-            return new SelfLinkyPojo();
+            super(SelfLinkyPojo.class, FIELDS, "self_linky", SelfLinkyPojo::new);
         }
     }
 

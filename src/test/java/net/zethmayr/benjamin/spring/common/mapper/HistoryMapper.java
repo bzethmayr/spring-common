@@ -19,7 +19,6 @@ public class HistoryMapper extends EnumRowMapper<History> {
             History::fromOrdinal
     );
 
-
     public static final List<ClassFieldMapper<History>> FIELDS = Arrays.asList(
            ID,
             ComposedMapper.enumSimple("name", History::name, LONG_STRING),
@@ -29,8 +28,7 @@ public class HistoryMapper extends EnumRowMapper<History> {
 
     public static final String TABLE = "history";
 
-
     public HistoryMapper() {
-        super(History.COLUMBUS, FIELDS, TABLE, genSelectIds(FIELDS, TABLE), genInsert(FIELDS, TABLE));
+        super(History.COLUMBUS, FIELDS, TABLE);
     }
 }

@@ -30,12 +30,10 @@ public class TestOrderMapper extends JoiningRowMapper<TestOrder> {
                 ColumnType.INTEGER_INDEX,
                 TestOrder::setId
         );
-        public static final Mapper<TestOrder, Instant, Long> ORDERED_AT = ComposedMapper.field(
+        public static final Mapper<TestOrder, Instant, Instant> ORDERED_AT = ComposedMapper.simpleField(
                 "ordered_at",
                 TestOrder::getOrderedAt,
-                Instant::toEpochMilli,
-                ColumnType.LONG,
-                Instant::ofEpochMilli,
+                ColumnType.INSTANT,
                 TestOrder::setOrderedAt
         );
         public static final Mapper<TestOrder, Integer, Integer> USER_ID = ComposedMapper.simpleField(
@@ -50,12 +48,7 @@ public class TestOrderMapper extends JoiningRowMapper<TestOrder> {
         public static final String TABLE = "orders";
 
         public CoreMapper() {
-            super(TestOrder.class, FIELDS, TABLE);
-        }
-
-        @Override
-        public TestOrder empty() {
-            return new TestOrder();
+            super(TestOrder.class, FIELDS, TABLE, TestOrder::new);
         }
     }
 

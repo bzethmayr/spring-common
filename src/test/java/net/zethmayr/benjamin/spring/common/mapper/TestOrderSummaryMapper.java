@@ -35,11 +35,6 @@ public class TestOrderSummaryMapper extends InvertibleRowMapperBase<TestOrderSum
     ));
 
     public TestOrderSummaryMapper() {
-        super(TestOrderSummary.class, FIELDS, "order_summaries");
-    }
-
-    @Override
-    public TestOrderSummary empty() {
-        return new TestOrderSummary();
+        super(TestOrderSummary.class, FIELDS, "order_summaries", TestOrderSummary::new);
     }
 }

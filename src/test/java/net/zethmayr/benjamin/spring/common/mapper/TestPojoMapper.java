@@ -50,11 +50,6 @@ public class TestPojoMapper extends InvertibleRowMapperBase<TestPojo> {
     public static final String TABLE = "commentary";
 
     public TestPojoMapper() {
-        super(TestPojo.class, FIELDS, TABLE, genSelect(FIELDS, TABLE), genInsert(FIELDS, TABLE));
-    }
-
-    @Override
-    public TestPojo empty() {
-        return new TestPojo();
+        super(TestPojo.class, FIELDS, TABLE, TestPojo::new);
     }
 }

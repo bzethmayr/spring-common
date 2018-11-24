@@ -6,55 +6,56 @@ import org.springframework.lang.Nullable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.function.Supplier;
 
 public interface InvertibleRowMapper<T> extends RowMapper<T> {
     /**
      * Returns the row class given at creation.
      *
-     * @return {@link #rowClass}
+     * @return the row class given at creation.
      */
     Class<T> rowClass();
 
     /**
      * Returns the field mappers given at creation.
      *
-     * @return {@link #fields}
+     * @return All the field mappers
      */
     List<ClassFieldMapper<T>> fields();
 
     /**
      * Returns the field mappers that are actually used in SELECT queries
-     * @return
+     * @return Some of the field mappers
      */
     List<ClassFieldMapper<T>> mappableFields();
 
     /**
      * Returns the table name given at creation.
      *
-     * @return {@link #table}
+     * @return the table name given at creation.
      */
     String table();
 
     /**
-     * Returns the SELECT query given at creation.
+     * Returns the SELECT query from the time of creation.
      *
-     * @return the SELECT query given at creation.
+     * @return the SELECT query from the time of creation.
      */
     String select();
 
     /**
-     * Returns the INSERT query given at creation.
+     * Returns the INSERT query from the time of creation.
      *
-     * @return {@link #insert}
+     * @return the INSERT query from the time of creation.
      */
     String insert();
 
     /**
-     * Returns an empty instance of the row class.
+     * Returns a supplier for empty instances of the row class.
      *
-     * @return A new {@link T}
+     * @return A supplier of new {@link T}
      */
-    T empty();
+    Supplier<T> empty();
 
     @Override
     T mapRow(@Nullable ResultSet rs, int i) throws SQLException;

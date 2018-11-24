@@ -37,11 +37,6 @@ public class TestItemMapper extends InvertibleRowMapperBase<TestItem> {
     ));
     public static final String TABLE = "items";
     public TestItemMapper() {
-        super(TestItem.class, FIELDS, TABLE);
-    }
-
-    @Override
-    public TestItem empty() {
-        return new TestItem();
+        super(TestItem.class, FIELDS, TABLE, TestItem::new);
     }
 }

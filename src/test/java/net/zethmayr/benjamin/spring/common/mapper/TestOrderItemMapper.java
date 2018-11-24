@@ -67,12 +67,7 @@ public class TestOrderItemMapper extends JoiningRowMapper<TestOrderItem> {
         public static final String TABLE = "order_items";
 
         public CoreMapper() {
-            super(TestOrderItem.class, FIELDS, TABLE);
-        }
-
-        @Override
-        public TestOrderItem empty() {
-            return new TestOrderItem();
+            super(TestOrderItem.class, FIELDS, TABLE, TestOrderItem::new);
         }
     }
 }

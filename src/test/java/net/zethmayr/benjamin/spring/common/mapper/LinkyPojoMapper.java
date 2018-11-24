@@ -33,26 +33,23 @@ public class LinkyPojoMapper extends JoiningRowMapper<LinkyPojo> {
                 LinkyPojo::setId
         );
         public static final Mapper<LinkyPojo, Integer, Integer> LINK = ComposedMapper.simpleField(
-            "link",
-            LinkyPojo::getLink,
-            ColumnType.INTEGER,
-            LinkyPojo::setLink
+                "link",
+                LinkyPojo::getLink,
+                ColumnType.INTEGER,
+                LinkyPojo::setLink
         );
         public static final Mapper<LinkyPojo, String, String> NAME = ComposedMapper.simpleField(
-            "name",
-            LinkyPojo::getName,
-            ColumnType.SHORT_STRING,
-            LinkyPojo::setName
+                "name",
+                LinkyPojo::getName,
+                ColumnType.SHORT_STRING,
+                LinkyPojo::setName
         );
         public static final List<ClassFieldMapper<LinkyPojo>> FIELDS = Collections.unmodifiableList(Arrays.asList(
                 ID, LINK, NAME
         ));
+
         public CoreMapper() {
-            super(LinkyPojo.class, FIELDS, TABLE);
-        }
-        @Override
-        public LinkyPojo empty() {
-            return new LinkyPojo();
+            super(LinkyPojo.class, FIELDS, TABLE, LinkyPojo::new);
         }
     }
 
@@ -78,6 +75,6 @@ public class LinkyPojoMapper extends JoiningRowMapper<LinkyPojo> {
                         .insertions(INDEPENDENT_INSERT)
                         .deletions(MATERIALIZE_PARENT)
                         .build()
-                );
+        );
     }
 }

@@ -30,11 +30,6 @@ public class TestUserMapper extends InvertibleRowMapperBase<TestUser> {
     public static final String TABLE = "users";
 
     public TestUserMapper() {
-        super(TestUser.class, FIELDS, TABLE);
-    }
-
-    @Override
-    public TestUser empty() {
-        return new TestUser();
+        super(TestUser.class, FIELDS, TABLE, TestUser::new);
     }
 }

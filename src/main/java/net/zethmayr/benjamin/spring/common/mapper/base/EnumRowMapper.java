@@ -23,9 +23,27 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
     private final Mapper<T, T, Integer> idMapper;
     private final T rowClassToken;
 
+    /**
+     * Enum instances are immutable, and the result of empty() is intended for mutation.
+     */
+    private static final Supplier THROW = () -> {
+        throw new UnsupportedOperationException();
+    };
+
+    @SuppressWarnings("unchecked") // the return type is not going to matter for this supplier
+    private static <T> Supplier<T> thrower() {
+        return (Supplier<T>)THROW;
+    }
+
     @Override
     public Mapper<T, ?, Integer> idMapper() {
         return idMapper;
+    }
+
+    protected EnumRowMapper(final T rowClassToken, final List<ClassFieldMapper<T>> fields, final String table) {
+        super(rowClassToken.getDeclaringClass(), fields, table, thrower(), false, genSelectIds(fields, table), genInsert(fields, table));
+        this.rowClassToken = rowClassToken;
+        idMapper = findIdMapper(fields);
     }
 
     /**
@@ -36,8 +54,9 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
      * @param insert         The query to insert all fields
      */
     @SuppressWarnings("unchecked") // casting the class of an enum to that same class, will succeed
+    @Deprecated
     protected EnumRowMapper(final T rowClassToken, final List<ClassFieldMapper<T>> fields, final String table, final String selectMappable, final String insert) {
-        super(rowClassToken.getDeclaringClass(), fields, table, selectMappable, insert);
+        super(rowClassToken.getDeclaringClass(), fields, table, thrower(), false, selectMappable, insert);
         this.rowClassToken = rowClassToken;
         idMapper = findIdMapper(fields);
     }
@@ -47,25 +66,20 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
          * @param rowClassToken  An instance of the enum being mapped
          * @param fields         The mappers for each field
          * @param table          The table being mapped onto
-         * @param selectMappable The query to select ids
-         * @param insert         The query to insert all fields
          */
-        private Cloned(T rowClassToken, List<ClassFieldMapper<T>> fields, String table, String selectMappable, String insert) {
-            super(rowClassToken, fields, table, selectMappable, insert);
+        private Cloned(T rowClassToken, List<ClassFieldMapper<T>> fields, String table) {
+            super(rowClassToken, fields, table);
         }
     }
 
     @Override
     public EnumRowMapper<T> copyTransforming(final RowMapperTransform rowTransform, final FieldMapperTransform fieldTransform) {
-        final String tableTransformed = rowTransform.table(table());
-        final List<ClassFieldMapper<T>> fieldsTransformed = fields().stream().map((field) -> field.copyTransforming(fieldTransform)).collect(Collectors.toList());
-
-        return new Cloned<T>(
+        return new Cloned<>(
                 rowClassToken,
-                fieldsTransformed,
-                tableTransformed,
-                genSelectIds(fieldsTransformed, tableTransformed),
-                genInsert(fieldsTransformed, tableTransformed)
+                fields().stream()
+                        .map((field) -> field.copyTransforming(fieldTransform))
+                        .collect(Collectors.toList()),
+                rowTransform.table(table())
         );
     }
 
@@ -81,17 +95,6 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
      */
     public final T[] enumValues() {
         return rowClass().getEnumConstants();
-    }
-
-    /**
-     * Enum instances are immutable, and the result of empty() is intended for mutation.
-     *
-     * @return never
-     * @throws UnsupportedOperationException when called.
-     */
-    @Override
-    public final T empty() {
-        throw new UnsupportedOperationException();
     }
 
     @Nullable

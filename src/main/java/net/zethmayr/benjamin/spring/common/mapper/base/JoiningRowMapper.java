@@ -271,7 +271,7 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
     }
 
     @Override
-    public T empty() {
+    public Supplier<T> empty() {
         return primary.empty();
     }
 
