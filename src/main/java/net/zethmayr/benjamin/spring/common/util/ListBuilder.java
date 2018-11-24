@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * A {@link Builder} for {@link List}s.
@@ -107,6 +109,23 @@ public class ListBuilder<T, L extends List<T>> implements Builder<L> {
         return new ListBuilder<>(wrapper.apply(list));
     }
 
+    public ListBuilder<T, L> then(final Consumer<L> listMutator) {
+        listMutator.accept(list);
+        return this;
+    }
+
+    public ListBuilder<T, L> forEach(final Consumer<T> elementMutator) {
+       list.forEach(elementMutator);
+       return this;
+    }
+
+    public ListBuilder<T, L> toEach(final Function<T, T> elementMutator) {
+        for (int i = 0; i < list.size(); i++) {
+            list.set(i, elementMutator.apply(list.get(i)));
+        }
+        return this;
+    }
+
     /**
      * Adds one or more values to the list
      *
@@ -116,6 +135,14 @@ public class ListBuilder<T, L extends List<T>> implements Builder<L> {
     @SafeVarargs
     public final ListBuilder<T, L> add(final T... value) {
         list.addAll(Arrays.asList(value));
+        return this;
+    }
+
+    public final ListBuilder<T, L> add(final Supplier<T> generator) {
+        T generated;
+        while ((generated = generator.get()) != null) {
+            list.add(generated);
+        }
         return this;
     }
 
