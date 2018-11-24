@@ -100,6 +100,7 @@ public class ComposedMapperTest {
 
     @Test
     public void canSetConsistentOrdinalThoughIDoNotKnowWhyThisHappensDotDotDot() {
+        // TODO: Figure out if I ever figured this out.
         underTest.setInsertOrdinal(1);
         underTest.setInsertOrdinal(1);
     }

@@ -46,16 +46,7 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
      * @param cSetter    The accessor to set the field value into an instance of the class
      */
     ComposedMapper(final String fieldName, final Function<C, I> cGetter, final SerMapper<I, O> serMapper, final ColumnType<O> columnType, final DesMapper<I, O> desMapper, final BiConsumer<C, I> cSetter) {
-        super(fieldName);
-        this.cGetter = cGetter;
-        this.serMapper = serMapper;
-        this.rsGetter = columnType.getterFactory().field(fieldName);
-        this.desMapper = desMapper;
-        this.cSetter = cSetter;
-        sqlType = columnType.sqlType();
-        externalClass = columnType.getExternalClass();
-        this.columnType = columnType;
-        LOG.trace("Created column mapper {}", this);
+        this(fieldName, cGetter, serMapper, columnType, columnType.getterFactory().field(fieldName), desMapper, cSetter);
     }
 
     private ComposedMapper(final String fieldName, final Function<C, I> cGetter, final SerMapper<I, O> serMapper, final ColumnType<O> columnType, final RsGetter<O> rsGetter, final DesMapper<I, O> desMapper, final BiConsumer<C, I> cSetter) {

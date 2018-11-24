@@ -78,14 +78,6 @@ public class UserOrdersTest {
         verify(orderItems, times(9)).insert(any());
         // that went well. but insert recursion was already known to work.
         final TestUser read = underTest.get(id).orElseThrow(Exception::new);
-        // somehow the join from order_items to items is generating twice...
-        // correctly the first time, then immediately incorrectly
-        // if I had three levels of join would I have two wrong copies?
-        // underTest.mapper.allMappers[4] vs ...[5]
-        // underTest.joinedMappers[3] vs ...[4]
-        // acceptor of second is curried one more deeply. meaning probably correctly...
-        // probably should clone from top mappers since clone is already recursive?
-        // yep. however, the acceptor curries are now breaking.
         assertThat(read.getOrders(), hasSize(3));
         for (val order : read.getOrders()) {
             val items = order.getItems();
@@ -95,6 +87,7 @@ public class UserOrdersTest {
             assertThat(items.get(2).getItem().getName(), is("Soda"));
             assertThat(items.get(2).getQuantity(), is(12));
         }
+        // golly. issues present in stitching and in deduplication
         val allUsers = users.getAll();
         assertThat(allUsers, hasSize(1));
         assertThat(allUsers.get(0).getName(), is(user.getName()));

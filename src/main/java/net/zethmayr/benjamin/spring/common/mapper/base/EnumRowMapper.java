@@ -42,20 +42,31 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
         idMapper = findIdMapper(fields);
     }
 
+    private static class Cloned<T extends Enum<T>> extends EnumRowMapper<T> {
+        /**
+         * @param rowClassToken  An instance of the enum being mapped
+         * @param fields         The mappers for each field
+         * @param table          The table being mapped onto
+         * @param selectMappable The query to select ids
+         * @param insert         The query to insert all fields
+         */
+        private Cloned(T rowClassToken, List<ClassFieldMapper<T>> fields, String table, String selectMappable, String insert) {
+            super(rowClassToken, fields, table, selectMappable, insert);
+        }
+    }
+
     @Override
     public EnumRowMapper<T> copyTransforming(final RowMapperTransform rowTransform, final FieldMapperTransform fieldTransform) {
         final String tableTransformed = rowTransform.table(table());
         final List<ClassFieldMapper<T>> fieldsTransformed = fields().stream().map((field) -> field.copyTransforming(fieldTransform)).collect(Collectors.toList());
 
-        return new EnumRowMapper<T>(
+        return new Cloned<T>(
                 rowClassToken,
                 fieldsTransformed,
                 tableTransformed,
                 genSelectIds(fieldsTransformed, tableTransformed),
                 genInsert(fieldsTransformed, tableTransformed)
-        ) {
-
-        };
+        );
     }
 
     @Override
