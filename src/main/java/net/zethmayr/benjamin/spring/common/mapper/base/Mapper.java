@@ -12,6 +12,7 @@ import java.util.function.BiConsumer;
  * @param <C> the object type of which this maps a field, a.k.a the instance type
  * @param <I> The type of the class's mapped field, a.k.a. the instance field type or internal type
  * @param <O> The JDBC-level type of the mapped field, a.k.a. the external type or JDBC type
+ * @see ComposedMapper
  */
 public abstract class Mapper<C, I, O> extends ClassFieldMapper<C> implements SerMapper<I, O>, RsGetter<O>, PsSetter<O>, DesMapper<I, O> {
 
@@ -78,6 +79,7 @@ public abstract class Mapper<C, I, O> extends ClassFieldMapper<C> implements Ser
      *
      * @param container The containing instance
      * @param rs        The resultset providing the value
+     * @return The field value in the internal type
      */
     @Override
     public I desTo(final C container, final ResultSet rs) {

@@ -21,6 +21,11 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+/**
+ * A mapper for objects represented over multiple tables.
+ *
+ * @param <T> The POJO class mapped
+ */
 @Slf4j
 public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
 
@@ -28,18 +33,31 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
     private final List<MapperAndJoin> joinedMappers;
     private final List<MapperAndJoin<T, ?, ?>> topMappers;
     private final List<List<Integer>> mapperClears;
-    public final int topIndex;
-    public final int lastIndex;
+    private final int topIndex;
     private final InvertibleRowMapper[] allMappers;
     private final String selectEntire;
     private static final String LIST_SEP = ", ";
 
+    /**
+     * Subclass constructor.
+     *
+     * @param primary       A non-joining mapper for the class being mapped.
+     * @param joinedMappers Specifications and mappers for each join.
+     */
     @SafeVarargs
     protected JoiningRowMapper(final InvertibleRowMapperBase<T> primary, final MapperAndJoin<T, ?, ?>... joinedMappers) {
         this(primary, null, 0, joinedMappers);
         LOG.trace("subclass constructor end");
     }
 
+    /**
+     * Internal / copy constructor.
+     *
+     * @param primary       A non-joining mapper for the class being mapped.
+     * @param chainParent   The join specification in effect, if any.
+     * @param initIndex     This mapper's position in the overall join.
+     * @param joinedMappers Specifications and mappers for each join.
+     */
     @SafeVarargs
     private JoiningRowMapper(final InvertibleRowMapperBase<T> primary, final MapperAndJoin chainParent, final int initIndex, final MapperAndJoin<T, ?, ?>... joinedMappers) {
         int index = this.topIndex = initIndex;
@@ -48,7 +66,6 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         this.joinedMappers = Collections.unmodifiableList(rebindAndFlatten(initIndex, chainParent, joinedMappers));
         this.mapperClears = findClears(this.joinedMappers);
         this.topMappers = topMappers(this.joinedMappers, topIndex);
-        lastIndex = initIndex + this.joinedMappers.size();
         this.allMappers = new InvertibleRowMapper[this.joinedMappers.size() + 1];
         allMappers[0] = this.primary;
         for (int i = 1; i < allMappers.length; i++) {
@@ -77,10 +94,20 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         return Collections.unmodifiableList(clears);
     }
 
+    /**
+     * Returns the flattened list of all joins bound to this mapper.
+     *
+     * @return All joins bound to this mapper.
+     */
     public List<MapperAndJoin> joinedMappers() {
         return joinedMappers;
     }
 
+    /**
+     * Returns the list of joins immediately bound to this mapper.
+     *
+     * @return The joins as given at construction bound to this mapper.
+     */
     public List<MapperAndJoin<T, ?, ?>> topMappers() {
         return topMappers;
     }
@@ -89,7 +116,7 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
     private static <T> List<MapperAndJoin<T, ?, ?>> topMappers(final List<MapperAndJoin> joinedMappers, final int topIndex) {
         return joinedMappers.stream()
                 .filter(m -> m.leftIndex() == topIndex)
-                .map(m -> (MapperAndJoin<T,?,?>)m)
+                .map(m -> (MapperAndJoin<T, ?, ?>) m)
                 .collect(Collectors.toList());
     }
 
@@ -110,19 +137,22 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
             list.add(transformedJoin);
             final InvertibleRowMapper joinedMapper = transformedJoin.mapper();
             if (joinedMapper instanceof JoiningRowMapper) {
-                final JoiningRowMapper joiningMapper = (JoiningRowMapper)joinedMapper;
-                joiningMapper.rebindAndFlatten(index++, transformedJoin, list, (MapperAndJoin[])joiningMapper.topMappers().toArray(new MapperAndJoin[]{}));
+                final JoiningRowMapper joiningMapper = (JoiningRowMapper) joinedMapper;
+                joiningMapper.rebindAndFlatten(index++, transformedJoin, list, (MapperAndJoin[]) joiningMapper.topMappers().toArray(new MapperAndJoin[]{}));
             }
         }
     }
 
     private static class Cloned<T> extends JoiningRowMapper<T> {
-        protected Cloned(final InvertibleRowMapperBase<T> primary, final MapperAndJoin chainParent, MapperAndJoin<T, ?, ?>... joinedMappers) {
-            super(primary, joinedMappers);
+        @SafeVarargs
+        private Cloned(final InvertibleRowMapperBase<T> primary, final MapperAndJoin chainParent, final int initIndex, MapperAndJoin<T, ?, ?>... joinedMappers) {
+            super(primary, chainParent, initIndex, joinedMappers);
         }
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    // All members of 'copy' will be MapperAndJoin<T, ?, ?> since they are immediate joins
     public JoiningRowMapper<T> copyTransforming(final RowMapperTransform mapperTransform, final FieldMapperTransform fieldTransform) {
         LOG.trace("copying, leftIndex is {}, fieldTransform is {}", mapperTransform.leftIndex(), fieldTransform);
         MapperAndJoin[] copy = new MapperAndJoin[topMappers.size()];
@@ -131,8 +161,7 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
             final MapperAndJoin<T, ?, ?> original = topMappers.get(i);
             copy[i] = copyJoinTransforming(original, null, mapperTransform, fieldTransform(leftIndex + 1 + i));
         }
-        return new JoiningRowMapper<T>(primary.copyTransforming(mapperTransform, fieldTransform), null, fieldTransform.joinIndex(), copy) {
-        };
+        return new Cloned<T>(primary.copyTransforming(mapperTransform, fieldTransform), null, fieldTransform.joinIndex(), copy);
     }
 
     @SuppressWarnings("unchecked") // we adapt types in here, quite a bit, and as far as we know safely...
@@ -145,18 +174,18 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         if (parent != null) {
             LOG.trace("Currying acceptor over {}", bareAcceptor);
             final Function parentLast = parent.getter().get().getLast();
-            curriedAcceptor = (t, f) -> bareAcceptor.accept((P)parentLast.apply(t), (F)f);
+            curriedAcceptor = (t, f) -> bareAcceptor.accept((P) parentLast.apply(t), (F) f);
             curriedGetter = bareGetter.get().rebind(parentLast);
         } else {
             curriedAcceptor = bareAcceptor;
             curriedGetter = bareGetter;
         }
         return original.toBuilder()
-                .mapper((InvertibleRowMapper)original.mapper().copyTransforming(mapperTransform, fieldTransform))
+                .mapper((InvertibleRowMapper) original.mapper().copyTransforming(mapperTransform, fieldTransform))
                 .acceptor(curriedAcceptor)
                 .getter(curriedGetter)
-                .parentField((Mapper)original.parentField().copyTransforming(fieldTransform(mapperTransform.leftIndex())))
-                .relatedField((Mapper)original.relatedField().copyTransforming(fieldTransform))
+                .parentField((Mapper) original.parentField().copyTransforming(fieldTransform(mapperTransform.leftIndex())))
+                .relatedField((Mapper) original.relatedField().copyTransforming(fieldTransform))
                 .leftIndex(mapperTransform.leftIndex())
                 .build();
     }
@@ -165,6 +194,12 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         return prefix(index.get());
     }
 
+    /**
+     * Returns the prefix to apply to result column names for a given joined table index
+     *
+     * @param index The joined table index
+     * @return An identifier prefix string
+     */
     public static String prefix(final int index) {
         return "_" + index + "__";
     }
@@ -178,9 +213,9 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
                                         + " AS " + prefix(initIndex) + f.fieldName()
                         ).collect(Collectors.joining(LIST_SEP))
                 );
-        for (int i = 0; i < joinedMappers.size(); i++) {
+        for (val join : joinedMappers) {
             initIndex.incrementAndGet();
-            final InvertibleRowMapper<?> joinedMapper = joinedMappers.get(i).mapper();
+            final InvertibleRowMapper<?> joinedMapper = join.mapper();
             sb.append(LIST_SEP + "\n")
                     .append(joinedMapper.mappableFields().stream().map(f ->
                             prefix(initIndex) + "." + f.fieldName()
@@ -233,6 +268,7 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
             public String fieldName(final String fieldName) {
                 return prefix(joinIndex) + fieldName;
             }
+
             @Override
             public int joinIndex() {
                 return joinIndex;
@@ -265,6 +301,7 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         return selectEntire;
     }
 
+    // TODO: should these 2 methods be less supported?
     @Override
     public String insert() {
         return primary.insert();
@@ -275,6 +312,11 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         return primary.empty();
     }
 
+    /**
+     * Returns an extractor which will process all result rows and produce a list of instances.
+     *
+     * @return A result list extractor
+     */
     public ResultSetExtractor<List<T>> listExtractor() {
         return rs -> {
             final List<T> results = new ArrayList<>();
@@ -289,6 +331,11 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         };
     }
 
+    /**
+     * Returns an extractor which will process result rows for a single instance.
+     *
+     * @return A single result extractor.
+     */
     public ResultSetExtractor<T> extractor() {
         return this::extractDataInternal;
     }
@@ -327,7 +374,10 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
                 final Set<Object> existing = dedup.computeIfAbsent(i, (x) -> new HashSet<>());
                 if (!existing.contains(subId)) {
                     for (int clear : mapperClears.get(i)) {
-                        dedup.computeIfPresent(clear, (k, s) -> { s.clear(); return s; });
+                        dedup.computeIfPresent(clear, (k, s) -> {
+                            s.clear();
+                            return s;
+                        });
                     }
                     existing.add(subId);
                     final Object sub = subMapper.mapRow(rs, rs.getRow());

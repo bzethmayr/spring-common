@@ -6,19 +6,26 @@ import java.util.function.Predicate;
 /**
  * A mapper
  * for any specific field of a given class.
+ * <p>
+ * This acts solely as a loosely typed interface of {@link Mapper}.
  *
  * @param <C> the object type of which this maps a field
- */
-/*
- * To avoid the inevitable confusion... this interface exists to loosen generic bounds.
+ * @see ComposedMapper
  */
 public abstract class ClassFieldMapper<C> {
 
     /**
-     * Sub-classes do not have to provide any particular arguments at instantiation.
+     *
      */
-    protected ClassFieldMapper() {}
+    ClassFieldMapper() {
+    }
 
+    /**
+     * Creates a new mapper from this one by applying the given transform.
+     *
+     * @param fieldTransform A field transform.
+     * @return A new field mapper.
+     */
     public abstract ClassFieldMapper<C> copyTransforming(final FieldMapperTransform fieldTransform);
 
     /**
@@ -66,11 +73,12 @@ public abstract class ClassFieldMapper<C> {
     public abstract String sqlType();
 
     /**
-     * Returns the SQL replacement character for queries, "?".
+     * Returns the variable replacement character for queries, "?".
      *
-     * @return The SQL replacement character for queries, "?"
+     * @return The variable replacement character for queries, "?"
      */
     public final String symbol() {
+        // TODO: justify existence of method for this
         return "?";
     }
 

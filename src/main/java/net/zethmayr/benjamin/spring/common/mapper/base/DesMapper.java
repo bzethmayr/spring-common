@@ -3,6 +3,8 @@ package net.zethmayr.benjamin.spring.common.mapper.base;
 import net.zethmayr.benjamin.spring.common.util.Functions;
 
 import java.math.BigDecimal;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 import static net.zethmayr.benjamin.spring.common.Constants.MONEY_CONTEXT;
 import static net.zethmayr.benjamin.spring.common.util.Functions.money;
@@ -24,7 +26,9 @@ public interface DesMapper<I, O> {
 
     /**
      * A default deserializer for money values.
+     *
+     * @deprecated See {@link ComposedMapper#money(String, Function, BiConsumer)}
      */
-    @Deprecated
+    @Deprecated // Storing money values as Strings is not really financially sound
     DesMapper<BigDecimal, String> MONEY = Functions::money;
 }

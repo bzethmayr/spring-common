@@ -36,7 +36,7 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
     private PsSetter<O> psSetter;
 
     /**
-     * Internal constructor. See {@link #field(String, Function, SerMapper, ColumnType, DesMapper, BiConsumer)}.
+     * General internal constructor. See {@link #field(String, Function, SerMapper, ColumnType, DesMapper, BiConsumer)}.
      *
      * @param fieldName  The SQL name of the field
      * @param cGetter    The accessor to retrieve the field value from an instance of the class
@@ -49,6 +49,17 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
         this(fieldName, cGetter, serMapper, columnType, columnType.getterFactory().field(fieldName), desMapper, cSetter);
     }
 
+    /**
+     * Internal copy constructor.
+     *
+     * @param fieldName  The SQL name of the field
+     * @param cGetter    The accessor to retrieve the field value from an instance of the class
+     * @param serMapper  The mapper to serialize  field value to a JDBC value
+     * @param columnType The SQL column type information
+     * @param rsGetter   A getter bound to a compatible result field
+     * @param desMapper  The mapper to deserialize a JDBC value to a field value
+     * @param cSetter    The accessor to set the field value into an instance of the class
+     */
     private ComposedMapper(final String fieldName, final Function<C, I> cGetter, final SerMapper<I, O> serMapper, final ColumnType<O> columnType, final RsGetter<O> rsGetter, final DesMapper<I, O> desMapper, final BiConsumer<C, I> cSetter) {
         super(fieldName);
         this.cGetter = cGetter;
@@ -65,8 +76,7 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
     @Override
     public ClassFieldMapper<C> copyTransforming(FieldMapperTransform fieldTransform) {
         final String nameTransformed = fieldTransform.fieldName(fieldName);
-        val copy = new ComposedMapper<C,I,O>(fieldName, cGetter, serMapper, columnType, columnType.getterFactory().field(nameTransformed), desMapper, cSetter);
-        return copy;
+        return new ComposedMapper<>(fieldName, cGetter, serMapper, columnType, columnType.getterFactory().field(nameTransformed), desMapper, cSetter);
     }
 
     @Override

@@ -59,7 +59,7 @@ public class MapperAndJoin<P, F, O> {
     @NonNull
     private final Mapper<P, ?, O> parentField;
     /**
-     * The relation between the joined fields
+     * The relation between the joined fields - defaults to {@link SqlOp#EQ}
      */
     @Getter(PUBLIC)
     @NonNull
@@ -71,18 +71,20 @@ public class MapperAndJoin<P, F, O> {
     @NonNull
     private final Mapper<F, ?, O> relatedField;
     /**
-     * How/whether insertions across this join should be performed
+     * How/whether insertions across this join should be performed - defaults to {@link InsertStyle#DONT_INSERT}
      */
     @Getter(PUBLIC)
     @NonNull
     private final InsertStyle insertions;
     /**
-     * How/whether deletions across this join should be performed
+     * How/whether deletions across this join should be performed - defaults to {@link DeleteStyle#DONT_DELETE}
      */
     @Getter(PUBLIC)
     @NonNull
     private final DeleteStyle deletions;
-
+    /**
+     * The table index left of this table in a join - you probably do not want to set this manually.
+     */
     @Getter(PUBLIC)
     @NonNull
     private final Integer leftIndex;
@@ -218,12 +220,18 @@ public class MapperAndJoin<P, F, O> {
                     if (collection instanceof List) {
                         return ((List<F>)collection).get(collection.size() - 1);
                     }
-                    return (F)collection.toArray()[collection.size() - 1];
+                    return lastItemTheHardWay(collection);
                 };
             }
         }
 
-        public <T> Supplier<GetterState<T, F>> rebind(final Function<T, P> chain) {
+        @SuppressWarnings("unchecked") // We just checked, they are all Fs
+        private static <F> F lastItemTheHardWay(final Collection<F> collection) {
+            return (F)collection.toArray()[collection.size() - 1];
+        }
+
+        @SuppressWarnings("unchecked") // This is really, really dangerous.
+        <T> Supplier<GetterState<T, F>> rebind(final Function<T, P> chain) {
             return () -> new GetterState(initialState,
                     (Objects.isNull(getInstance) ? null : chain.andThen(getInstance)),
                     (Objects.isNull(getCollection) ? null : chain.andThen(getCollection)),

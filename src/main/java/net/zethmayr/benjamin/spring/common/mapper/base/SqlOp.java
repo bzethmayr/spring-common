@@ -1,5 +1,8 @@
 package net.zethmayr.benjamin.spring.common.mapper.base;
 
+/**
+ * Some SQL comparison operations.
+ */
 public enum SqlOp {
     LT("<"),
     LTE("<="),

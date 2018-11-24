@@ -37,6 +37,7 @@ public class TestEnumMapper extends EnumRowMapper<TestEnum> {
     ));
     public static final String TABLE = "responses";
 
+    @SuppressWarnings("deprecation") // Uses deprecated constructor - as long as we keep it we need to not break it.
     public TestEnumMapper() {
         super(
                 TestEnum.YES,

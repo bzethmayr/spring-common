@@ -1,6 +1,8 @@
 package net.zethmayr.benjamin.spring.common.mapper.base;
 
 import java.math.BigDecimal;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 import static net.zethmayr.benjamin.spring.common.util.Functions.money;
 
@@ -21,8 +23,10 @@ public interface SerMapper<I, O> {
 
     /**
      * A default serializer for money values.
+     *
+     * @deprecated See {@link ComposedMapper#money(String, Function, BiConsumer)}
      */
-    @Deprecated
+    @Deprecated // math on strings is pretty slow, as are aggregate operations
     SerMapper<BigDecimal, String> MONEY =
             (b) -> money(b).toPlainString();
 }

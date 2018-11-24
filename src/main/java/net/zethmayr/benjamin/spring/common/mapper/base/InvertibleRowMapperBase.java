@@ -30,7 +30,19 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
     private final String insert;
     private final Mapper<T, ?, ?> idMapper;
 
-    @SuppressWarnings("unused") // for the time being, without the unused boolean we would collide with the deprecated constructor
+    /**
+     * Internal (and copy) constructor.
+     *
+     * @param rowClass                      The row class
+     * @param fields                        The field mappers
+     * @param table                         The table name
+     * @param empty                         A supplier of empty instances
+     * @param unusedSignatureDifferentiator See deprecated constructor.
+     * @param selectMappable                The generated SELECT query
+     * @param insert                        The generated INSERT query
+     */
+    @SuppressWarnings("unused")
+    // for the time being, without the unused boolean we would collide with the deprecated constructor
     InvertibleRowMapperBase(
             final Class<T> rowClass,
             final List<ClassFieldMapper<T>> fields,
@@ -76,7 +88,7 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
      * @param selectMappable A SELECT query to retrieve mappable fields
      * @param insert         An INSERT query to insert settable fields
      */
-    @Deprecated
+    @Deprecated // for verbosely redundant redundant verbosity
     protected InvertibleRowMapperBase(final Class<T> rowClass, final List<ClassFieldMapper<T>> fields, final String table, final String selectMappable, final String insert) {
         this(rowClass, fields, table, () -> {
             try {

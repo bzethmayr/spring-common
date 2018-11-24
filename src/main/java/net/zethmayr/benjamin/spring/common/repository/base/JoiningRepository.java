@@ -26,6 +26,12 @@ import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.Inse
 import static org.springframework.transaction.annotation.Isolation.REPEATABLE_READ;
 import static org.springframework.transaction.annotation.Propagation.REQUIRED;
 
+/**
+ * A repository for objects spanning multiple tables.
+ *
+ * @param <T> The persisted object type
+ * @param <X> The index type
+ */
 @Slf4j
 public abstract class JoiningRepository<T, X> implements Repository<T, X> {
 
@@ -40,6 +46,14 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
     private final List<MapperAndJoin<T, ?, ?>> insertAfter;
     private final List<MapperAndJoin<T, ?, ?>> insertWhenever;
 
+    /**
+     * Subclass constructor.
+     *
+     * @param jdbcTemplate The JDBC template to use
+     * @param mapper A joining mapper
+     * @param primary A non-joining repository for the mapped type
+     * @param supplemental Repositories for joined types - construction will fail unless sufficient are provided
+     */
     protected JoiningRepository(final JdbcTemplate jdbcTemplate, final JoiningRowMapper<T> mapper, final MapperRepository<T, X> primary, final Repository... supplemental) {
         this.jdbcTemplate = jdbcTemplate;
         this.mapper = mapper;
@@ -134,8 +148,8 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
     private <F, O> void internalInsertAfter(final MapperAndJoin<T, F, O> needsParentId, final T parent) {
         final MapperAndJoin.GetterState<T, F> getter = needsParentId.getter().get();
         final Consumer<F> setter = (f) -> {
-                    needsParentId.relatedField().desTo(f, needsParentId.parentField().serFrom(parent));
-                };
+            needsParentId.relatedField().desTo(f, needsParentId.parentField().serFrom(parent));
+        };
         switch (getter.state()) {
             case INIT_INSTANCE:
                 internalInsert(needsParentId, parent, getter, setter);
@@ -153,7 +167,7 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
     }
 
     private <F, O> Optional<F> internalInsert(final MapperAndJoin<T, F, O> join, final T parent,
-                                           final MapperAndJoin.GetterState<T, F> getter, final Consumer<F> mutator) {
+                                              final MapperAndJoin.GetterState<T, F> getter, final Consumer<F> mutator) {
         final Repository<F, ?> repo = joinedRepositories.get(join);
         final F toInsert = getter.getter().apply(parent, getter);
         if (!Objects.isNull(toInsert)) {
@@ -166,11 +180,12 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
     @Override
     public void delete(X toDelete) {
         // is this even a good idea?                                never stopped me before...
+        // TODO: support other strategies
     }
 
     @Override
     public void deleteMonadic(T toDelete) {
-
+        // TODO: support other strategies
     }
 
     @Override

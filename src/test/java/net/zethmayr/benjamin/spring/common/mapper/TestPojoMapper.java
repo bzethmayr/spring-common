@@ -49,7 +49,8 @@ public class TestPojoMapper extends InvertibleRowMapperBase<TestPojo> {
     );
     public static final String TABLE = "commentary";
 
+    @SuppressWarnings("deprecation") // Uses deprecated constructor - as long as we keep it we need to not break it.
     public TestPojoMapper() {
-        super(TestPojo.class, FIELDS, TABLE, TestPojo::new);
+        super(TestPojo.class, FIELDS, TABLE, genSelect(FIELDS, TABLE), genInsert(FIELDS, TABLE));
     }
 }

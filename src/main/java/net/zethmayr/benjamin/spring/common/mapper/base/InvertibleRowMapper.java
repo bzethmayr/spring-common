@@ -8,6 +8,13 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Supplier;
 
+/**
+ * An extension of the {@link RowMapper} interface
+ * to include information sufficient to bind a class to a row or a part thereof
+ * and also allow for inserting instances
+ *
+ * @param <T> The bound class
+ */
 public interface InvertibleRowMapper<T> extends RowMapper<T> {
     /**
      * Returns the row class given at creation.
@@ -25,6 +32,7 @@ public interface InvertibleRowMapper<T> extends RowMapper<T> {
 
     /**
      * Returns the field mappers that are actually used in SELECT queries
+     *
      * @return Some of the field mappers
      */
     List<ClassFieldMapper<T>> mappableFields();
@@ -68,7 +76,19 @@ public interface InvertibleRowMapper<T> extends RowMapper<T> {
      */
     Object[] getInsertValues(T insert);
 
+    /**
+     * Create a new mapper copied from this one, applying the given transformations.
+     *
+     * @param mapperTransform The transformation for the row mapper itself
+     * @param fieldTransform  The transformation for each field mapper
+     * @return A new row mapper
+     */
     InvertibleRowMapper<T> copyTransforming(final RowMapperTransform mapperTransform, final FieldMapperTransform fieldTransform);
 
+    /**
+     * Returns the field mapper bound to the ID field.
+     *
+     * @return the field mapper bound to the ID field.
+     */
     Mapper<T, ?, ?> idMapper();
 }

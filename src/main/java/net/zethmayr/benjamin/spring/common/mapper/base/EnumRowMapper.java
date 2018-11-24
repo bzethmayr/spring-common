@@ -32,7 +32,7 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
 
     @SuppressWarnings("unchecked") // the return type is not going to matter for this supplier
     private static <T> Supplier<T> thrower() {
-        return (Supplier<T>)THROW;
+        return (Supplier<T>) THROW;
     }
 
     @Override
@@ -40,6 +40,13 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
         return idMapper;
     }
 
+    /**
+     * Creates a new instance.
+     *
+     * @param rowClassToken Any instance of the enum being mapped
+     * @param fields        The mappers for each field
+     * @param table         The table being mapped onto
+     */
     protected EnumRowMapper(final T rowClassToken, final List<ClassFieldMapper<T>> fields, final String table) {
         super(rowClassToken.getDeclaringClass(), fields, table, thrower(), false, genSelectIds(fields, table), genInsert(fields, table));
         this.rowClassToken = rowClassToken;
@@ -47,14 +54,15 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
     }
 
     /**
+     * Creates a new instance.
+     *
      * @param rowClassToken  An instance of the enum being mapped
      * @param fields         The mappers for each field
      * @param table          The table being mapped onto
      * @param selectMappable The query to select ids
      * @param insert         The query to insert all fields
      */
-    @SuppressWarnings("unchecked") // casting the class of an enum to that same class, will succeed
-    @Deprecated
+    @Deprecated // for verbosely redundant verbose redundancy
     protected EnumRowMapper(final T rowClassToken, final List<ClassFieldMapper<T>> fields, final String table, final String selectMappable, final String insert) {
         super(rowClassToken.getDeclaringClass(), fields, table, thrower(), false, selectMappable, insert);
         this.rowClassToken = rowClassToken;
@@ -62,11 +70,6 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
     }
 
     private static class Cloned<T extends Enum<T>> extends EnumRowMapper<T> {
-        /**
-         * @param rowClassToken  An instance of the enum being mapped
-         * @param fields         The mappers for each field
-         * @param table          The table being mapped onto
-         */
         private Cloned(T rowClassToken, List<ClassFieldMapper<T>> fields, String table) {
             super(rowClassToken, fields, table);
         }
@@ -99,7 +102,7 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
 
     @Nullable
     @Override
-    public final T mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public final T mapRow(ResultSet rs, int rowNum) {
         return idMapper.des(idMapper.from(rs));
     }
 
