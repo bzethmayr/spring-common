@@ -31,7 +31,7 @@ public class TestOrderItemMapper extends JoiningRowMapper<TestOrderItem> {
                         .relation(EQ)
                         .relatedField(TestItemMapper.ID)
                         .insertions(MapperAndJoin.InsertStyle.PARENT_NEEDS_ID) // no, you wouldn't really, though.
-                        .deletions(MapperAndJoin.DeleteStyle.MATERIALIZE_PARENT)
+                        .deletions(MapperAndJoin.DeleteStyle.MATERIALIZE_PARENT) // no, you really wouldn't, though.
                         .build()
         );
     }

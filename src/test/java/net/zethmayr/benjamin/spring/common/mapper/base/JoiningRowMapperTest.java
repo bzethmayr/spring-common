@@ -48,6 +48,7 @@ public class JoiningRowMapperTest {
         when(mockRs.getLong("_0__"+TestPojoMapper.WEIGHTING.fieldName)).thenReturn(2301L);
         when(mockRs.getString("_0__"+TestPojoMapper.COMMENT.fieldName)).thenReturn(COMMENT);
         when(mockRs.getInt("_1__"+HistoryMapper.ID.fieldName)).thenReturn(COLUMBUS.ordinal());
+        when(mockRs.getRow()).thenReturn(1);
         final TestPojo read = underTest.extractor().extractData(mockRs);
         assertThat(read.getComment(), is(COMMENT));
         assertThat(read.getWeighting(), is(WEIGHT));

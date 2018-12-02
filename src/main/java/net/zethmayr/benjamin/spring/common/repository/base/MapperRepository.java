@@ -1,8 +1,10 @@
 package net.zethmayr.benjamin.spring.common.repository.base;
 
+import lombok.val;
 import net.zethmayr.benjamin.spring.common.mapper.base.InvertibleRowMapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.InvertibleRowMapperBase;
 import net.zethmayr.benjamin.spring.common.mapper.base.Mapper;
+import net.zethmayr.benjamin.spring.common.mapper.base.SqlOp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -48,6 +50,8 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
      */
     public final String select;
 
+    private final String deleteUnsafe;
+
     /**
      * The DELETE query set at construction.
      */
@@ -74,15 +78,40 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
      * @param idMapper The field mapper for the id / index field
      */
     protected MapperRepository(final JdbcTemplate jdbcTemplate, final InvertibleRowMapperBase<T> mapper, final Mapper<T, ?, X> idMapper) {
+//        this.jdbcTemplate = jdbcTemplate;
+//        this.mapper = mapper;
+//        insert = mapper.insert();
+//        select = mapper.select();
+//        this.idMapper = idMapper;
+//        val whereId = " WHERE " + idMapper.fieldName + " = ?";
+//        deleteUnsafe = "DELETE FROM " + mapper.table();
+//        delete = deleteUnsafe + whereId;
+//        getById = select + whereId;
+        this(jdbcTemplate, mapper, idMapper, " WHERE " + idMapper.fieldName + " = ?");
+    }
+
+    private MapperRepository(final JdbcTemplate jdbcTemplate, final InvertibleRowMapperBase<T> mapper, final Mapper<T, ?, X> idMapper, final String whereId) {
         this.jdbcTemplate = jdbcTemplate;
         this.mapper = mapper;
         insert = mapper.insert();
         select = mapper.select();
         this.idMapper = idMapper;
-        delete = "DELETE FROM " + mapper.table() + " WHERE " + idMapper.fieldName + " = ?";
-        getById = select + " WHERE " + idMapper.fieldName + " = ?";
+        deleteUnsafe = "DELETE FROM " + mapper.table();
+        delete = deleteUnsafe + whereId;
+        getById = select + whereId;
     }
 
+    private static class Cloned<T, X> extends MapperRepository<T, X> {
+        Cloned(JdbcTemplate jdbcTemplate, InvertibleRowMapperBase<T> mapper, Mapper<T, ?, X> idMapper, final SqlOp relation) {
+            super(jdbcTemplate, mapper, idMapper, " WHERE ? " + relation.sql + " " + idMapper.fieldName);
+        }
+    }
+
+    @Override
+    public MapperRepository<T, X> rebindWithRelatedIndex(final SqlOp relation, Mapper<T, ?, X> idMapper) {
+        LOG.trace("Rebinding for {} {}", relation, idMapper);
+        return new Cloned<>(jdbcTemplate, mapper, idMapper, relation);
+    }
 
     @Override
     public InvertibleRowMapper<T> mapper() {
@@ -99,6 +128,8 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
     public X insert(final T toInsert) throws ClassCastException {
         try {
             // we expect the id mapper to contribute no value and not be present in sql
+            // we ALWAYS use the first mapper as the idMapper here.
+            val idMapper = (Mapper<T, ?, X>)mapper.fields().get(0);
             final Object[] values = mapper.getInsertValues(toInsert);
             LOG.trace("{} {}", insert, Arrays.toString(values));
             final int insertedCount;
@@ -146,7 +177,14 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
 
     @Override
     public void delete(final X toDelete) {
+        LOG.trace("Deleting {} with {}", delete, toDelete);
         jdbcTemplate.update(delete, toDelete);
+    }
+
+    @Override
+    public void deleteUnsafe(final String whereClause, final X toDelete) {
+        LOG.trace("Deleting {}{} with {}", deleteUnsafe, whereClause, toDelete);
+        jdbcTemplate.update(deleteUnsafe + whereClause, toDelete);
     }
 
     @Override

@@ -8,6 +8,7 @@ import java.util.function.BiConsumer;
 /**
  * A type-safe mapper
  * for a specific field of a given class.
+ * The sole concrete implementation is {@link ComposedMapper}.
  *
  * @param <C> the object type of which this maps a field, a.k.a the instance type
  * @param <I> The type of the class's mapped field, a.k.a. the instance field type or internal type
@@ -26,7 +27,7 @@ public abstract class Mapper<C, I, O> extends ClassFieldMapper<C> implements Ser
      *
      * @param fieldName The field name
      */
-    protected Mapper(final String fieldName) {
+    Mapper(final String fieldName) {
         this.fieldName = fieldName;
     }
 
@@ -75,20 +76,16 @@ public abstract class Mapper<C, I, O> extends ClassFieldMapper<C> implements Ser
     }
 
     /**
-     * Deserializes the field from a {@link ResultSet} directly into the containing object.
+     * Deserializes the field from a {@link ResultSet} into the containing object.
      *
      * @param container The containing instance
      * @param rs        The resultset providing the value
      * @return The field value in the internal type
+     * @see ComposedMapper#from(ResultSet)
      */
     @Override
     public I desTo(final C container, final ResultSet rs) {
-        final I got = des(from(rs));
-        try {
-            return setTo(container, Objects.isNull(got) ? null : rs.wasNull() ? null : got);
-        } catch (SQLException sqle) {
-            throw MappingException.because(sqle);
-        }
+        return setTo(container, des(from(rs)));
     }
 
     /**

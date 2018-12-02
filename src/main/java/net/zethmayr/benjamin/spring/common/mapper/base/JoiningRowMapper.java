@@ -40,7 +40,8 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
      * Subclass constructor.
      *
      * @param primary       A non-joining mapper for the class being mapped.
-     * @param joinedMappers Specifications and mappers for each join.
+     * @param joinedMappers Specifications and mappers for each join - if a joining mapper is provided its joins
+     *                      will be composed into this mapper's joins.
      */
     @SafeVarargs
     protected JoiningRowMapper(final InvertibleRowMapperBase<T> primary, final MapperAndJoin<T, ?, ?>... joinedMappers) {
@@ -66,6 +67,12 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         LOG.trace("generated JOIN select {}", selectEntire);
     }
 
+    /**
+     * Finds all clearing position lists to use to invalidate the deduplicate cache when a new object is constructed.
+     *
+     * @param joins A list of joins to evaluate
+     * @return A list of clearing position lists, parallel to the provided list
+     */
     private static List<List<Integer>> findClears(final List<MapperAndJoin> joins) {
         val count = joins.size();
         val clears = new ArrayList<List<Integer>>(count);
@@ -110,6 +117,12 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Recursively flattens and composes all joins specified in provided mappers.
+     * @param leftIndex The starting index for this recursion
+     * @param topJoinedMappers A list of join specifications, some of whose mappers may be joining mappers
+     * @return All join specifications from provided mappers, rebound to this mapper
+     */
     private List<MapperAndJoin> rebindAndFlatten(final int leftIndex, final MapperAndJoin... topJoinedMappers) {
         LOG.trace("rebinding joins under {}", this);
         val flattened = new ArrayList<MapperAndJoin>();
@@ -161,7 +174,14 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
         LOG.trace("copying join, leftIndex is {}, fieldTransform is {}", mapperTransform.leftIndex(), fieldTransform);
         final BiConsumer<P, F> bareAcceptor = original.acceptor();
         final Supplier<MapperAndJoin.GetterState<P, F>> bareGetter = original.getter();
+        /*
+         * We construct an acceptor which will accept a leaf field value into a root instance
+         */
         final BiConsumer curriedAcceptor;
+        /*
+         * We construct a getter which will return a leaf object from the root instance
+         */
+        // I feel like there's a lot of optimization potential here. Maybe a build stack?
         final Supplier curriedGetter;
         if (parent != null) {
             LOG.trace("Currying acceptor over {}", bareAcceptor);
@@ -334,9 +354,19 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
 
     private T extractDataInternal(ResultSet rs) throws SQLException, DataAccessException {
         if (rs.isBeforeFirst()) {
-            rs.next();
+            if (!rs.next()) {
+                return null;
+            }
         }
-        final T top = primary.mapRow(rs, rs.getRow());
+        if (rs.isAfterLast()) {
+            return null;
+        }
+        val row = rs.getRow();
+        LOG.trace("row is {}", row);
+        if (row < 1) {
+            return null;
+        }
+        final T top = primary.mapRow(rs, row);
         LOG.trace("top is {}", top);
         // Wait, might there not be any number of subordinates on the first row?
         final Map<Integer, Set<Object>> dedup = new HashMap<>();

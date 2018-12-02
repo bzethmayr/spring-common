@@ -7,7 +7,8 @@ import java.util.function.Predicate;
  * A mapper
  * for any specific field of a given class.
  * <p>
- * This acts solely as a loosely typed interface of {@link Mapper}.
+ * This acts as a loosely typed interface of {@link Mapper}.
+ * The sole concrete implementation is {@link ComposedMapper}.
  *
  * @param <C> the object type of which this maps a field
  * @see ComposedMapper
@@ -45,9 +46,11 @@ public abstract class ClassFieldMapper<C> {
 
     /**
      * Deserializes the field into the containing object from a {@link ResultSet}.
+     * Must call setter with null if the field value was null, even for primitive-valued fields.
      *
      * @param container The instance being mapped into
      * @param rs        A ResultSet containing the field to map
+     * @return The value passed to the setter
      */
     public abstract Object desTo(C container, ResultSet rs);
 

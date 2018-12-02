@@ -4,10 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.zethmayr.benjamin.spring.common.mapper.base.InvertibleRowMapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.JoiningRowMapper;
+import net.zethmayr.benjamin.spring.common.mapper.base.Mapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin;
+import net.zethmayr.benjamin.spring.common.mapper.base.SqlOp;
+import net.zethmayr.benjamin.spring.common.util.MapBuilder;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -15,10 +19,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static net.zethmayr.benjamin.spring.common.mapper.base.JoiningRowMapper.prefix;
+import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.DeleteStyle.MATERIALIZE_PARENT;
+import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.DeleteStyle.USE_PARENT_ID;
 import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.GetterState.State.TERMINAL;
 import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.InsertStyle.INDEPENDENT_INSERT;
 import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.InsertStyle.NEEDS_PARENT_ID;
@@ -45,13 +52,15 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
     private final List<MapperAndJoin<T, ?, ?>> insertFirst;
     private final List<MapperAndJoin<T, ?, ?>> insertAfter;
     private final List<MapperAndJoin<T, ?, ?>> insertWhenever;
+    private final List<MapperAndJoin<T, ?, ?>> deletePerId;
+    private final List<MapperAndJoin<T, ?, ?>> deletePerInstance;
 
     /**
      * Subclass constructor.
      *
      * @param jdbcTemplate The JDBC template to use
-     * @param mapper A joining mapper
-     * @param primary A non-joining repository for the mapped type
+     * @param mapper       A joining mapper
+     * @param primary      A non-joining repository for the mapped type
      * @param supplemental Repositories for joined types - construction will fail unless sufficient are provided
      */
     protected JoiningRepository(final JdbcTemplate jdbcTemplate, final JoiningRowMapper<T> mapper, final MapperRepository<T, X> primary, final Repository... supplemental) {
@@ -62,15 +71,66 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
         joinedRepositories = correlateRepositories(mapper, primary, supplemental);
         getById = mapper.select() + "\nWHERE " + prefix(0) + "." + primary.idMapper.fieldName + " = ?";
         val topMappers = mapper.topMappers();
-        insertFirst = topMappers.stream()
+        insertFirst = Collections.unmodifiableList(topMappers.stream()
                 .filter(m -> m.insertions() == PARENT_NEEDS_ID)
-                .collect(Collectors.toList());
-        insertAfter = topMappers.stream()
+                .collect(Collectors.toList()));
+        insertAfter = Collections.unmodifiableList(topMappers.stream()
                 .filter(m -> m.insertions() == NEEDS_PARENT_ID)
-                .collect(Collectors.toList());
-        insertWhenever = topMappers.stream()
+                .collect(Collectors.toList()));
+        insertWhenever = Collections.unmodifiableList(topMappers.stream()
                 .filter(m -> m.insertions() == INDEPENDENT_INSERT)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
+        deletePerId = Collections.unmodifiableList(topMappers.stream()
+                .filter(m -> m.deletions() == USE_PARENT_ID)
+                .collect(Collectors.toList()));
+        deletePerInstance = Collections.unmodifiableList(topMappers.stream()
+                .filter(m -> m.deletions() == MATERIALIZE_PARENT)
+                .collect(Collectors.toList()));
+    }
+
+    private JoiningRepository(
+            final JdbcTemplate jdbcTemplate,
+            final JoiningRowMapper<T> mapper,
+            final Mapper<T, ?, X> idMapper,
+            final SqlOp parentRelation,
+            final MapperRepository<T, X> primary,
+            final List<Repository> supplemental,
+            final Map<MapperAndJoin, Repository> joinedRepositories,
+            final List<MapperAndJoin<T, ?, ?>> insertFirst,
+            final List<MapperAndJoin<T, ?, ?>> insertAfter,
+            final List<MapperAndJoin<T, ?, ?>> insertWhenever,
+            final List<MapperAndJoin<T, ?, ?>> deletePerId,
+            final List<MapperAndJoin<T, ?, ?>> deletePerInstance
+    ) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.mapper = mapper;
+        getById = mapper.select() + "\nWHERE ? " + parentRelation.sql + " " + prefix(0) + "." + idMapper.fieldName;
+        this.primary = primary;
+        this.supplemental = supplemental;
+        this.joinedRepositories = joinedRepositories;
+        this.insertFirst = insertFirst;
+        this.insertAfter = insertAfter;
+        this.insertWhenever = insertWhenever;
+        this.deletePerId = deletePerId;
+        this.deletePerInstance = deletePerInstance;
+    }
+
+    private static class Cloned<T, X> extends JoiningRepository<T, X> {
+        private Cloned(final JoiningRepository<T, X> toClone, final SqlOp relation, final Mapper<T, ?, X> idMapper) {
+            super(toClone.jdbcTemplate, toClone.mapper, idMapper, relation,
+                    toClone.primary.rebindWithRelatedIndex(relation, idMapper),
+                    toClone.supplemental,
+                    MapBuilder.<MapperAndJoin, Repository>identity().put(toClone.joinedRepositories)
+                            .toEachValue((j, r) -> r.rebindWithRelatedIndex(j.relation(), j.relatedField()))
+                            .build(),
+                    toClone.insertFirst, toClone.insertAfter, toClone.insertWhenever,
+                    toClone.deletePerId, toClone.deletePerInstance);
+        }
+    }
+
+    @Override
+    public JoiningRepository<T, X> rebindWithRelatedIndex(final SqlOp relation, Mapper<T, ?, X> idMapper) {
+        return new Cloned<>(this, relation, idMapper);
     }
 
     private Map<MapperAndJoin, Repository> correlateRepositories(final JoiningRowMapper<T> mapper, final MapperRepository primary, final Repository... supplemental) {
@@ -80,14 +140,14 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
                 LOG.trace("Looking at {} vs {}", join.mapper().rowClass(), primary.mapper().rowClass());
             }
             if (join.mapper().rowClass().equals(primary.mapper().rowClass())) {
-                joinedRepositories.put(join, primary);
+                joinedRepositories.put(join, primary.rebindWithRelatedIndex(join.relation(), join.relatedField()));
             }
             for (val repo : supplemental) {
                 if (LOG.isTraceEnabled()) {
                     LOG.trace("Looking at {} vs {}", join.mapper().rowClass(), repo.mapper().rowClass());
                 }
                 if (join.mapper().rowClass().equals(repo.mapper().rowClass())) {
-                    joinedRepositories.put(join, repo);
+                    joinedRepositories.put(join, repo.rebindWithRelatedIndex(join.relation(), join.relatedField()));
                 }
             }
             if (Objects.isNull(joinedRepositories.get(join))) {
@@ -182,14 +242,53 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
     }
 
     @Override
+    @Transactional(propagation = REQUIRED, isolation = REPEATABLE_READ, rollbackFor = Throwable.class)
     public void delete(X toDelete) {
-        // is this even a good idea?                                never stopped me before...
-        // TODO: support other strategies
+        internalDeleteMaterialized(
+                toDelete,
+                deletePerInstance.size() > 0 ? getFor(toDelete) : Collections.emptyList()
+        );
+        primary.delete(toDelete);
     }
 
     @Override
+    @Transactional(propagation = REQUIRED, isolation = REPEATABLE_READ, rollbackFor = Throwable.class)
     public void deleteMonadic(T toDelete) {
-        // TODO: support other strategies
+        internalDeleteMaterialized(
+                deletePerId.size() > 0 ? ((Mapper<T, Object, X>) mapper().idMapper()).serFrom(toDelete) : null,
+                Collections.singletonList(toDelete)
+        );
+        primary.deleteMonadic(toDelete);
+    }
+
+    private void internalDeleteMaterialized(final X idToDelete, final List<T> toDelete) {
+        for (val deletePerParentId : deletePerId) {
+            // deletion was re-bound to look at our ID
+            val joinedRepo = (Repository) getJoinedRepository(deletePerParentId);
+            joinedRepo.delete(idToDelete);
+        }
+        for (val existingParent : toDelete) {
+            for (val deletePerFieldValue : deletePerInstance) {
+                val joinedRepo = (Repository) getJoinedRepository(deletePerFieldValue);
+                val getState = deletePerFieldValue.getter().get();
+                final BiFunction getter = getState.getter();
+                switch (getState.initialState()) {
+                    case INIT_INSTANCE:
+                        joinedRepo.deleteMonadic(getter.apply(existingParent, getState));
+                        break;
+                    case INIT_COLLECTION:
+                        while (getState.state() != TERMINAL) {
+                            joinedRepo.deleteMonadic(getter.apply(existingParent, getState));
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void deleteUnsafe(final String whereClause, final X id) {
+        primary.deleteUnsafe(whereClause, id);
     }
 
     @Override
@@ -215,7 +314,7 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
     @Override
     public Optional<T> get(final X id) {
         try {
-            return Optional.of(jdbcTemplate.query(getById, mapper.extractor(), id));
+            return Optional.ofNullable(jdbcTemplate.query(getById, mapper.extractor(), id));
         } catch (RepositoryException rethrow) {
             throw rethrow;
         } catch (Exception e) {

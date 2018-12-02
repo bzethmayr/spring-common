@@ -58,7 +58,7 @@ public class InvertibleRowMapperBaseTest {
         when(mockRs.getLong(TestPojoMapper.WEIGHTING.fieldName)).thenReturn(2301L);
         when(mockRs.getString(TestPojoMapper.COMMENT.fieldName)).thenReturn(COMMENT);
         when(mockRs.getInt(TestPojoMapper.EVENT.fieldName)).thenReturn(MAGNA_CARTA.ordinal());
-        final TestPojo read = underTest.mapRow(mockRs, 0);
+        final TestPojo read = underTest.mapRow(mockRs, 1);
         assertThat(read.getComment(), is(COMMENT));
         assertThat(read.getWeighting(), is(WEIGHT));
         assertThat(read.getEvent(), is(MAGNA_CARTA));

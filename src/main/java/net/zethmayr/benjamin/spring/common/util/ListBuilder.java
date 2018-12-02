@@ -1,13 +1,20 @@
 package net.zethmayr.benjamin.spring.common.util;
 
+import lombok.val;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 /**
  * A {@link Builder} for {@link List}s.
@@ -40,7 +47,7 @@ public class ListBuilder<T, L extends List<T>> implements Builder<L> {
      * a new {@link ArrayList}.
      *
      * @param values Initial values
-     * @param <T> The element type
+     * @param <T>    The element type
      * @return A builder
      */
     @SafeVarargs
@@ -53,7 +60,7 @@ public class ListBuilder<T, L extends List<T>> implements Builder<L> {
      * a new {@link LinkedList}.
      *
      * @param values Initial values
-     * @param <T> The element type
+     * @param <T>    The element type
      * @return A builder
      */
     @SafeVarargs
@@ -76,10 +83,10 @@ public class ListBuilder<T, L extends List<T>> implements Builder<L> {
      * </pre>
      * This is provided primarily for compatibility with legacy code.
      *
-     * @see java.util.Collections#synchronizedList
      * @param values Initial values
-     * @param <T> Ye element type
+     * @param <T>    Ye element type
      * @return Yon builder
+     * @see java.util.Collections#synchronizedList
      */
     @SafeVarargs
     public static <T> ListBuilder<T, Vector<T>> vector(final T... values) {
@@ -105,23 +112,24 @@ public class ListBuilder<T, L extends List<T>> implements Builder<L> {
      * @param <J>     The new list type
      * @return A new builder
      */
-    public <J extends List<T>> ListBuilder<T, J> in(final Function<L, J> wrapper) {
+    public <J extends List<T>> ListBuilder<T, J> in(final Function<? super L, J> wrapper) {
         return new ListBuilder<>(wrapper.apply(list));
     }
 
-    public ListBuilder<T, L> then(final Consumer<L> listMutator) {
+    public ListBuilder<T, L> then(final Consumer<? super L> listMutator) {
         listMutator.accept(list);
         return this;
     }
 
-    public ListBuilder<T, L> forEach(final Consumer<T> elementMutator) {
-       list.forEach(elementMutator);
-       return this;
+    public ListBuilder<T, L> forEach(final Consumer<? super T> elementMutator) {
+        list.forEach(elementMutator);
+        return this;
     }
 
-    public ListBuilder<T, L> toEach(final Function<T, T> elementMutator) {
-        for (int i = 0; i < list.size(); i++) {
-            list.set(i, elementMutator.apply(list.get(i)));
+    public ListBuilder<T, L> toEach(final UnaryOperator<T> elementMutator) {
+        final ListIterator<T> iterator = list.listIterator();
+        while (iterator.hasNext()) {
+            iterator.set(elementMutator.apply(iterator.next()));
         }
         return this;
     }
@@ -138,6 +146,12 @@ public class ListBuilder<T, L extends List<T>> implements Builder<L> {
         return this;
     }
 
+    /**
+     * Adds all generated values to the list
+     *
+     * @param generator A stateful function which will eventually return null
+     * @return The builder, once the generator returns null.
+     */
     public final ListBuilder<T, L> add(final Supplier<T> generator) {
         T generated;
         while ((generated = generator.get()) != null) {
@@ -145,6 +159,45 @@ public class ListBuilder<T, L extends List<T>> implements Builder<L> {
         }
         return this;
     }
+
+    public final ListBuilder<T, L> add(final Collection<? extends T> values) {
+        list.addAll(values);
+        return this;
+    }
+
+    /**
+     * Creates a supplier for values to add.
+     *
+     * @param indexGenerator A function of the index, which will return null for some index
+     * @param <T>            The value type
+     * @return A value supplier
+     * @see #add(Supplier)
+     */
+    public static <T> Supplier<T> generator(final Function<Integer, T> indexGenerator) {
+        val enclosedCounter = new AtomicInteger();
+        return () -> {
+            val index = enclosedCounter.getAndIncrement();
+            return indexGenerator.apply(index);
+        };
+    }
+
+    /**
+     * Creates a supplier for values to add.
+     *
+     * @param indexGenerator A function of the index.
+     * @param count          How many values to add.
+     * @param <T>            The value type
+     * @return A value supplier
+     * @see #add(Supplier)
+     */
+    public static <T> Supplier<T> generator(final Function<Integer, T> indexGenerator, final int count) {
+        val enclosedCounter = new AtomicInteger();
+        return () -> {
+            val index = enclosedCounter.getAndIncrement();
+            return index < count ? indexGenerator.apply(index) : null;
+        };
+    }
+
 
     @Override
     public L build() {

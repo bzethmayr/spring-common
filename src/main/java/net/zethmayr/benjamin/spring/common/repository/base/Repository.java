@@ -1,6 +1,8 @@
 package net.zethmayr.benjamin.spring.common.repository.base;
 
 import net.zethmayr.benjamin.spring.common.mapper.base.InvertibleRowMapper;
+import net.zethmayr.benjamin.spring.common.mapper.base.Mapper;
+import net.zethmayr.benjamin.spring.common.mapper.base.SqlOp;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +14,8 @@ import java.util.Optional;
  * @param <X> The index type
  */
 public interface Repository<T, X> {
+    Repository<T, X> rebindWithRelatedIndex(final SqlOp relation, final Mapper<T, ?, X> idMapper);
+
     /**
      * Persists an object to the repository, returning the index.
      * Where applicable, the object may be updated with the generated index value.
@@ -34,6 +38,8 @@ public interface Repository<T, X> {
      * @param toDelete The object (having the same index as the object) to delete
      */
     void deleteMonadic(final T toDelete);
+
+    void deleteUnsafe(final String whereClause, final X toDelete);
 
     /**
      * Returns the INSERT query used to insert objects.

@@ -1,5 +1,6 @@
 package net.zethmayr.benjamin.spring.common.mapper.base;
 
+import lombok.val;
 import net.zethmayr.benjamin.spring.common.util.Functions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,13 +8,26 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import static net.zethmayr.benjamin.spring.common.Constants.MONEY_CONTEXT;
 
 /**
- * This is the primary concrete field mapper implementation.
+ * This is the sole concrete field mapper implementation.
+ * <p>
+ * Instances are primarily obtained via factory methods. See
+ * {@link #simpleField(String, Function, ColumnType, BiConsumer)} and
+ * {@link #field(String, Function, SerMapper, ColumnType, DesMapper, BiConsumer)}
+ * for mapping POJO fields, and
+ * simpleField with {@link ColumnType#INTEGER_INDEX}
+ * for mapping POJO IDs. See
+ * {@link #enumSimple(String, Function, ColumnType)} and
+ * {@link #enumField(String, Function, SerMapper, ColumnType, DesMapper)}
+ * for mapping enum fields, and
+ * {@link #enumId(SerMapper, DesMapper)}
+ * for mapping enum IDs.
  * {@inheritDoc}
  */
 /*
@@ -125,9 +139,18 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
         return ser == null ? null : desMapper.des(ser);
     }
 
+    /**
+     * Uses the resultset getter supplied at construction to map field values, checking for nulls.
+     * @inheritDoc
+     */
     @Override
     public O from(ResultSet rs) throws MappingException {
-        return rsGetter.from(rs);
+        try {
+            val rawValue = rsGetter.from(rs);
+            return rs.wasNull() ? null : rawValue;
+        } catch (SQLException sqle) {
+            throw MappingException.because(sqle);
+        }
     }
 
     @Override

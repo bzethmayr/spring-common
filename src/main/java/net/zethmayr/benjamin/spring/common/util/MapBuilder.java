@@ -1,10 +1,16 @@
 package net.zethmayr.benjamin.spring.common.util;
 
+import lombok.val;
+
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -72,6 +78,10 @@ public class MapBuilder<K, V, M extends Map<K, V>> implements Builder<M> {
         return new MapBuilder<>(new TreeMap<>());
     }
 
+    public static <K, V> MapBuilder<K, V, IdentityHashMap<K, V>> identity() {
+        return new MapBuilder<>(new IdentityHashMap<>());
+    }
+
     /**
      * Creates a new builder populating
      * a {@link Hashtable}.
@@ -105,6 +115,11 @@ public class MapBuilder<K, V, M extends Map<K, V>> implements Builder<M> {
         return this;
     }
 
+    public MapBuilder<K, V, M> put(final Map<? extends K, ? extends V> values) {
+        map.putAll(values);
+        return this;
+    }
+
     /**
      * Returns a new builder populating
      * a map which is the result of
@@ -121,8 +136,37 @@ public class MapBuilder<K, V, M extends Map<K, V>> implements Builder<M> {
      * @param <N>     The new map type
      * @return A new builder
      */
-    public <N extends Map<K, V>> MapBuilder<K, V, N> in(final Function<M, N> wrapper) {
+    public <N extends Map<K, V>> MapBuilder<K, V, N> in(final Function<? super M, ? extends N> wrapper) {
         return new MapBuilder<>(wrapper.apply(map));
+    }
+
+    public MapBuilder<K, V, M> forEach(final BiConsumer<? super K, ? super V> keyValueMutator) {
+        map.forEach(keyValueMutator);
+        return this;
+    }
+
+    public MapBuilder<K, V, M> toEachKey(final BiFunction<? super K, ? super V, ? extends K> keyRemapper) {
+        val keysCopied = ListBuilder.<K>array().add(map.keySet()).build();
+        for (val key : keysCopied) {
+            val prior = map.remove(key);
+            map.put(keyRemapper.apply(key, prior), prior);
+        }
+        return this;
+    }
+
+    public MapBuilder<K, V, M> toEachValue(final BiFunction<? super K, ? super V, ? extends V> valueRemapper) {
+        map.replaceAll(valueRemapper);
+        return this;
+    }
+
+    public MapBuilder<K, V, M> toEach(final BiFunction<? super K, ? super V, ? extends K> keyRemapper,
+                                      final BiFunction<? super K, ? super V, ? extends V> valueRemapper) {
+        val keysCopied = ListBuilder.<K>array().add(map.keySet()).build();
+        for (val key : keysCopied) {
+            val prior = map.remove(key);
+            map.put(keyRemapper.apply(key, prior), valueRemapper.apply(key, prior));
+        }
+        return this;
     }
 
     @Override
