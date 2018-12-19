@@ -5,6 +5,7 @@ import lombok.val;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -151,6 +152,9 @@ public class ListBuilder<T, L extends List<T>> implements Builder<L> {
      *
      * @param generator A stateful function which will eventually return null
      * @return The builder, once the generator returns null.
+     * @see #generator(Function)
+     * @see #generator(Function, int)
+     * @see #generator(Iterator)
      */
     public final ListBuilder<T, L> add(final Supplier<T> generator) {
         T generated;
@@ -182,7 +186,21 @@ public class ListBuilder<T, L extends List<T>> implements Builder<L> {
     }
 
     /**
-     * Creates a supplier for values to add.
+     * Creates a supplier for values to add
+     * from an iterator.
+     *
+     * @param iterator An iterator
+     * @param <T>      The value type
+     * @return A value supplier
+     * @see #add(Supplier)
+     */
+    public static <T> Supplier<T> generator(final Iterator<T> iterator) {
+        return () -> iterator.hasNext() ? iterator.next() : null;
+    }
+
+    /**
+     * Creates a supplier for values to add
+     * until a specified count is reached.
      *
      * @param indexGenerator A function of the index.
      * @param count          How many values to add.
@@ -197,7 +215,6 @@ public class ListBuilder<T, L extends List<T>> implements Builder<L> {
             return index < count ? indexGenerator.apply(index) : null;
         };
     }
-
 
     @Override
     public L build() {

@@ -2,6 +2,8 @@ package net.zethmayr.benjamin.spring.common.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import net.zethmayr.benjamin.spring.common.mapper.base.Mapper;
+import net.zethmayr.benjamin.spring.common.mapper.base.SqlOp;
 import net.zethmayr.benjamin.spring.common.model.TestItem;
 import net.zethmayr.benjamin.spring.common.model.TestOrder;
 import net.zethmayr.benjamin.spring.common.model.TestOrderSummary;
@@ -28,21 +30,20 @@ import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
-public class OrdersTest {
+public class OrdersIT {
     @Autowired
     private TestSchemaService schemaService;
 
-    @SpyBean
-    private TestUserRepository users;
-
     @Autowired
     private TestOrderRepository orders;
+
+    @SpyBean
+    private TestUserRepository users;
 
     @SpyBean
     private TestOrderItemRepository orderItems;
@@ -52,7 +53,6 @@ public class OrdersTest {
 
     @SpyBean
     private TestItemRepository items;
-
 
     @Before
     public void setUp() {
@@ -95,20 +95,11 @@ public class OrdersTest {
         assertThat(select, containsJoinFor("order_summaries"));
     }
 
-
     @Test
-    public void prettySoonIBetterThinkAboutFullRecursion() throws Exception {
+    public void canInsertAndReadRecursively() throws Exception {
         val now = Instant.now();
         val order = withItems(now);
         val id = orders.insert(order);
-//        verify(users).insert(order.getUser());
-//        verify(items).insert(order.getItems().get(0).getItem());
-//        verify(orderItems).insert(order.getItems().get(0));
-//        verify(items).insert(order.getItems().get(1).getItem());
-//        verify(orderItems).insert(order.getItems().get(1));
-//        verify(items).insert(order.getItems().get(2).getItem());
-//        verify(orderItems).insert(order.getItems().get(2));
-//        verify(orderSummaries).insert(order.getSummary());
         LOG.info("id is {}", id);
         val usersList = users.getAll();
         val ordersList = orders.getAll();
@@ -127,11 +118,29 @@ public class OrdersTest {
         assertIsExpectedOrder(read, now, id);
     }
 
+    @Test
+    public void canInsertALotOfTimes() {
+        val times = 1000;
+        val startInsert = System.nanoTime();
+        orders.insert(withItems(Instant.now()));
+        for (int i = 1; i < times; i++) {
+            orders.insert(withItemIds(Instant.now()));
+        }
+        LOG.info("Inserted {} in {}ns", times, System.nanoTime() - startInsert);
+        val startRead = System.nanoTime();
+        val manyOrders = orders.getAll();
+        LOG.info("Read {} in {}ns", times, System.nanoTime() - startRead);
+        assertThat(manyOrders, hasSize(times));
+        for (val order : manyOrders) {
+            assertIsExpectedOrder(order, order.getOrderedAt(), order.getId());
+        }
+    }
+
     private void assertIsExpectedOrder(final TestOrder read, final Instant now, final Integer id) {
         assertThat(read.getId(), is(id));
         assertThat(read.getOrderedAt(), is(now));
-        assertThat(read.getUserId(), is(1));
         assertThat(read.getUser(), isA(TestUser.class));
+        assertThat(read.getUserId(), is(1));
         assertThat(read.getUser().getName(), is("Yarn Bean"));
         assertThat(read.getSummary(), isA(TestOrderSummary.class));
         assertThat(read.getSummary().getSummary(), startsWith("Hasty"));
@@ -141,16 +150,19 @@ public class OrdersTest {
         assertThat(soap.getQuantity(), is(2));
         assertThat(soap.getItem(), isA(TestItem.class));
         assertThat(soap.getItem().getName(), is("Soap"));
+        assertThat(soap.getItem().getId(), is(1));
         val cheeses = items.get(1);
         assertThat(cheeses.getQuantity(), is(1));
         val cheese = cheeses.getItem();
         assertThat(cheese, isA(TestItem.class));
         assertThat(cheese.getName(), is("Cheese"));
         assertThat(cheese.getPrice(), is(ABOUT_A_HUNDRED_DOLLARS));
+        assertThat(cheese.getId(), is(2));
         val soda = items.get(2);
         assertThat(soda.getQuantity(), is(12));
         assertThat(soda.getItem(), isA(TestItem.class));
         assertThat(soda.getItem().getName(), is("Soda"));
+        assertThat(soda.getItem().getId(), is(3));
     }
 
     @Test
@@ -196,12 +208,8 @@ public class OrdersTest {
         assertThat(userReadAgain.isPresent(), is(false)); // well, we did tell it to, vs to not to
         val orderItemsReadAgain = orderItems.getAll();
         assertThat(orderItemsReadAgain, hasSize(0));
-        // BLARGH! USE_PARENT_ID is not recursive... since the joined repository does not use that id...
-        // I could rebind for that index hhos.
         val itemsReadAgain = items.getAll();
         assertThat(itemsReadAgain, hasSize(0)); // again, we did tell it to. We could have said not to.
-        // Now, I strongly suspect that MATERIALIZE_PARENT is recursive, but rewriting the mapper would be cheating.
-        // both cases _"should"_ recurse.
         val summariesReadAgain = orderSummaries.getAll();
         assertThat(summariesReadAgain, hasSize(0));
     }

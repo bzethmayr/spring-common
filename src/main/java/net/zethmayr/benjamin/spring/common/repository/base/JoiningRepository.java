@@ -11,7 +11,6 @@ import net.zethmayr.benjamin.spring.common.util.MapBuilder;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.IdentityHashMap;
