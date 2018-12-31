@@ -73,6 +73,7 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
      * @param rowClass The row class
      * @param fields   The field mappers
      * @param table    The table name
+     * @param empty    The empty instance supplier
      */
     protected InvertibleRowMapperBase(final Class<T> rowClass, final List<ClassFieldMapper<T>> fields, final String table, final Supplier<T> empty) {
         this(rowClass, fields, table, empty, false, genSelect(fields, table), genInsert(fields, table));

@@ -6,7 +6,6 @@ import lombok.NonNull;
  * An exception from the service layer.
  */
 public class ServiceException extends RuntimeException {
-    //TODO: is the default schema service or data dumper using this like it should?
     /**
      * Constructs a ServiceException with the given message.
      *

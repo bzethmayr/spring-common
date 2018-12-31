@@ -78,6 +78,14 @@ public class MapBuilder<K, V, M extends Map<K, V>> implements Builder<M> {
         return new MapBuilder<>(new TreeMap<>());
     }
 
+    /**
+     * Creates a new builder populating
+     * an {@link IdentityHashMap}.
+     *
+     * @param <K> The key type
+     * @param <V> The value type
+     * @return A builder
+     */
     public static <K, V> MapBuilder<K, V, IdentityHashMap<K, V>> identity() {
         return new MapBuilder<>(new IdentityHashMap<>());
     }
@@ -115,6 +123,12 @@ public class MapBuilder<K, V, M extends Map<K, V>> implements Builder<M> {
         return this;
     }
 
+    /**
+     * Puts all entries from the provided map in the map.
+     *
+     * @param values A map
+     * @return the builder
+     */
     public MapBuilder<K, V, M> put(final Map<? extends K, ? extends V> values) {
         map.putAll(values);
         return this;
@@ -140,11 +154,23 @@ public class MapBuilder<K, V, M extends Map<K, V>> implements Builder<M> {
         return new MapBuilder<>(wrapper.apply(map));
     }
 
-    public MapBuilder<K, V, M> forEach(final BiConsumer<? super K, ? super V> keyValueMutator) {
-        map.forEach(keyValueMutator);
+    /**
+     * Calls the provided consumer for each entry.
+     *
+     * @param keyValueConsumer A key and value consumer
+     * @return the builder
+     */
+    public MapBuilder<K, V, M> forEach(final BiConsumer<? super K, ? super V> keyValueConsumer) {
+        map.forEach(keyValueConsumer);
         return this;
     }
 
+    /**
+     * Re-keys the map according to the provided function.
+     *
+     * @param keyRemapper A key remapping function
+     * @return the builder
+     */
     public MapBuilder<K, V, M> toEachKey(final BiFunction<? super K, ? super V, ? extends K> keyRemapper) {
         val keysCopied = ListBuilder.<K>array().add(map.keySet()).build();
         for (val key : keysCopied) {
@@ -154,11 +180,24 @@ public class MapBuilder<K, V, M extends Map<K, V>> implements Builder<M> {
         return this;
     }
 
+    /**
+     * Re-values the map according to the provided function.
+     *
+     * @param valueRemapper A value remapping function
+     * @return the builder
+     */
     public MapBuilder<K, V, M> toEachValue(final BiFunction<? super K, ? super V, ? extends V> valueRemapper) {
         map.replaceAll(valueRemapper);
         return this;
     }
 
+    /**
+     * Re-writes the map according to the provided functions.
+     *
+     * @param keyRemapper   A key remapping function
+     * @param valueRemapper A value remapping function
+     * @return the builder
+     */
     public MapBuilder<K, V, M> toEach(final BiFunction<? super K, ? super V, ? extends K> keyRemapper,
                                       final BiFunction<? super K, ? super V, ? extends V> valueRemapper) {
         val keysCopied = ListBuilder.<K>array().add(map.keySet()).build();

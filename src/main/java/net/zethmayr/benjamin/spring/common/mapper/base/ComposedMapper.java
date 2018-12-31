@@ -141,7 +141,7 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
 
     /**
      * Uses the resultset getter supplied at construction to map field values, checking for nulls.
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public O from(ResultSet rs) throws MappingException {
@@ -153,11 +153,17 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public O ser(I des) throws MappingException {
         return des == null ? null : columnType.limited(serMapper.ser(des));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public I setTo(C container, I value) {
         cSetter.accept(container, value);

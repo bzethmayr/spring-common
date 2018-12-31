@@ -1,5 +1,7 @@
 package net.zethmayr.benjamin.spring.common.cli;
 
+import lombok.val;
+import net.zethmayr.benjamin.spring.common.util.MapBuilder;
 import org.junit.Test;
 
 import java.util.List;
@@ -8,12 +10,74 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class CommandParserTest {
+
+    interface Actionable {
+        void action(final String... args);
+
+        void otherAction(final String... args);
+    }
+
+    @Test
+    public void exampleInJavadocActuallyWorks() {
+        val some = mock(Actionable.class);
+        val yetAnother = mock(Actionable.class);
+        final CommandParser concreteParser = new CommandParser() {{
+            bindings.put("this", some::action);
+            bindings.put("that", some::otherAction);
+            defaultFirstCommand = "the";
+            bindings.put("the", SubCommandBinding.of(new CommandParser() {{
+                bindings.put("other", yetAnother::action);
+                defaultFirstCommand = "other";
+            }}));
+        }};
+        concreteParser.runCommands(concreteParser.parseArgs("this"));
+        verify(some).action();
+        verifyNoMoreInteractions(some);
+        verifyZeroInteractions(yetAnother);
+        concreteParser.runCommands(concreteParser.parseArgs("that"));
+        verify(some).otherAction();
+        verifyNoMoreInteractions(some);
+        verifyZeroInteractions(yetAnother);
+        concreteParser.runCommands(concreteParser.parseArgs("the", "other"));
+        verifyZeroInteractions(some);
+        verify(yetAnother).action();
+    }
+
+    @Test
+    public void canUseBuilderSyntax() {
+        val some = mock(Actionable.class);
+        val yetAnother = mock(Actionable.class);
+        final CommandParser concreteParser = CommandParser.builder()
+                .defaultFirstCommand("the")
+                .withBindings(m -> m
+                        .put("this", some::action)
+                        .put("that", some::otherAction)
+                        .put("the", SubCommandBinding.of(CommandParser.builder()
+                                .withBindings(b -> b.put("other", yetAnother::action))
+                                .defaultFirstCommand("other")
+                                .build()
+                        ))
+                ).build();
+        concreteParser.runCommands(concreteParser.parseArgs("this"));
+        verify(some).action();
+        verifyNoMoreInteractions(some);
+        verifyZeroInteractions(yetAnother);
+        concreteParser.runCommands(concreteParser.parseArgs("that"));
+        verify(some).otherAction();
+        verifyNoMoreInteractions(some);
+        verifyZeroInteractions(yetAnother);
+        concreteParser.runCommands(concreteParser.parseArgs("the", "other"));
+        verifyZeroInteractions(some);
+        verify(yetAnother).action();
+    }
 
     @Test
     public void canParseAndRunCommandsDirectly() {
@@ -29,8 +93,8 @@ public class CommandParserTest {
         assertThat(parsed, hasSize(3));
         parsed.forEach(Command::run);
         verify(commanded).fall("a", "great", "height");
-        verify(commanded).jump( "joy");
-        verify(commanded).fall( "grace");
+        verify(commanded).jump("joy");
+        verify(commanded).fall("grace");
         assertThat(parsed.toString(), not(isEmptyOrNullString()));
     }
 
@@ -48,8 +112,8 @@ public class CommandParserTest {
         assertThat(parsed, hasSize(3));
         underTest.runCommands(parsed);
         verify(commanded).fall("a", "great", "height");
-        verify(commanded).jump( "joy");
-        verify(commanded).fall( "grace");
+        verify(commanded).jump("joy");
+        verify(commanded).fall("grace");
         assertThat(parsed.toString(), not(isEmptyOrNullString()));
     }
 

@@ -8,13 +8,18 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.TreeMap;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 public class MapBuilderTest {
 
@@ -118,5 +123,57 @@ public class MapBuilderTest {
                 .build();
         assertThat(built, isA(Hashtable.class));
         assertThat(built.size(), is(3));
+    }
+
+    private class NopKeyValueConsumer implements BiConsumer<String, String> {
+        @Override
+        public void accept(final String key, final String value) {
+
+        }
+    }
+
+    @Test
+    public void canVisitMapInProgress() {
+        val consumer = spy(new NopKeyValueConsumer());
+        val builder = MapBuilder.<String, String>hash()
+                .put("a", "a").put("b", "d").put("c", "z")
+                .forEach(consumer);
+        verify(consumer).accept("a", "a");
+        verify(consumer).accept("b", "d");
+        verify(consumer).accept("c", "z");
+    }
+
+    @Test
+    public void canInvertMapInProgress() {
+        BiFunction<String,String,String> keyToValue = (k, v) -> v;
+        BiFunction<String,String,String> valueToKey = (k, v) -> k;
+        val built = MapBuilder.<String,String>linked()
+                .put("1", "a").put("2", "b").put("3", "c").put("4", "d")
+                .toEach(keyToValue, valueToKey)
+                .build();
+        assertThat(built.keySet(), contains("a", "b", "c", "d"));
+        assertThat(built.values(), contains("1", "2", "3", "4"));
+    }
+
+
+    @Test
+    public void canRewriteKeysInProgress() {
+        final BiFunction<Integer, Integer, Integer> keyValueAdder = (k, v) -> k + v;
+        val built = MapBuilder.on(new LinkedHashMap<Integer, Integer>())
+                .put(1, 10).put(2, 20).put(3, 30)
+                .toEachKey(keyValueAdder)
+                .build();
+        assertThat(built.keySet(), contains(11, 22, 33));
+        assertThat(built.get(11), is(10));
+    }
+
+    @Test
+    public void canRewriteValuesInProgress() {
+        final BiFunction<Integer, String, String> valueKeyAppender = (k, v) -> v + k;
+        val built = MapBuilder.<Integer, String>linked()
+                .put(1, "a").put(2, "b").put(3, "a")
+                .toEachValue(valueKeyAppender)
+                .build();
+        assertThat(built.values(), contains("a1", "b2", "a3"));
     }
 }

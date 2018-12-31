@@ -103,6 +103,7 @@ public abstract class Mapper<C, I, O> extends ClassFieldMapper<C> implements Ser
      *
      * @param container The containing instance
      * @param value     The field value in the internal type
+     * @return The value that was set
      */
     public abstract I setTo(final C container, final I value);
 

@@ -20,7 +20,7 @@ public class HistoryMapper extends EnumRowMapper<History> {
     );
 
     public static final List<ClassFieldMapper<History>> FIELDS = Arrays.asList(
-           ID,
+            ID,
             ComposedMapper.enumSimple("name", History::name, LONG_STRING),
             ComposedMapper.enumSimple("when", History::when, INSTANT),
             ComposedMapper.enumField("prior_related", History::getPriorRelated, History::ordinal, INTEGER, History::fromOrdinal)

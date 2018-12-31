@@ -18,6 +18,8 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.math.BigDecimal;
+
 import static net.zethmayr.benjamin.spring.common.model.History.DECLARATION_OF_INDEPENDENCE;
 import static net.zethmayr.benjamin.spring.common.model.History.MAGNA_CARTA;
 import static org.hamcrest.Matchers.is;
@@ -62,9 +64,9 @@ public class JoiningRepositoryTest {
     }
 
     @Test
-    public void canSelectEntireObject() {
+    public void canSelectEntireObject() throws Exception {
         val id = writeSomeTestDataUsingTheSimpleRepos();
-        final TestPojo read = underTest.get(id).orElseThrow(() -> new IllegalStateException("There is too much wrong for this test"));
+        final TestPojo read = underTest.get(id).orElseThrow(Exception::new);
         assertThat(read, isA(TestPojo.class));
         assertThat(read.getEvent(), is(DECLARATION_OF_INDEPENDENCE));
     }
@@ -79,5 +81,12 @@ public class JoiningRepositoryTest {
         val reread = underTest.get(inserted).orElseThrow(Exception::new);
         LOG.info("reread is {}", reread);
         assertThat(reread, is(read));
+    }
+
+    @Test
+    public void canInsertThenRead() throws Exception {
+        val toInsert = new TestPojo().setEvent(DECLARATION_OF_INDEPENDENCE).setWeighting(BigDecimal.TEN);
+        val id = underTest.insert(toInsert);
+        val read = underTest.get(id).orElseThrow(Exception::new);
     }
 }
