@@ -36,7 +36,7 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
      * @param fields                        The field mappers
      * @param table                         The table name
      * @param empty                         A supplier of empty instances
-     * @param unusedSignatureDifferentiator See deprecated constructor.
+     * @param allowNoId                     Whether to allow there to be no id mapper
      * @param selectMappable                The generated SELECT query
      * @param insert                        The generated INSERT query
      */
@@ -47,7 +47,7 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
             final List<ClassFieldMapper<T>> fields,
             final String table,
             final Supplier<T> empty,
-            final boolean unusedSignatureDifferentiator,
+            final boolean allowNoId,
             final String selectMappable,
             final String insert
     ) {
@@ -61,7 +61,11 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
                 ++i;
             }
         }
-        idMapper = findIdMapper(fields);
+        if (!allowNoId) {
+            idMapper = findIdMapper(fields);
+        } else {
+            idMapper = null;
+        }
         this.table = table;
         this.selectMappable = selectMappable;
         this.insert = insert;
@@ -77,6 +81,20 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
      */
     protected InvertibleRowMapperBase(final Class<T> rowClass, final List<ClassFieldMapper<T>> fields, final String table, final Supplier<T> empty) {
         this(rowClass, fields, table, empty, false, genSelect(fields, table), genInsert(fields, table));
+    }
+
+    /**
+     * Creates a new instance with no ID mapper. This instance will not be able participate in joins.
+     *
+     * @param rowClass The row class
+     * @param fields   The field mappers
+     * @param table    The table name
+     * @param empty    The empty instance supplier
+     * @param allowNoId If true, allow ID mapper detection to fail. This instance will not be able to participate in joins.
+     */
+    @Deprecated
+    protected InvertibleRowMapperBase(final Class<T> rowClass, final List<ClassFieldMapper<T>> fields, final String table, final Supplier<T> empty, final boolean allowNoId) {
+        this(rowClass, fields, table, empty, allowNoId, genSelect(fields, table), genInsert(fields, table));
     }
 
     /**

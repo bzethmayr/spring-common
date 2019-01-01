@@ -167,6 +167,16 @@ implements <a href="../../../../../../../net/zethmayr/benjamin/spring/common/map
 <div class="block">Creates a new instance.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected </code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/InvertibleRowMapperBase.html#InvertibleRowMapperBase-java.lang.Class-java.util.List-java.lang.String-java.util.function.Supplier-boolean-">InvertibleRowMapperBase</a></span>(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/InvertibleRowMapperBase.html" title="type parameter in InvertibleRowMapperBase">T</a>&gt;&nbsp;rowClass,
+                       <a href="https://docs.oracle.com/javase/8/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/ClassFieldMapper.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">ClassFieldMapper</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/InvertibleRowMapperBase.html" title="type parameter in InvertibleRowMapperBase">T</a>&gt;&gt;&nbsp;fields,
+                       <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;table,
+                       <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/Supplier.html?is-external=true" title="class or interface in java.util.function">Supplier</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/InvertibleRowMapperBase.html" title="type parameter in InvertibleRowMapperBase">T</a>&gt;&nbsp;empty,
+                       boolean&nbsp;allowNoId)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;</div>
+</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -308,6 +318,30 @@ implements <a href="../../../../../../../net/zethmayr/benjamin/spring/common/map
 <dd><code>fields</code> - The field mappers</dd>
 <dd><code>table</code> - The table name</dd>
 <dd><code>empty</code> - The empty instance supplier</dd>
+</dl>
+</li>
+</ul>
+<a name="InvertibleRowMapperBase-java.lang.Class-java.util.List-java.lang.String-java.util.function.Supplier-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>InvertibleRowMapperBase</h4>
+<pre><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Deprecated.html?is-external=true" title="class or interface in java.lang">@Deprecated</a>
+protected&nbsp;InvertibleRowMapperBase(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/InvertibleRowMapperBase.html" title="type parameter in InvertibleRowMapperBase">T</a>&gt;&nbsp;rowClass,
+                                               <a href="https://docs.oracle.com/javase/8/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/ClassFieldMapper.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">ClassFieldMapper</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/InvertibleRowMapperBase.html" title="type parameter in InvertibleRowMapperBase">T</a>&gt;&gt;&nbsp;fields,
+                                               <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;table,
+                                               <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/Supplier.html?is-external=true" title="class or interface in java.util.function">Supplier</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/InvertibleRowMapperBase.html" title="type parameter in InvertibleRowMapperBase">T</a>&gt;&nbsp;empty,
+                                               boolean&nbsp;allowNoId)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;</div>
+<div class="block">Creates a new instance with no ID mapper. This instance will not be able participate in joins.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>rowClass</code> - The row class</dd>
+<dd><code>fields</code> - The field mappers</dd>
+<dd><code>table</code> - The table name</dd>
+<dd><code>empty</code> - The empty instance supplier</dd>
+<dd><code>allowNoId</code> - If true, allow ID mapper detection to fail. This instance will not be able to participate in joins.</dd>
 </dl>
 </li>
 </ul>
