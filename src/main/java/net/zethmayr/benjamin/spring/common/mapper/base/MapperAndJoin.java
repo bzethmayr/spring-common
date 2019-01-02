@@ -121,6 +121,10 @@ public class MapperAndJoin<P, F, O> {
         MATERIALIZE_PARENT
     }
 
+    public static <P, F> BiConsumer<P, F> adder(final Function<P, Collection<F>> getCollection) {
+        return (p, f) -> getCollection.apply(p).add(f);
+    }
+
     /**
      * Produces a {@link GetterState} factory for a scalar-valued parent field
      *

@@ -22,6 +22,7 @@ import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.Dele
 import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.InsertStyle.INDEPENDENT_INSERT;
 import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.InsertStyle.NEEDS_PARENT_ID;
 import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.InsertStyle.PARENT_NEEDS_ID;
+import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.adder;
 import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.collection;
 import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.single;
 import static net.zethmayr.benjamin.spring.common.mapper.base.SqlOp.EQ;
@@ -70,7 +71,7 @@ public class SelfLinkyPojoMapper extends JoiningRowMapper<SelfLinkyPojo> {
                         .relatedField(GROUP)
                         .deletions(MATERIALIZE_PARENT)
                         .insertions(INDEPENDENT_INSERT)
-                        .acceptor((p, o) -> p.getNeighbors().add(o))
+                        .acceptor(adder(SelfLinkyPojo::getNeighbors))
                         .getter(collection(SelfLinkyPojo::getNeighbors))
                         .build(),
                 MapperAndJoin.<SelfLinkyPojo, SelfLinkyPojo, Integer>builder()
@@ -90,7 +91,7 @@ public class SelfLinkyPojoMapper extends JoiningRowMapper<SelfLinkyPojo> {
                         .relatedField(OWNS)
                         .deletions(DONT_DELETE)
                         .insertions(NEEDS_PARENT_ID)
-                        .acceptor((p, o) -> p.getOwners().add(o))
+                        .acceptor(adder(SelfLinkyPojo::getOwners))
                         .getter(collection(SelfLinkyPojo::getOwners))
                         .build()
         );

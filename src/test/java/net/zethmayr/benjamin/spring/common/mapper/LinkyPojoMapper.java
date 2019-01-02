@@ -18,6 +18,7 @@ import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.Dele
 import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.DeleteStyle.USE_PARENT_ID;
 import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.InsertStyle.DONT_INSERT;
 import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.InsertStyle.INDEPENDENT_INSERT;
+import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.adder;
 import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.collection;
 import static net.zethmayr.benjamin.spring.common.mapper.base.MapperAndJoin.single;
 import static net.zethmayr.benjamin.spring.common.mapper.base.SqlOp.EQ;
@@ -70,7 +71,7 @@ public class LinkyPojoMapper extends JoiningRowMapper<LinkyPojo> {
                         .parentField(CoreMapper.LINK)
                         .relation(EQ)
                         .relatedField(TestPojoMapper.STEVE)
-                        .acceptor((p, t) -> p.getLeft().add(t))
+                        .acceptor(adder(LinkyPojo::getLeft))
                         .getter(collection(LinkyPojo::getLeft))
                         .insertions(INDEPENDENT_INSERT)
                         .deletions(MATERIALIZE_PARENT)
