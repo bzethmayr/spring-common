@@ -38,7 +38,7 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
     /**
      * The mapping set at construction.
      */
-    public final InvertibleRowMapperBase<T> mapper;
+    public final InvertibleRowMapper<T> mapper;
 
     /**
      * The INSERT query set at construction.
@@ -77,20 +77,11 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
      * @param mapper   The object mapper
      * @param idMapper The field mapper for the id / index field
      */
-    protected MapperRepository(final JdbcTemplate jdbcTemplate, final InvertibleRowMapperBase<T> mapper, final Mapper<T, ?, X> idMapper) {
-//        this.jdbcTemplate = jdbcTemplate;
-//        this.mapper = mapper;
-//        insert = mapper.insert();
-//        select = mapper.select();
-//        this.idMapper = idMapper;
-//        val whereId = " WHERE " + idMapper.fieldName + " = ?";
-//        deleteUnsafe = "DELETE FROM " + mapper.table();
-//        delete = deleteUnsafe + whereId;
-//        getById = select + whereId;
+    protected MapperRepository(final JdbcTemplate jdbcTemplate, final InvertibleRowMapper<T> mapper, final Mapper<T, ?, X> idMapper) {
         this(jdbcTemplate, mapper, idMapper, " WHERE " + idMapper.fieldName + " = ?");
     }
 
-    private MapperRepository(final JdbcTemplate jdbcTemplate, final InvertibleRowMapperBase<T> mapper, final Mapper<T, ?, X> idMapper, final String whereId) {
+    private MapperRepository(final JdbcTemplate jdbcTemplate, final InvertibleRowMapper<T> mapper, final Mapper<T, ?, X> idMapper, final String whereId) {
         this.jdbcTemplate = jdbcTemplate;
         this.mapper = mapper;
         insert = mapper.insert();
@@ -102,7 +93,7 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
     }
 
     private static class Cloned<T, X> extends MapperRepository<T, X> {
-        Cloned(JdbcTemplate jdbcTemplate, InvertibleRowMapperBase<T> mapper, Mapper<T, ?, X> idMapper, final SqlOp relation) {
+        Cloned(JdbcTemplate jdbcTemplate, InvertibleRowMapper<T> mapper, Mapper<T, ?, X> idMapper, final SqlOp relation) {
             super(jdbcTemplate, mapper, idMapper, " WHERE ? " + relation.sql + " " + idMapper.fieldName);
         }
     }
@@ -110,7 +101,7 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
     @Override
     public MapperRepository<T, X> rebindWithRelatedIndex(final SqlOp relation, Mapper<T, ?, X> idMapper) {
         LOG.trace("Rebinding for {} {}", relation, idMapper);
-        return new Cloned<>(jdbcTemplate, mapper, idMapper, relation);
+        return new Cloned<T, X>(jdbcTemplate, mapper, idMapper, relation);
     }
 
     @Override

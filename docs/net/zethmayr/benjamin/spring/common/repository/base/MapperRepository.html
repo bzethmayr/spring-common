@@ -198,7 +198,7 @@ implements <a href="../../../../../../../net/zethmayr/benjamin/spring/common/rep
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#jdbcTemplate">jdbcTemplate</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/InvertibleRowMapperBase.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">InvertibleRowMapperBase</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>&gt;</code></td>
+<td class="colFirst"><code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/InvertibleRowMapper.html" title="interface in net.zethmayr.benjamin.spring.common.mapper.base">InvertibleRowMapper</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#mapper">mapper</a></span></code>
 <div class="block">The mapping set at construction.</div>
 </td>
@@ -226,8 +226,8 @@ implements <a href="../../../../../../../net/zethmayr/benjamin/spring/common/rep
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected </code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#MapperRepository-org.springframework.jdbc.core.JdbcTemplate-net.zethmayr.benjamin.spring.common.mapper.base.InvertibleRowMapperBase-net.zethmayr.benjamin.spring.common.mapper.base.Mapper-">MapperRepository</a></span>(org.springframework.jdbc.core.JdbcTemplate&nbsp;jdbcTemplate,
-                <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/InvertibleRowMapperBase.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">InvertibleRowMapperBase</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>&gt;&nbsp;mapper,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#MapperRepository-org.springframework.jdbc.core.JdbcTemplate-net.zethmayr.benjamin.spring.common.mapper.base.InvertibleRowMapper-net.zethmayr.benjamin.spring.common.mapper.base.Mapper-">MapperRepository</a></span>(org.springframework.jdbc.core.JdbcTemplate&nbsp;jdbcTemplate,
+                <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/InvertibleRowMapper.html" title="interface in net.zethmayr.benjamin.spring.common.mapper.base">InvertibleRowMapper</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>&gt;&nbsp;mapper,
                 <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">Mapper</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>,?,<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">X</a>&gt;&nbsp;idMapper)</code>
 <div class="block">Constructor accepting the mapper and ID mapper for the repository.</div>
 </td>
@@ -361,7 +361,7 @@ implements <a href="../../../../../../../net/zethmayr/benjamin/spring/common/rep
 <ul class="blockList">
 <li class="blockList">
 <h4>mapper</h4>
-<pre>public final&nbsp;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/InvertibleRowMapperBase.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">InvertibleRowMapperBase</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>&gt; mapper</pre>
+<pre>public final&nbsp;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/InvertibleRowMapper.html" title="interface in net.zethmayr.benjamin.spring.common.mapper.base">InvertibleRowMapper</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>&gt; mapper</pre>
 <div class="block">The mapping set at construction.</div>
 </li>
 </ul>
@@ -424,14 +424,14 @@ implements <a href="../../../../../../../net/zethmayr/benjamin/spring/common/rep
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="MapperRepository-org.springframework.jdbc.core.JdbcTemplate-net.zethmayr.benjamin.spring.common.mapper.base.InvertibleRowMapperBase-net.zethmayr.benjamin.spring.common.mapper.base.Mapper-">
+<a name="MapperRepository-org.springframework.jdbc.core.JdbcTemplate-net.zethmayr.benjamin.spring.common.mapper.base.InvertibleRowMapper-net.zethmayr.benjamin.spring.common.mapper.base.Mapper-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>MapperRepository</h4>
 <pre>protected&nbsp;MapperRepository(org.springframework.jdbc.core.JdbcTemplate&nbsp;jdbcTemplate,
-                           <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/InvertibleRowMapperBase.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">InvertibleRowMapperBase</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>&gt;&nbsp;mapper,
+                           <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/InvertibleRowMapper.html" title="interface in net.zethmayr.benjamin.spring.common.mapper.base">InvertibleRowMapper</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>&gt;&nbsp;mapper,
                            <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">Mapper</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>,?,<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">X</a>&gt;&nbsp;idMapper)</pre>
 <div class="block">Constructor accepting the mapper and ID mapper for the repository.
  Note that the ID mapper need not be the object mapper's ID mapper;
