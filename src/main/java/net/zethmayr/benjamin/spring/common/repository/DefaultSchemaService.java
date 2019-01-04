@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.zethmayr.benjamin.spring.common.repository.base.AbstractSchemaService;
 import net.zethmayr.benjamin.spring.common.repository.base.EnumRepository;
+import net.zethmayr.benjamin.spring.common.repository.base.JoiningRepository;
 import net.zethmayr.benjamin.spring.common.repository.base.MapperRepository;
 import net.zethmayr.benjamin.spring.common.repository.base.Repository;
 import org.springframework.beans.factory.InitializingBean;
@@ -48,6 +49,10 @@ public class DefaultSchemaService extends AbstractSchemaService implements Initi
                 // mind the specificity. EnumRepository needs tested for first.
                 if (repository instanceof MapperRepository) {
                     pojoRepositories.add((MapperRepository) repository);
+                    continue;
+                }
+                if (repository instanceof JoiningRepository) {
+                    pojoRepositories.add(((JoiningRepository) repository).primary);
                     continue;
                 }
                 LOG.warn("Unknown repository implementation. Maybe you should use a custom service.");
