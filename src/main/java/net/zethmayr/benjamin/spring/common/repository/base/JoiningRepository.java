@@ -62,7 +62,7 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
      * @param primary      A non-joining repository for the mapped type
      * @param supplemental Repositories for joined types - construction will fail unless sufficient are provided
      */
-    protected JoiningRepository(final JdbcTemplate jdbcTemplate, final JoiningRowMapper<T> mapper, final MapperRepository<T, X> primary, final Repository... supplemental) {
+    public JoiningRepository(final JdbcTemplate jdbcTemplate, final JoiningRowMapper<T> mapper, final MapperRepository<T, X> primary, final Repository... supplemental) {
         this.jdbcTemplate = jdbcTemplate;
         this.mapper = mapper;
         this.primary = primary;

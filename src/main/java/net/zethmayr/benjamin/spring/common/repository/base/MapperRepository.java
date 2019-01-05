@@ -77,7 +77,7 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
      * @param mapper   The object mapper
      * @param idMapper The field mapper for the id / index field
      */
-    protected MapperRepository(final JdbcTemplate jdbcTemplate, final InvertibleRowMapper<T> mapper, final Mapper<T, ?, X> idMapper) {
+    public MapperRepository(final JdbcTemplate jdbcTemplate, final InvertibleRowMapper<T> mapper, final Mapper<T, ?, X> idMapper) {
         this(jdbcTemplate, mapper, idMapper, " WHERE " + idMapper.fieldName + " = ?");
     }
 

@@ -44,7 +44,7 @@ public abstract class JoiningRowMapper<T> implements InvertibleRowMapper<T> {
      *                      will be composed into this mapper's joins.
      */
     @SafeVarargs
-    protected JoiningRowMapper(final InvertibleRowMapperBase<T> primary, final MapperAndJoin<T, ?, ?>... joinedMappers) {
+    public JoiningRowMapper(final InvertibleRowMapperBase<T> primary, final MapperAndJoin<T, ?, ?>... joinedMappers) {
         this(primary, 0, joinedMappers);
         LOG.trace("subclass constructor end");
     }

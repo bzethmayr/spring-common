@@ -20,7 +20,7 @@ public abstract class EnumMapperRepository<T extends Enum<T>> extends MapperRepo
      * @param jdbcTemplate The jdbc template
      * @param mapper       An enum mapper
      */
-    protected EnumMapperRepository(final JdbcTemplate jdbcTemplate, final EnumRowMapper<T> mapper) {
+    public EnumMapperRepository(final JdbcTemplate jdbcTemplate, final EnumRowMapper<T> mapper) {
         super(jdbcTemplate, mapper, mapper.idMapper());
     }
 

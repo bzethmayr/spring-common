@@ -46,7 +46,7 @@ public abstract class EnumRowMapper<T extends Enum<T>> extends InvertibleRowMapp
      * @param fields        The mappers for each field
      * @param table         The table being mapped onto
      */
-    protected EnumRowMapper(final T rowClassToken, final List<ClassFieldMapper<T>> fields, final String table) {
+    public EnumRowMapper(final T rowClassToken, final List<ClassFieldMapper<T>> fields, final String table) {
         super(rowClassToken.getDeclaringClass(), fields, table, thrower(), false, genSelectIds(fields, table), genInsert(fields, table));
         this.rowClassToken = rowClassToken;
         idMapper = findIdMapper(fields);
