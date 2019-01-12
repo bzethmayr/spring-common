@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
@@ -140,14 +141,19 @@ public class ComplexJoiningRepositoryTest {
     public void canFindDirectMapper() {
         val found = underTest.findMapper("name");
         assertThat(found, is(not(nullValue())));
+        assertThat(found.fieldName(), is("name"));
+        assertThat(found.fieldAlias(), is(not("name")));
+        assertThat(found.fieldAlias(), containsString("_0_"));
+        assertThat(found.fieldName(), containsString("name"));
     }
 
     @Test
     public void canFindRelatedMapper() {
         val found = underTest.findMapper("commentary","steve");
         assertThat(found, is(not(nullValue())));
-        LOG.info("found is {}", found);
         assertThat(found.fieldName, is("steve"));
         assertThat(found.fieldAlias, is(not("steve")));
+        assertThat(found.fieldAlias(), containsString("_2_"));
+        assertThat(found.fieldName(), containsString("steve"));
     }
 }
