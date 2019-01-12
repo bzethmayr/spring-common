@@ -14,6 +14,12 @@ import java.util.Optional;
  * @param <X> The index type
  */
 public interface Repository<T, X> {
+    /**
+     * Rebinds this repository to participate in a join - primarily internal usage.
+     * @param relation A relation
+     * @param idMapper The related mapper
+     * @return A re-bound copy of this repository.
+     */
     Repository<T, X> rebindWithRelatedIndex(final SqlOp relation, final Mapper<T, ?, X> idMapper);
 
     /**
