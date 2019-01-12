@@ -69,6 +69,14 @@ public abstract class ClassFieldMapper<C> {
     public abstract String fieldName();
 
     /**
+     * Returns this field's SQL alias,
+     * which may be the same as the field name.
+     *
+     * @return This field's SQL alias
+     */
+    public abstract String fieldAlias();
+
+    /**
      * Returns this field's SQL type and constraints
      *
      * @return This field's SQL type and constraints

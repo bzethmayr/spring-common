@@ -2,6 +2,7 @@ package net.zethmayr.benjamin.spring.common.repository.base;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import net.zethmayr.benjamin.spring.common.mapper.base.ClassFieldMapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.InvertibleRowMapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.JoiningRowMapper;
 import net.zethmayr.benjamin.spring.common.mapper.base.Mapper;
@@ -20,6 +21,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static net.zethmayr.benjamin.spring.common.mapper.base.JoiningRowMapper.prefix;
@@ -298,6 +300,45 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
     @Override
     public InvertibleRowMapper<T> mapper() {
         return mapper;
+    }
+
+    @Override
+    public <C, I, O> Mapper<C, I, O> findMapper(final String fieldName) {
+        return (Mapper<C, I, O>) mapper.fields().stream()
+                .filter(m -> m.fieldName().equals(fieldName))
+                .findFirst().orElse(null);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <C, I, O> Mapper<C, I, O> findMapper(final String tableName, final String fieldName) {
+        if (tableName.equals(primary.mapper().table())) {
+            return findMapper(fieldName);
+        } else {
+            for (val join : joinedRepositories.keySet()) {
+                if (join.relatedField().fieldName.equals(fieldName)) {
+                    final Predicate<ClassFieldMapper> nameMatcher = (m) -> m.fieldName().equals(fieldName);
+                    val searchResult = join.mapper().fields().stream().filter(nameMatcher).findFirst().orElse(null);
+                    if (searchResult != null) {
+                        return (Mapper<C, I, O>) searchResult;
+                    }
+                }
+            }
+            for (val join : joinedRepositories.keySet()) {
+                final Predicate<ClassFieldMapper> nameMatcher = (m) -> m.fieldName().equals(fieldName);
+                val searchResult = join.mapper().fields().stream().filter(nameMatcher).findFirst().orElse(null);
+                if (searchResult != null) {
+                    return (Mapper<C, I, O>) searchResult;
+                }
+            }
+            for (val repository : joinedRepositories.values()) {
+                final Mapper<C, I, O> searchResult = repository.findMapper(tableName, fieldName);
+                if (searchResult != null) {
+                    return searchResult;
+                }
+            }
+        }
+        return null;
     }
 
     @Override

@@ -18,7 +18,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":10,"i2":10,"i3":10,"i4":6,"i5":6,"i6":6,"i7":6,"i8":10,"i9":6,"i10":6};
+var methods = {"i0":9,"i1":10,"i2":10,"i3":10,"i4":10,"i5":6,"i6":6,"i7":6,"i8":6,"i9":10,"i10":6,"i11":6};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -158,6 +158,12 @@ implements <a href="../../../../../../../net/zethmayr/benjamin/spring/common/map
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html#fieldAlias">fieldAlias</a></span></code>
+<div class="block">The SQL alias name, if any</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html#fieldName">fieldName</a></span></code>
 <div class="block">The SQL field name</div>
 </td>
@@ -220,46 +226,53 @@ implements <a href="../../../../../../../net/zethmayr/benjamin/spring/common/map
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html#fieldAlias--">fieldAlias</a></span>()</code>
+<div class="block">Returns this field's SQL alias,
+ which may be the same as the field name.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html#fieldName--">fieldName</a></span>()</code>
 <div class="block">Returns this field's SQL name.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>abstract <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/ColumnType.html" title="interface in net.zethmayr.benjamin.spring.common.mapper.base">ColumnType</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="type parameter in Mapper">O</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html#getColumnType--">getColumnType</a></span>()</code>
 <div class="block">Returns the <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/ColumnType.html" title="interface in net.zethmayr.benjamin.spring.common.mapper.base"><code>object which defines the field's SQL properties</code></a>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>abstract <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="type parameter in Mapper">O</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html#getExternalClass--">getExternalClass</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>abstract <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="type parameter in Mapper">I</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html#getFrom-C-">getFrom</a></span>(<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="type parameter in Mapper">C</a>&nbsp;container)</code>
 <div class="block">Retrieves the field value, in the internal type, from the containing class instance.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>abstract int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html#getInsertOrdinal--">getInsertOrdinal</a></span>()</code>
 <div class="block">Returns this field's position in a whole-row INSERT query</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="type parameter in Mapper">O</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html#serFrom-C-">serFrom</a></span>(<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="type parameter in Mapper">C</a>&nbsp;container)</code>
 <div class="block">Retrieves the serialized field value from the containing object (in the external type).</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>abstract <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="type parameter in Mapper">I</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html#setTo-C-I-">setTo</a></span>(<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="type parameter in Mapper">C</a>&nbsp;container,
      <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="type parameter in Mapper">I</a>&nbsp;value)</code>
 <div class="block">Sets the field value on an instance of the class containing the field.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>abstract <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html#sqlType--">sqlType</a></span>()</code>
 <div class="block">Returns this field's SQL type and constraints</div>
@@ -325,11 +338,21 @@ implements <a href="../../../../../../../net/zethmayr/benjamin/spring/common/map
 <a name="fieldName">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>fieldName</h4>
 <pre>public final&nbsp;<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> fieldName</pre>
 <div class="block">The SQL field name</div>
+</li>
+</ul>
+<a name="fieldAlias">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>fieldAlias</h4>
+<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> fieldAlias</pre>
+<div class="block">The SQL alias name, if any</div>
 </li>
 </ul>
 </li>
@@ -371,6 +394,24 @@ implements <a href="../../../../../../../net/zethmayr/benjamin/spring/common/map
 <dd><code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/ClassFieldMapper.html#fieldName--">fieldName</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/ClassFieldMapper.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">ClassFieldMapper</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="type parameter in Mapper">C</a>&gt;</code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This field's SQL name</dd>
+</dl>
+</li>
+</ul>
+<a name="fieldAlias--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>fieldAlias</h4>
+<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;fieldAlias()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/ClassFieldMapper.html#fieldAlias--">ClassFieldMapper</a></code></span></div>
+<div class="block">Returns this field's SQL alias,
+ which may be the same as the field name.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/ClassFieldMapper.html#fieldAlias--">fieldAlias</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/ClassFieldMapper.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">ClassFieldMapper</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="type parameter in Mapper">C</a>&gt;</code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This field's SQL alias</dd>
 </dl>
 </li>
 </ul>

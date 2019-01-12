@@ -110,6 +110,19 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
     }
 
     @Override
+    public <C, I, O> Mapper<C, I, O> findMapper(final String fieldName) {
+        return (Mapper<C, I, O>)mapper.fields().stream()
+                .filter(m -> m.fieldName().equals(fieldName))
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public <C, I, O> Mapper<C, I, O> findMapper(final String tableName, final String fieldName) {
+        return tableName.equals(mapper.table()) ? findMapper(fieldName) : null;
+    }
+
+    @Override
     public String insert() {
         return insert;
     }

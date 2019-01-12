@@ -533,6 +533,17 @@
 <dd>
 <div class="block">Returns a getter for the specified field</div>
 </dd>
+<dt><span class="memberNameLink"><a href="net/zethmayr/benjamin/spring/common/mapper/base/ClassFieldMapper.html#fieldAlias--">fieldAlias()</a></span> - Method in class net.zethmayr.benjamin.spring.common.mapper.base.<a href="net/zethmayr/benjamin/spring/common/mapper/base/ClassFieldMapper.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">ClassFieldMapper</a></dt>
+<dd>
+<div class="block">Returns this field's SQL alias,
+ which may be the same as the field name.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html#fieldAlias">fieldAlias</a></span> - Variable in class net.zethmayr.benjamin.spring.common.mapper.base.<a href="net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">Mapper</a></dt>
+<dd>
+<div class="block">The SQL alias name, if any</div>
+</dd>
+<dt><span class="memberNameLink"><a href="net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html#fieldAlias--">fieldAlias()</a></span> - Method in class net.zethmayr.benjamin.spring.common.mapper.base.<a href="net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">Mapper</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="net/zethmayr/benjamin/spring/common/mapper/base/FieldMapperTransform.html" title="interface in net.zethmayr.benjamin.spring.common.mapper.base"><span class="typeNameLink">FieldMapperTransform</span></a> - Interface in <a href="net/zethmayr/benjamin/spring/common/mapper/base/package-summary.html">net.zethmayr.benjamin.spring.common.mapper.base</a></dt>
 <dd>
 <div class="block">A transformation to apply to a field mapper.</div>
@@ -562,6 +573,22 @@
 <dt><span class="memberNameLink"><a href="net/zethmayr/benjamin/spring/common/service/base/AbstractDataDumper.html#filter-net.zethmayr.benjamin.spring.common.mapper.base.Mapper-net.zethmayr.benjamin.spring.common.mapper.base.SqlOp-I-">filter(Mapper&lt;C, I, O&gt;, SqlOp, I)</a></span> - Static method in class net.zethmayr.benjamin.spring.common.service.base.<a href="net/zethmayr/benjamin/spring/common/service/base/AbstractDataDumper.html" title="class in net.zethmayr.benjamin.spring.common.service.base">AbstractDataDumper</a></dt>
 <dd>
 <div class="block">Convenience method for constructing filters.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="net/zethmayr/benjamin/spring/common/repository/base/JoiningRepository.html#findMapper-java.lang.String-">findMapper(String)</a></span> - Method in class net.zethmayr.benjamin.spring.common.repository.base.<a href="net/zethmayr/benjamin/spring/common/repository/base/JoiningRepository.html" title="class in net.zethmayr.benjamin.spring.common.repository.base">JoiningRepository</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="net/zethmayr/benjamin/spring/common/repository/base/JoiningRepository.html#findMapper-java.lang.String-java.lang.String-">findMapper(String, String)</a></span> - Method in class net.zethmayr.benjamin.spring.common.repository.base.<a href="net/zethmayr/benjamin/spring/common/repository/base/JoiningRepository.html" title="class in net.zethmayr.benjamin.spring.common.repository.base">JoiningRepository</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#findMapper-java.lang.String-">findMapper(String)</a></span> - Method in class net.zethmayr.benjamin.spring.common.repository.base.<a href="net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="class in net.zethmayr.benjamin.spring.common.repository.base">MapperRepository</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#findMapper-java.lang.String-java.lang.String-">findMapper(String, String)</a></span> - Method in class net.zethmayr.benjamin.spring.common.repository.base.<a href="net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="class in net.zethmayr.benjamin.spring.common.repository.base">MapperRepository</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="net/zethmayr/benjamin/spring/common/repository/base/Repository.html#findMapper-java.lang.String-java.lang.String-">findMapper(String, String)</a></span> - Method in interface net.zethmayr.benjamin.spring.common.repository.base.<a href="net/zethmayr/benjamin/spring/common/repository/base/Repository.html" title="interface in net.zethmayr.benjamin.spring.common.repository.base">Repository</a></dt>
+<dd>
+<div class="block">Find a mapper for the given table and field name</div>
+</dd>
+<dt><span class="memberNameLink"><a href="net/zethmayr/benjamin/spring/common/repository/base/Repository.html#findMapper-java.lang.String-">findMapper(String)</a></span> - Method in interface net.zethmayr.benjamin.spring.common.repository.base.<a href="net/zethmayr/benjamin/spring/common/repository/base/Repository.html" title="interface in net.zethmayr.benjamin.spring.common.repository.base">Repository</a></dt>
+<dd>
+<div class="block">Finds a mapper for the given field name</div>
 </dd>
 <dt><span class="memberNameLink"><a href="net/zethmayr/benjamin/spring/common/util/ListBuilder.html#forEach-java.util.function.Consumer-">forEach(Consumer&lt;? super T&gt;)</a></span> - Method in class net.zethmayr.benjamin.spring.common.util.<a href="net/zethmayr/benjamin/spring/common/util/ListBuilder.html" title="class in net.zethmayr.benjamin.spring.common.util">ListBuilder</a></dt>
 <dd>&nbsp;</dd>
@@ -1337,7 +1364,9 @@
 <dt><span class="memberNameLink"><a href="net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#rebindWithRelatedIndex-net.zethmayr.benjamin.spring.common.mapper.base.SqlOp-net.zethmayr.benjamin.spring.common.mapper.base.Mapper-">rebindWithRelatedIndex(SqlOp, Mapper&lt;T, ?, X&gt;)</a></span> - Method in class net.zethmayr.benjamin.spring.common.repository.base.<a href="net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="class in net.zethmayr.benjamin.spring.common.repository.base">MapperRepository</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="net/zethmayr/benjamin/spring/common/repository/base/Repository.html#rebindWithRelatedIndex-net.zethmayr.benjamin.spring.common.mapper.base.SqlOp-net.zethmayr.benjamin.spring.common.mapper.base.Mapper-">rebindWithRelatedIndex(SqlOp, Mapper&lt;T, ?, X&gt;)</a></span> - Method in interface net.zethmayr.benjamin.spring.common.repository.base.<a href="net/zethmayr/benjamin/spring/common/repository/base/Repository.html" title="interface in net.zethmayr.benjamin.spring.common.repository.base">Repository</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Rebinds this repository to participate in a join - primarily internal usage.</div>
+</dd>
 <dt><a href="net/zethmayr/benjamin/spring/common/repository/base/Repository.html" title="interface in net.zethmayr.benjamin.spring.common.repository.base"><span class="typeNameLink">Repository</span></a>&lt;<a href="net/zethmayr/benjamin/spring/common/repository/base/Repository.html" title="type parameter in Repository">T</a>,<a href="net/zethmayr/benjamin/spring/common/repository/base/Repository.html" title="type parameter in Repository">X</a>&gt; - Interface in <a href="net/zethmayr/benjamin/spring/common/repository/base/package-summary.html">net.zethmayr.benjamin.spring.common.repository.base</a></dt>
 <dd>
 <div class="block">A persistent indexed object store over an SQL database table.</div>

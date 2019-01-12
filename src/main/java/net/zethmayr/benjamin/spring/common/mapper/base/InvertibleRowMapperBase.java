@@ -40,8 +40,6 @@ public abstract class InvertibleRowMapperBase<T> extends ModelTrusted<Invertible
      * @param selectMappable                The generated SELECT query
      * @param insert                        The generated INSERT query
      */
-    @SuppressWarnings("unused")
-    // for the time being, without the unused boolean we would collide with the deprecated constructor
     InvertibleRowMapperBase(
             final Class<T> rowClass,
             final List<ClassFieldMapper<T>> fields,

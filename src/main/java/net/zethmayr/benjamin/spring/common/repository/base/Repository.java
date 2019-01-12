@@ -62,6 +62,27 @@ public interface Repository<T, X> {
     InvertibleRowMapper<T> mapper();
 
     /**
+     * Find a mapper for the given table and field name
+     * @param table The table name - if null, may be defaulted
+     * @param fieldName The field name
+     * @param <C> The mapped type
+     * @param <I> The internal type
+     * @param <O> The external type
+     * @return Any such mapper found, or null if none
+     */
+    <C, I, O> Mapper<C, I, O> findMapper(final String table, final String fieldName);
+
+    /**
+     * Finds a mapper for the given field name
+     * @param fieldName The field name
+     * @param <C> The mapped type
+     * @param <I> The internal type
+     * @param <O> The external type
+     * @return Any such mapper found, or null if none
+     */
+    <C, I, O> Mapper<C, I, O> findMapper(final String fieldName);
+
+    /**
      * Returns the SELECT query used to retrieve objects.
      *
      * @return The SELECT query used to retrieve objects

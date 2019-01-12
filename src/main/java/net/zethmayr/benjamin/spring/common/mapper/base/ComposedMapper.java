@@ -59,7 +59,7 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
      * @param cSetter    The accessor to set the field value into an instance of the class
      */
     ComposedMapper(final String fieldName, final Function<C, I> cGetter, final SerMapper<I, O> serMapper, final ColumnType<O> columnType, final DesMapper<I, O> desMapper, final BiConsumer<C, I> cSetter) {
-        this(fieldName, cGetter, serMapper, columnType, columnType.getterFactory().field(fieldName), desMapper, cSetter);
+        this(fieldName, fieldName, cGetter, serMapper, columnType, columnType.getterFactory().field(fieldName), desMapper, cSetter);
     }
 
     /**
@@ -73,8 +73,8 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
      * @param desMapper  The mapper to deserialize a JDBC value to a field value
      * @param cSetter    The accessor to set the field value into an instance of the class
      */
-    private ComposedMapper(final String fieldName, final Function<C, I> cGetter, final SerMapper<I, O> serMapper, final ColumnType<O> columnType, final RsGetter<O> rsGetter, final DesMapper<I, O> desMapper, final BiConsumer<C, I> cSetter) {
-        super(fieldName);
+    private ComposedMapper(final String fieldName, final String fieldAlias, final Function<C, I> cGetter, final SerMapper<I, O> serMapper, final ColumnType<O> columnType, final RsGetter<O> rsGetter, final DesMapper<I, O> desMapper, final BiConsumer<C, I> cSetter) {
+        super(fieldName, fieldAlias);
         this.cGetter = cGetter;
         this.serMapper = serMapper;
         this.rsGetter = rsGetter;
@@ -89,7 +89,7 @@ public class ComposedMapper<C, I, O> extends Mapper<C, I, O> {
     @Override
     public ClassFieldMapper<C> copyTransforming(FieldMapperTransform fieldTransform) {
         final String nameTransformed = fieldTransform.fieldName(fieldName);
-        return new ComposedMapper<>(fieldName, cGetter, serMapper, columnType, columnType.getterFactory().field(nameTransformed), desMapper, cSetter);
+        return new ComposedMapper<>(fieldName, nameTransformed, cGetter, serMapper, columnType, columnType.getterFactory().field(nameTransformed), desMapper, cSetter);
     }
 
     @Override

@@ -31,6 +31,7 @@ import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -246,5 +247,29 @@ public class MapperRepositoryTest {
         thrown.expect(sameInstance(marker));
         doThrow(marker).when(db).query(anyString(), any(RowMapper.class), any());
         underTest.getUnsafe(underTest.getById, 0);
+    }
+
+    @Test
+    public void canFindAMapper() {
+        val found = underTest.findMapper("steve");
+        assertThat(found, is(not(nullValue())));
+    }
+
+    @Test
+    public void cannotFindANonexistentMapper() {
+        val found = underTest.findMapper("joe");
+        assertThat(found, is(nullValue()));
+    }
+
+    @Test
+    public void canFindAMapperForOurTable() {
+        val found = underTest.findMapper("commentary", "steve");
+        assertThat(found, is(not(nullValue())));
+    }
+
+    @Test
+    public void cannotFindAMapperForNotOurTable() {
+        val found = underTest.findMapper("comments", "steve");
+        assertThat(found, is(nullValue()));
     }
 }

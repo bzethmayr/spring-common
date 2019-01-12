@@ -18,7 +18,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -263,60 +263,75 @@ implements <a href="../../../../../../../net/zethmayr/benjamin/spring/common/rep
             <a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">X</a>&nbsp;toDelete)</code>&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>&lt;C,I,O&gt;&nbsp;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">Mapper</a>&lt;C,I,O&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#findMapper-java.lang.String-">findMapper</a></span>(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;fieldName)</code>
+<div class="block">Finds a mapper for the given field name</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>&lt;C,I,O&gt;&nbsp;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">Mapper</a>&lt;C,I,O&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#findMapper-java.lang.String-java.lang.String-">findMapper</a></span>(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;tableName,
+          <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;fieldName)</code>
+<div class="block">Find a mapper for the given table and field name</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html?is-external=true" title="class or interface in java.util">Optional</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#get-X-">get</a></span>(<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">X</a>&nbsp;id)</code>
 <div class="block">Retrieves a persisted object.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/8/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#getAll--">getAll</a></span>()</code>
 <div class="block">Retrieves all persisted objects, in index order.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/8/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#getFor-X-">getFor</a></span>(<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">X</a>&nbsp;id)</code>
 <div class="block">Retrieves all persisted objects having the given index value.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html?is-external=true" title="class or interface in java.util">Optional</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#getMonadic-T-">getMonadic</a></span>(<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>&nbsp;withId)</code>
 <div class="block">Retrieves a persisted object.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/8/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#getUnsafe-java.lang.String-java.lang.Object...-">getUnsafe</a></span>(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;sql,
          <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>...&nbsp;values)</code>
 <div class="block">Executes arbitrary SQL to retrieve objects.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#insert--">insert</a></span>()</code>
 <div class="block">Returns the INSERT query used to insert objects.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">X</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#insert-T-">insert</a></span>(<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>&nbsp;toInsert)</code>
 <div class="block">Persists an object to the repository, returning the index.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/InvertibleRowMapper.html" title="interface in net.zethmayr.benjamin.spring.common.mapper.base">InvertibleRowMapper</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#mapper--">mapper</a></span>()</code>
 <div class="block">Returns the mapper used to persist objects.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="class in net.zethmayr.benjamin.spring.common.repository.base">MapperRepository</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>,<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">X</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#rebindWithRelatedIndex-net.zethmayr.benjamin.spring.common.mapper.base.SqlOp-net.zethmayr.benjamin.spring.common.mapper.base.Mapper-">rebindWithRelatedIndex</a></span>(<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/SqlOp.html" title="enum in net.zethmayr.benjamin.spring.common.mapper.base">SqlOp</a>&nbsp;relation,
-                      <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">Mapper</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>,?,<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">X</a>&gt;&nbsp;idMapper)</code>&nbsp;</td>
+                      <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">Mapper</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>,?,<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">X</a>&gt;&nbsp;idMapper)</code>
+<div class="block">Rebinds this repository to participate in a join - primarily internal usage.</div>
+</td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html#select--">select</a></span>()</code>
 <div class="block">Returns the SELECT query used to retrieve objects.</div>
@@ -458,9 +473,16 @@ implements <a href="../../../../../../../net/zethmayr/benjamin/spring/common/rep
 <h4>rebindWithRelatedIndex</h4>
 <pre>public&nbsp;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="class in net.zethmayr.benjamin.spring.common.repository.base">MapperRepository</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>,<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">X</a>&gt;&nbsp;rebindWithRelatedIndex(<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/SqlOp.html" title="enum in net.zethmayr.benjamin.spring.common.mapper.base">SqlOp</a>&nbsp;relation,
                                                     <a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">Mapper</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>,?,<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">X</a>&gt;&nbsp;idMapper)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/Repository.html#rebindWithRelatedIndex-net.zethmayr.benjamin.spring.common.mapper.base.SqlOp-net.zethmayr.benjamin.spring.common.mapper.base.Mapper-">Repository</a></code></span></div>
+<div class="block">Rebinds this repository to participate in a join - primarily internal usage.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/Repository.html#rebindWithRelatedIndex-net.zethmayr.benjamin.spring.common.mapper.base.SqlOp-net.zethmayr.benjamin.spring.common.mapper.base.Mapper-">rebindWithRelatedIndex</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/Repository.html" title="interface in net.zethmayr.benjamin.spring.common.repository.base">Repository</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>,<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">X</a>&gt;</code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>relation</code> - A relation</dd>
+<dd><code>idMapper</code> - The related mapper</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A re-bound copy of this repository.</dd>
 </dl>
 </li>
 </ul>
@@ -478,6 +500,54 @@ implements <a href="../../../../../../../net/zethmayr/benjamin/spring/common/rep
 <dd><code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/Repository.html#mapper--">mapper</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/Repository.html" title="interface in net.zethmayr.benjamin.spring.common.repository.base">Repository</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>,<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">X</a>&gt;</code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The mapper used to persist objects</dd>
+</dl>
+</li>
+</ul>
+<a name="findMapper-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>findMapper</h4>
+<pre>public&nbsp;&lt;C,I,O&gt;&nbsp;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">Mapper</a>&lt;C,I,O&gt;&nbsp;findMapper(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;fieldName)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/Repository.html#findMapper-java.lang.String-">Repository</a></code></span></div>
+<div class="block">Finds a mapper for the given field name</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/Repository.html#findMapper-java.lang.String-">findMapper</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/Repository.html" title="interface in net.zethmayr.benjamin.spring.common.repository.base">Repository</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>,<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">X</a>&gt;</code></dd>
+<dt><span class="paramLabel">Type Parameters:</span></dt>
+<dd><code>C</code> - The mapped type</dd>
+<dd><code>I</code> - The internal type</dd>
+<dd><code>O</code> - The external type</dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>fieldName</code> - The field name</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Any such mapper found, or null if none</dd>
+</dl>
+</li>
+</ul>
+<a name="findMapper-java.lang.String-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>findMapper</h4>
+<pre>public&nbsp;&lt;C,I,O&gt;&nbsp;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/mapper/base/Mapper.html" title="class in net.zethmayr.benjamin.spring.common.mapper.base">Mapper</a>&lt;C,I,O&gt;&nbsp;findMapper(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;tableName,
+                                        <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;fieldName)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/Repository.html#findMapper-java.lang.String-java.lang.String-">Repository</a></code></span></div>
+<div class="block">Find a mapper for the given table and field name</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/Repository.html#findMapper-java.lang.String-java.lang.String-">findMapper</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/Repository.html" title="interface in net.zethmayr.benjamin.spring.common.repository.base">Repository</a>&lt;<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">T</a>,<a href="../../../../../../../net/zethmayr/benjamin/spring/common/repository/base/MapperRepository.html" title="type parameter in MapperRepository">X</a>&gt;</code></dd>
+<dt><span class="paramLabel">Type Parameters:</span></dt>
+<dd><code>C</code> - The mapped type</dd>
+<dd><code>I</code> - The internal type</dd>
+<dd><code>O</code> - The external type</dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>tableName</code> - The table name - if null, may be defaulted</dd>
+<dd><code>fieldName</code> - The field name</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Any such mapper found, or null if none</dd>
 </dl>
 </li>
 </ul>

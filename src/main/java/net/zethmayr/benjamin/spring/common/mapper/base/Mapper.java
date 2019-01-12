@@ -23,12 +23,23 @@ public abstract class Mapper<C, I, O> extends ClassFieldMapper<C> implements Ser
     public final String fieldName;
 
     /**
+     * The SQL alias name, if any
+     */
+    public final String fieldAlias;
+
+    /**
      * Construct a mapper for the given SQL field name.
      *
      * @param fieldName The field name
      */
     Mapper(final String fieldName) {
         this.fieldName = fieldName;
+        this.fieldAlias = fieldName;
+    }
+
+    Mapper(final String fieldName, final String fieldAlias) {
+        this.fieldName = fieldName;
+        this.fieldAlias = fieldAlias;
     }
 
     /**
@@ -43,6 +54,11 @@ public abstract class Mapper<C, I, O> extends ClassFieldMapper<C> implements Ser
     @Override
     public final String fieldName() {
         return fieldName;
+    }
+
+    @Override
+    public final String fieldAlias() {
+        return fieldAlias;
     }
 
     @Override

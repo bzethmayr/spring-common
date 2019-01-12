@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -133,5 +134,20 @@ public class ComplexJoiningRepositoryTest {
         LOG.info("reread is {}", reread);
         val last = reread.get(3);
         assertThat(last.getLeft(), hasSize(2));
+    }
+
+    @Test
+    public void canFindDirectMapper() {
+        val found = underTest.findMapper("name");
+        assertThat(found, is(not(nullValue())));
+    }
+
+    @Test
+    public void canFindRelatedMapper() {
+        val found = underTest.findMapper("commentary","steve");
+        assertThat(found, is(not(nullValue())));
+        LOG.info("found is {}", found);
+        assertThat(found.fieldName, is("steve"));
+        assertThat(found.fieldAlias, is(not("steve")));
     }
 }
