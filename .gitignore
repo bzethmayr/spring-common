@@ -6,3 +6,4 @@ dump
 /target/
 /out/
 /doc/
+*.stackdump
