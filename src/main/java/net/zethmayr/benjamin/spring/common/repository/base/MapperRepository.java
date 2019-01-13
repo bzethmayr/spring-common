@@ -131,7 +131,6 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
     @SuppressWarnings("unchecked") // from m.apply - which may STILL cce if the mapper setup is wrong
     public X insert(final T toInsert) throws ClassCastException {
         try {
-            // we expect the id mapper to contribute no value and not be present in sql
             // we ALWAYS use the first mapper as the idMapper here.
             val idMapper = (Mapper<T, ?, X>)mapper.fields().get(0);
             final Object[] values = mapper.getInsertValues(toInsert);
@@ -139,6 +138,7 @@ public abstract class MapperRepository<T, X> implements Repository<T, X> {
             final int insertedCount;
             final X generatedIndex;
             if (isIndex(idMapper)) {
+                // we expect the id mapper to contribute no value and not be present in sql
                 final PreparedStatementCreator psc = (con) -> {
                     final PreparedStatement ps = con.prepareStatement(
                             insert, new int[]{1} // we assume the idMapper to be the first mapper.

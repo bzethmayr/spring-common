@@ -387,7 +387,7 @@ public abstract class JoiningRepository<T, X> implements Repository<T, X> {
     @Override
     public List<T> getUnsafe(final String sql, Object... values) {
         try {
-            return jdbcTemplate.query(sql, mapper.listExtractor());
+            return jdbcTemplate.query(sql, mapper.listExtractor(), values);
         } catch (RepositoryException rethrow) {
             throw rethrow;
         } catch (Exception e) {
