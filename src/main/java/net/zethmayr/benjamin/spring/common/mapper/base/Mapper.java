@@ -42,6 +42,10 @@ public abstract class Mapper<C, I, O> extends ClassFieldMapper<C> implements Ser
         this.fieldAlias = fieldAlias;
     }
 
+    public final String whereClause() {
+        return " WHERE " + fieldAlias().replace("__","__.") + " = ?";
+    }
+
     /**
      * @inheritDoc
      */
